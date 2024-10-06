@@ -11,8 +11,8 @@ CORS(app)
 #MySQL Connection
 mydb = mysql.connector.connect(
     host="localhost",
-    user="kylemcclelland",
-    password="password1",
+    user="root",
+    password="root",
     database="requestifyAccount"
 )
 
