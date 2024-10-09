@@ -1,38 +1,160 @@
-.App {
-  text-align: center;
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+body {
+  background-color: #1a1a1a;
+  color: white;
+  font-family: 'Montserrat', sans-serif;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  padding: 20px;
 }
 
-.App-link {
-  color: #61dafb;
+.header {
+  width: 100%;
+  text-align: left;
+  margin-bottom: 20px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.header h1 {
+  font-size: 36px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  margin-left: 10px;
+  width: 30px;
+  height: 30px;
+  background-color: green;
+  border-radius: 50%;
+}
+
+.main-content {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.queue, .notifications {
+  background-color: #333;
+  padding: 20px;
+  border-radius: 10px;
+  width: 45%;
+}
+
+.queue h2, .notifications h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.song-list {
+  margin-bottom: 20px;
+}
+
+.song-item {
+  display: flex;
+  align-items: center;
+  background-color: #222;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #00FF00;
+}
+
+.song-item img {
+  width: 50px;
+  height: 50px;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.song-info {
+  flex: 1;
+}
+
+.song-info p {
+  margin-bottom: 2px;
+}
+
+.song-info .artist {
+  font-size: 12px;
+  color: gray;
+}
+
+.song-upvotes {
+  color: #00FF00;
+}
+
+.remove-btn {
+  color: red;
+  cursor: pointer;
+}
+
+.clear-queue {
+  width: 100%;
+  padding: 10px;
+  background-color: #00FF00;
+  color: black;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.notification-item {
+  padding: 10px;
+  background-color: #222;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  border: 1px solid #00FF00;
+  display: flex;
+  justify-content: space-between;
+}
+
+.notification-item .time {
+  color: gray;
+}
+
+.profile {
+  background-color: #333;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  width: 20%;
+}
+
+.profile-img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+
+.qrcode {
+  width: 100px;
+  height: 100px;
+  margin: 10px 0;
+}
+
+.send-message {
+  width: 100%;
+  padding: 10px;
+  background-color: transparent;
+  color: #00FF00;
+  border: 2px solid #00FF00;
+  border-radius: 5px;
+  cursor: pointer;
 }
