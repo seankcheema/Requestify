@@ -18,13 +18,13 @@ mydb = mysql.connector.connect(
 
 mycursor = mydb.cursor()
 
-mycursor.execute(f"USE {mydb['database']}")
+mycursor.execute("USE requestifyAccount")
 
 #Create users table
 mycursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(100) UNIQUE PRIMARY KEY,
-    password VARCHAR(100),
+    password VARCHAR(100)
     )
 """)
 print("Table created successfully or already exists")
@@ -37,11 +37,11 @@ def register():
 
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-    query = "INSERT INTO users (username, password) VAULES (%s, %s)"
+    query = "INSERT INTO users (username, password) VALUES (%s, %s)"
     mycursor.execute(query, (username, hashed_password))
     mydb.commit()
 
-    return jsonify({"message": "User registered successfully"}), 201
+    return jsonify({"message": "User registered successfully from main"}), 201
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -60,4 +60,4 @@ def login():
     
 #set true for testing purposes
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5001)

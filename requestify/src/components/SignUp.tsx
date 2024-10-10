@@ -9,7 +9,7 @@ const SignUp: React.FC = () => {
     const handleSignUp = async (event: React.FormEvent) => {
         event.preventDefault();
         try {
-            const response = await axios.post('http://localhost:5000/register', {
+            const response = await axios.post('http://localhost:5001/register', {
                 username,
                 password
             });

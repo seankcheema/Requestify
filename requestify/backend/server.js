@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const axios = require('axios'); // Import axios to make HTTP requests
 const app = express();
 const port = 5000; // Define the port where your server will run
 
@@ -8,25 +9,43 @@ app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(express.json()); // Parse incoming JSON requests
 
 // Routes
-app.post('/register', (req, res) => {
+app.post('/register', async (req, res) => {
   const { username, password } = req.body;
 
-  // Add logic to handle user registration (e.g., saving to a database)
-  console.log(`User registered: ${username}`);
+  try {
+    // Make a request to the Flask backend to register the user
+    const response = await axios.post('http://localhost:5001/register', {
+      username,
+      password,
+    });
 
-  res.json({ message: 'User registered successfully' });
+    // Send Flask's response back to the frontend
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    // Handle any errors from the Flask API call
+    res.status(500).json({ message: 'Error registering user', error: error.message });
+  }
 });
 
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
-  // Add logic to handle user login (e.g., verifying credentials)
-  console.log(`User attempted login: ${username}`);
+  try {
+    // Make a request to the Flask backend to log in the user
+    const response = await axios.post('http://localhost:5001/login', {
+      username,
+      password,
+    });
 
-  res.json({ message: 'Login successful' });
+    // Send Flask's response back to the frontend
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    // Handle any errors from the Flask API call
+    res.status(500).json({ message: 'Error logging in', error: error.message });
+  }
 });
 
-// Start the server
+// Start the Express server
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
