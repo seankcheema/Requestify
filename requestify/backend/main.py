@@ -37,6 +37,17 @@ def register():
     username = data['username']
     password = data['password']
 
+#Testing if user already exists stuff
+#---------------------------------------------------------------
+    # Check if the user already exists in the database
+    query_check = "SELECT * FROM users WHERE username = %s"
+    mycursor.execute(query_check, (username,))
+    existing_user = mycursor.fetchone()
+    if existing_user:
+        # If the user already exists, return a 409 Conflict status
+        return jsonify({"message": "User already exists"}), 409
+#---------------------------------------------------------------
+
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
     query = "INSERT INTO users (username, password) VALUES (%s, %s)"
