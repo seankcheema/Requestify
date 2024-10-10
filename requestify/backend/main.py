@@ -53,10 +53,16 @@ def login():
     mycursor.execute(query, (username,))
     result = mycursor.fetchone()
 
-    if result and bcrypt.checkpw(password.encode('utf-8'), result[0]):
-        return jsonify({"message": "Login successful"}), 200
+    if result:
+        stored_hash_password = result[0].encode('utf-8') if isinstance(result[0], str) else result[0]
+
+        if bcrypt.checkpw(password.encode('utf-8'), stored_hash_password):
+            return jsonify({"message": "Login successful"}), 200
+        else:
+            return jsonify({"message": "Invalid username or password"}), 401
     else:
         return jsonify({"message": "Invalid username or password"}), 401
+        
     
 #set true for testing purposes
 if __name__ == '__main__':
