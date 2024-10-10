@@ -18,6 +18,17 @@ mydb = mysql.connector.connect(
 
 mycursor = mydb.cursor()
 
+mycursor.execute(f"USE {mydb['database']}")
+
+#Create users table
+mycursor.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+    username VARCHAR(100) UNIQUE PRIMARY KEY,
+    password VARCHAR(100),
+    )
+""")
+print("Table created successfully or already exists")
+
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
