@@ -36,3 +36,13 @@
     transform: rotate(360deg);
   }
 }
+
+.App button {
+  margin: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}

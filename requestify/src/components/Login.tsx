@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import './Login.css';
 
 const Login: React.FC = () => {
     const [username, setUsername] = useState<string>('');
@@ -24,32 +25,37 @@ const Login: React.FC = () => {
     };
 
     return (
-        <div className="login">
-            <h2>Login</h2>
-            <form onSubmit={handleLogin}>
-                <div className="form-group">
-                    <label htmlFor="username">Username:</label>
-                    <input
-                        type="text"
-                        id="username"
-                        value={username}
-                        onChange={e => setUsername(e.target.value)}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="password">Password:</label>
-                    <input
-                        type="password"
-                        id="password"
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        required
-                    />
-                </div>
-                <button type="submit">Login</button>
-            </form>
-            {message && <p>{message}</p>}
+        <div className="login-container">
+            <div className="login-form">
+                <h2>Log in</h2>
+                <form onSubmit={handleLogin}>
+                    <div className="form-group">
+                        <label htmlFor="username">Email</label>
+                        <input
+                            type="text"
+                            id="username"
+                            value={username}
+                            onChange={e => setUsername(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="password">Password</label>
+                        <input
+                            type="password"
+                            id="password"
+                            value={password}
+                            onChange={e => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <button type="submit" className="login-button">Log in</button>
+                </form>
+                <p className="create-account">
+                    <a href="#">Create an account</a>
+                </p>
+                {message && <p className="message">{message}</p>}
+            </div>
         </div>
     );
 };
