@@ -39,6 +39,7 @@ body {
 .queue, .notifications {
   background-color: #1E1E1E;
   padding: 20px;
+  min-width: 550px;
   border-radius: 5px;
   flex-basis: 50%;
   position: relative;
@@ -220,4 +221,202 @@ body {
   margin-bottom: 10px;
 }
 
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  cursor: default;
+}
 
+/* Popup content box - increase size */
+.message-popup-content {
+  background-color: #1E1E1E; /* Dark background to match your app theme */
+  padding: 20px;
+  padding-top: 0; /* Remove padding from the top */
+  border-radius: 10px;
+  width: 600px;  /* Increased width */
+  max-width: 90%; /* Allow resizing */
+  flex-direction: column;
+  max-height: 90%; /* Allow vertical resizing */
+  text-align: right;
+  color: white;
+  position: relative;
+}
+
+/* Message container that scrolls */
+.message-container {
+  background-color: #0b0b0b;
+  padding: 10px;
+  margin-top: 50px;
+  border-radius: 10px;
+  height: 500px;
+  overflow-y: auto;
+}
+
+/* Style the scrollbar track (background) */
+.message-container::-webkit-scrollbar {
+  width: 10px; /* Width of the vertical scrollbar */
+}
+
+/* Style the scrollbar itself */
+.message-container::-webkit-scrollbar-thumb {
+  background-color: #00bf33; 
+  border-radius: 5px; 
+}
+
+/* Message bubble styling */
+.message-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.message-bubble {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 20px;
+  max-width: 75%;
+  align-self: flex-start;
+  word-wrap: break-word;
+}
+
+/* Align last message to the right (sent message) */
+.message-bubble.sent {
+  background-color: #0062cc;
+  align-self: flex-end;
+}
+
+/* Input and button form for sending messages */
+.message-form {
+  display: flex;
+  margin-top: 10px;
+  align-items: right;
+}
+
+.message-input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 25px;
+  border: 1px solid #ccc;
+  margin-right: 10px;
+  font-size: 16px;
+}
+
+.send-btn {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.send-btn:hover {
+  background-color: #218838;
+}
+
+/* Close button styling */
+.close-btn {
+  background-color: transparent;
+  border: none;
+  font-size: 48px;
+  color: white;
+  cursor: pointer;
+  position: absolute;
+  top: 2px;
+  right: 20px;
+}
+
+/* Popup content box - increase size */
+.qr-popup-content {
+  background-color: #1E1E1E; /* Dark background to match your app theme */
+  padding: 20px;
+  padding-top: 0; /* Remove padding from the top */
+  border-radius: 10px;
+  width: 600px;  /* Increased width */
+  max-width: 90%; /* Allow resizing */
+  max-height: 90%; /* Allow vertical resizing */
+  color: white;
+  text-align: center;
+  position: relative;
+  cursor: default;
+}
+
+.download-btn {
+  background-color: #28a745;
+  color: white;
+  padding: 10px;
+  border: none;
+  margin-top: 10px;
+  border-radius: 25px;
+  align-self: center;
+  cursor: pointer;
+}
+
+.large-qrcode-img{
+  margin: 10px;
+  margin-top: 30px;
+  width: 80%;
+  align-self: center;
+}
+
+.download-btn:hover {
+  background-color: #218838;
+}
+
+.popup-content {
+  background-color: #1E1E1E;
+  padding: 20px;
+  border-radius: 10px;
+  width: 450px;
+  max-width: 90%;
+  max-height: 90%;
+  text-align: center;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-popup-content {
+  background-color: #0B0B0B;
+  padding: 15px;
+  height: 500px;
+  border-radius: 10px;
+  margin: 7px;
+  margin-top: 80px;
+  text-align: left;
+  color: white;
+}
+
+.popup-profile-img{
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  margin-top: -75px;
+  margin-bottom: 10px;
+}
+
+.profile-popup-content h2 {
+  font-size: 24px;
+  margin: 10px 0;
+}
+
+.profile-popup-content p {
+  font-size: 16px;
+  margin: 5px 0;
+  margin-top: 15px;
+}
