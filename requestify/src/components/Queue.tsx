@@ -4,17 +4,99 @@ const Queue: React.FC = () => {
   return (
     <section className="queue">
       <h2>Current Queue</h2>
+      <div className='song-container'>
       <div className="song-list">
         <div className="song-item">
-          <img src="/assets/song1.jpg" alt="Album cover" />
+          <img src="/assets/song1.png" alt="Album cover" />
           <div className="song-info">
             <p>Count me out</p>
             <p className="artist">Kendrick Lamar</p>
           </div>
           <div className="song-upvotes">(16 upvotes)</div>
-          <div className="remove-btn">X</div>
+          <img src="/assets/Remove icon.svg" alt="Remove button" className="remove-btn" />
         </div>
-        {/* Add more song items similarly */}
+        <div className="song-item">
+          <img src="/assets/song1.png" alt="Album cover" />
+          <div className="song-info">
+            <p>Count me out</p>
+            <p className="artist">Kendrick Lamar</p>
+          </div>
+          <div className="song-upvotes">(16 upvotes)</div>
+          <img src="/assets/Remove icon.svg" alt="Remove button" className="remove-btn" />
+        </div>
+        <div className="song-item">
+          <img src="/assets/song1.png" alt="Album cover" />
+          <div className="song-info">
+            <p>Count me out</p>
+            <p className="artist">Kendrick Lamar</p>
+          </div>
+          <div className="song-upvotes">(16 upvotes)</div>
+          <img src="/assets/Remove icon.svg" alt="Remove button" className="remove-btn" />
+        </div>
+        <div className="song-item">
+          <img src="/assets/song1.png" alt="Album cover" />
+          <div className="song-info">
+            <p>Count me out</p>
+            <p className="artist">Kendrick Lamar</p>
+          </div>
+          <div className="song-upvotes">(16 upvotes)</div>
+          <img src="/assets/Remove icon.svg" alt="Remove button" className="remove-btn" />
+        </div>
+        <div className="song-item">
+          <img src="/assets/song1.png" alt="Album cover" />
+          <div className="song-info">
+            <p>Count me out</p>
+            <p className="artist">Kendrick Lamar</p>
+          </div>
+          <div className="song-upvotes">(16 upvotes)</div>
+          <img src="/assets/Remove icon.svg" alt="Remove button" className="remove-btn" />
+        </div>
+        <div className="song-item">
+          <img src="/assets/song1.png" alt="Album cover" />
+          <div className="song-info">
+            <p>Count me out</p>
+            <p className="artist">Kendrick Lamar</p>
+          </div>
+          <div className="song-upvotes">(16 upvotes)</div>
+          <img src="/assets/Remove icon.svg" alt="Remove button" className="remove-btn" />
+        </div>
+        <div className="song-item">
+          <img src="/assets/song1.png" alt="Album cover" />
+          <div className="song-info">
+            <p>Count me out</p>
+            <p className="artist">Kendrick Lamar</p>
+          </div>
+          <div className="song-upvotes">(16 upvotes)</div>
+          <img src="/assets/Remove icon.svg" alt="Remove button" className="remove-btn" />
+        </div>
+        <div className="song-item">
+          <img src="/assets/song1.png" alt="Album cover" />
+          <div className="song-info">
+            <p>Count me out</p>
+            <p className="artist">Kendrick Lamar</p>
+          </div>
+          <div className="song-upvotes">(16 upvotes)</div>
+          <img src="/assets/Remove icon.svg" alt="Remove button" className="remove-btn" />
+        </div>
+        <div className="song-item">
+          <img src="/assets/song1.png" alt="Album cover" />
+          <div className="song-info">
+            <p>Count me out</p>
+            <p className="artist">Kendrick Lamar</p>
+          </div>
+          <div className="song-upvotes">(16 upvotes)</div>
+          <img src="/assets/Remove icon.svg" alt="Remove button" className="remove-btn" />
+        </div>
+        <div className="song-item">
+          <img src="/assets/song1.png" alt="Album cover" />
+          <div className="song-info">
+            <p>Count me out</p>
+            <p className="artist">Kendrick Lamar</p>
+          </div>
+          <div className="song-upvotes">(16 upvotes)</div>
+          <img src="/assets/Remove icon.svg" alt="Remove button" className="remove-btn" />
+        </div>
+      </div>
       </div>
       <button className="clear-queue">Clear Queue</button>
     </section>

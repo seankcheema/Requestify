@@ -4,13 +4,12 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: Arial, sans-serif;
+  font-family: 'Montserrat', sans-serif;
 }
 
 body {
-  background-color: #1a1a1a;
+  background-color: #0B0B0B;
   color: white;
-  font-family: 'Montserrat', sans-serif;
 }
 
 .container {
@@ -23,66 +22,83 @@ body {
 .header {
   width: 100%;
   text-align: left;
-  margin-bottom: 20px;
 }
 
-.header h1 {
-  font-size: 36px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-}
-
-.logo {
-  margin-left: 10px;
-  width: 30px;
-  height: 30px;
-  background-color: green;
-  border-radius: 50%;
+.header-logo {
+  width: 325px;
+  height: auto;
 }
 
 .main-content {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  max-width: 1200px;
+  margin-right: 10px;
 }
 
 .queue, .notifications {
-  background-color: #333;
+  background-color: #1E1E1E;
   padding: 20px;
-  border-radius: 10px;
-  width: 45%;
+  border-radius: 5px;
+  flex-basis: 50%;
+  position: relative;
+  margin: 7px;
 }
 
 .queue h2, .notifications h2 {
-  font-size: 24px;
-  margin-bottom: 10px;
+  font-size: 28px;
+  font-weight: normal;
+  margin-bottom: 20px;
+  gap: 15px;
+}
+
+.song-container {
+  background-color: #121212;
+  padding: 1px;
+  margin: 10px;
+  height: 600px;
+  border-radius: 5px;
+  overflow-y: auto;
+}
+
+/* Style the scrollbar track (background) */
+.song-container::-webkit-scrollbar {
+  width: 10px; /* Width of the vertical scrollbar */
+}
+
+/* Style the scrollbar itself */
+.song-container::-webkit-scrollbar-thumb {
+  background-color: #00bf33; /* Scrollbar color */
+  border-radius: 5px; /* Rounded corners */
 }
 
 .song-list {
-  margin-bottom: 20px;
+  margin: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .song-item {
   display: flex;
+  height: 80px;
   align-items: center;
   background-color: #222;
   margin-bottom: 10px;
   padding: 10px;
   border-radius: 10px;
-  border: 1px solid #00FF00;
+  border: 1px solid #00bf33;
 }
 
 .song-item img {
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
   border-radius: 5px;
   margin-right: 10px;
 }
 
 .song-info {
   flex: 1;
+  font-size: 18px;
 }
 
 .song-info p {
@@ -90,28 +106,62 @@ body {
 }
 
 .song-info .artist {
-  font-size: 12px;
+  font-size: 14px;
   color: gray;
 }
 
 .song-upvotes {
-  color: #00FF00;
+  color: #ffffff;
+  font-size: 14px;
+  margin-right: 20px;
 }
 
 .remove-btn {
-  color: red;
+  padding: 15px;
+  width: 15px;
+  height: 15px;
   cursor: pointer;
 }
 
 .clear-queue {
-  width: 100%;
-  padding: 10px;
-  background-color: #00FF00;
-  color: black;
+  width: 200px;
+  padding: 15px;
+  background-color: #00BF33;
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  color: white;
   border: none;
   border-radius: 5px;
   font-weight: bold;
+  font-size: 20px;
   cursor: pointer;
+}
+
+.notification-container {
+  background-color: #121212;
+  padding: 1px;
+  margin: 10px;
+  height: 650px;
+  border-radius: 5px;
+  overflow-y: auto;
+}
+
+/* Style the scrollbar track (background) */
+.notification-container::-webkit-scrollbar {
+  width: 10px; /* Width of the vertical scrollbar */
+}
+
+/* Style the scrollbar itself */
+.notification-container::-webkit-scrollbar-thumb {
+  background-color: #00bf33; /* Scrollbar color */
+  border-radius: 5px; /* Rounded corners */
+}
+
+.notification-list {
+  margin: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .notification-item {
@@ -128,33 +178,46 @@ body {
   color: gray;
 }
 
-.profile {
-  background-color: #333;
-  padding: 20px;
-  border-radius: 10px;
-  text-align: center;
-  width: 20%;
+.mini-tiles {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  max-height: 100;
+}
+
+.profile, .qrcode, .send-message {
+  background-color: #1E1E1E;
+  display: flex;
+  flex-direction: column;
+  padding: 40px;
+  border-radius: 5px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-grow: 1; /* Ensure they take the available space */
+  width: 100%; /* Take up full width of the parent */
+  aspect-ratio: 1; /* Make sure they are square */
+  margin: 7px;
+  position: relative;
 }
 
 .profile-img {
-  width: 100px;
-  height: 100px;
+  width: 150px;
+  height: 150px;
   border-radius: 50%;
   margin-bottom: 10px;
 }
 
-.qrcode {
-  width: 100px;
-  height: 100px;
-  margin: 10px 0;
+.qrcode-img {
+  width: 150px;
+  height: 150px;
+  margin-bottom: 10px;
 }
 
-.send-message {
-  width: 100%;
-  padding: 10px;
-  background-color: transparent;
-  color: #00FF00;
-  border: 2px solid #00FF00;
-  border-radius: 5px;
-  cursor: pointer;
+.message-icon {
+  width: 150px;
+  height: 150px;
+  margin-bottom: 10px;
 }
+
+

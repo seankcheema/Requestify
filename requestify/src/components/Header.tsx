@@ -3,7 +3,7 @@ import React from 'react';
 const Header: React.FC = () => {
   return (
     <header className="header">
-      <h1>Requestify <span className="logo"></span></h1>
+      <img src="/assets/requestify-logo.svg" alt="Requestify Logo" className="header-logo" />
     </header>
   );
 }
