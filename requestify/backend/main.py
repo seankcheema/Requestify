@@ -5,7 +5,7 @@ import mysql.connector
 import bcrypt
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
 #does this need to be the user we make for mariadb? If so we can use this user i have rn but we should change it later
 #MySQL Connection
@@ -34,6 +34,17 @@ def register():
     data = request.get_json()
     username = data['username']
     password = data['password']
+
+    #Testing if user already exists stuff
+    #---------------------------------------------------------------
+    # Check if the user already exists in the database
+    query_check = "SELECT * FROM users WHERE username = %s"
+    mycursor.execute(query_check, (username,))
+    existing_user = mycursor.fetchone()
+    if existing_user:
+        # If the user already exists, return a 409 Conflict status
+        return jsonify({"message": "User already exists"}), 409
+    #---------------------------------------------------------------
 
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
