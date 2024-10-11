@@ -3,7 +3,7 @@ import axios from 'axios';
 import './Login.css';
 
 interface LoginProps {
-    setIsSignUp: (isSignUp: boolean) => void; // Add prop for toggling sign-up page
+    setIsSignUp: (isSignUp: boolean) => void;
 }
 
 const Login: React.FC<LoginProps> = ({ setIsSignUp }) => {
@@ -56,9 +56,8 @@ const Login: React.FC<LoginProps> = ({ setIsSignUp }) => {
                     <button type="submit" className="login-button">Log in</button>
                 </form>
                 <p className="create-account">
-                    {/* Add onClick to switch to sign-up form */}
-                    
-                    <a href="Register" onClick={() => setIsSignUp(true)}>
+                    {/* Use onClick handler correctly to toggle sign-up form */}
+                    <a href="#" onClick={() => setIsSignUp(true)}>
                         Create an account
                     </a>
                 </p>
