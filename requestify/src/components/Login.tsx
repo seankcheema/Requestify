@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './Login.css';
 
-const Login: React.FC = () => {
+interface LoginProps {
+    setIsSignUp: (isSignUp: boolean) => void; // Add prop for toggling sign-up page
+}
+
+const Login: React.FC<LoginProps> = ({ setIsSignUp }) => {
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [message, setMessage] = useState<string>('');
@@ -12,7 +16,7 @@ const Login: React.FC = () => {
         try {
             const response = await axios.post('http://localhost:5001/login', {
                 username,
-                password
+                password,
             });
             setMessage(response.data.message);
         } catch (error) {
@@ -52,7 +56,10 @@ const Login: React.FC = () => {
                     <button type="submit" className="login-button">Log in</button>
                 </form>
                 <p className="create-account">
-                    <a href="#">Create an account</a>
+                    {/* Add onClick to switch to sign-up form */}
+                    <a href="Register" onClick={() => setIsSignUp(true)}>
+                        Create an account
+                    </a>
                 </p>
                 {message && <p className="message">{message}</p>}
             </div>
