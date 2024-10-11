@@ -40,7 +40,7 @@ const SignUp: React.FC = () => {
           <div className="line"></div>
           <div className="circle"></div>
         </div>
-        <form onSubmit={handleSignUp}>
+        <form onSubmit={handleSignUp} className='form'>
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input

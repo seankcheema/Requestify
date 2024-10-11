@@ -32,7 +32,7 @@ const Login: React.FC<LoginProps> = ({ setIsSignUp }) => {
         <div className="login-container">
             <div className="login-form">
                 <h2>Log in</h2>
-                <form onSubmit={handleLogin}>
+                <form onSubmit={handleLogin} className='form'>
                     <div className="form-group">
                         <label htmlFor="username">Email</label>
                         <input

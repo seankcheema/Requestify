@@ -17,6 +17,12 @@ body {
     background-position: center;
 }
 
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .sign-up-form {
     background-color: rgba(0, 0, 0, 0.7);
     padding: 2rem;
@@ -79,7 +85,7 @@ body {
 }
 
 .next-button {
-    width: 100%; /* Button takes full width */
+    width: 50%;
     padding: 0.75rem;
     background-color: #4CAF50;
     color: white;
