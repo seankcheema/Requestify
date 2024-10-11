@@ -99,3 +99,124 @@ body {
     margin-top: 1rem;
     color: #ff6b6b;
 }
+/* SignUp.css */
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #000;
+    background-image: url('/public/assets/Login_Background_img.png');
+    background-size: cover;
+    background-position: center;
+  }
+  
+  .sign-up-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  .sign-up-form {
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 2rem;
+    border-radius: 10px;
+    width: 400px;
+    color: white;
+    text-align: center;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 5px 5px rgba(0, 255, 0, 0.2);
+    box-sizing: border-box;
+  }
+  
+  .sign-up-form h2 {
+    margin-bottom: 1.5rem;
+    color: white;
+    font-size: 24px;
+  }
+  
+  .progress-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .circle {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: gray;
+  }
+  
+  .circle.active {
+    background-color: #4CAF50;
+  }
+  
+  .line {
+    height: 2px;
+    width: 40px;
+    background-color: gray;
+  }
+  
+  .form-group {
+    margin-bottom: 1rem;
+    width: 100%;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
+  
+  .form-group label {
+    width: 100%;
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #ccc;
+  }
+  
+  .form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+    box-sizing: border-box;
+  }
+  
+  .next-button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 1rem;
+    box-sizing: border-box;
+  }
+  
+  .next-button:hover {
+    background-color: #45a049;
+  }
+  
+  .message {
+    margin-top: 1rem;
+    color: #ff6b6b;
+  }
+  
+  /* Ensuring the Header is positioned correctly */
+  .header {
+    position: absolute;
+    top: 20px;
+    left: 30px;
+  }
+  
+  .header-logo {
+    width: 325px;
+    height: auto;
+  }
