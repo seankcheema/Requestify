@@ -57,6 +57,7 @@ const Login: React.FC<LoginProps> = ({ setIsSignUp }) => {
                 </form>
                 <p className="create-account">
                     {/* Add onClick to switch to sign-up form */}
+                    
                     <a href="Register" onClick={() => setIsSignUp(true)}>
                         Create an account
                     </a>
