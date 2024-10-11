@@ -90,6 +90,14 @@ body {
   border: 1px solid #00bf33;
 }
 
+.external-link {
+  color: #00bf33;
+  height: 15px;
+  width: 15px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
 .song-item img {
   width: 60px;
   height: 60px;

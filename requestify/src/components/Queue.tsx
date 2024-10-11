@@ -13,6 +13,7 @@ const Queue: React.FC = () => {
             <p>Count me out</p>
             <p className="artist">Kendrick Lamar</p>
           </div>
+          <img src="/assets/External link.svg" alt="External link" className="external-link" />
           <div className="song-upvotes">(16 upvotes)</div>
           <img src="/assets/Remove icon.svg" alt="Remove button" className="remove-btn" />
         </div>
