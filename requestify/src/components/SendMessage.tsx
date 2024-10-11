@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import MessagePopup from './MessagePopup';
+import './Dashboard.css';
 
 const SendMessage: React.FC = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);

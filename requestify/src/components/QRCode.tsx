@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './Dashboard.css';
 
 // Popup component for larger QR code
 const QRCodePopup: React.FC<{ show: boolean; onClose: () => void }> = ({ show, onClose }) => {

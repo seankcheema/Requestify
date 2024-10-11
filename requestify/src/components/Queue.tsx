@@ -1,4 +1,5 @@
 import React from 'react';
+import './Dashboard.css';
 
 const Queue: React.FC = () => {
   return (

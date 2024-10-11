@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './Dashboard.css';
 
 const Profile: React.FC = () => {
   const [isProfilePopupOpen, setIsProfilePopupOpen] = useState(false);
