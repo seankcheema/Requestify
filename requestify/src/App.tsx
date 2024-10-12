@@ -1,24 +1,42 @@
-import React, { useState } from 'react';
+/*import React, { useState } from 'react';
 import './App.css';
 import SignUp from './components/SignUp';
+import SignUpTwo from './components/SignUpTwo';
 import Login from './components/Login';
-import Header from './components/Header'; // Import the Header component
+import Header from './components/Header';
 
 const App: React.FC = () => {
     const [isSignUp, setIsSignUp] = useState<boolean>(false); // Manage state to toggle between login and sign-up
-
-    // Optional: Logging state changes to help debug the issue
-    console.log('isSignUp:', isSignUp);
+    const [isSignUpStepOne, setIsSignUpStepOne] = useState<boolean>(true); // Manage state to navigate between sign-up steps
 
     return (
         <div className="App">
-            {/* Add the Header component with the Requestify logo */}
             <Header />
-
-            {/* Login/SignUp Form */}
+            
             <div className="form-container">
-                {/* Pass setIsSignUp as a prop to Login and SignUp so it can trigger SignUp form */}
-                {isSignUp ? <SignUp /> : <Login setIsSignUp={setIsSignUp} />}
+                {!isSignUp 
+                    ? <Login setIsSignUp={setIsSignUp} /> 
+                    : isSignUpStepOne 
+                        ? <SignUp setIsSignUpStepOne={setIsSignUpStepOne} />
+                        : <SignUpTwo />
+                }
+            </div>
+        </div>
+    );
+};
+
+export default App; */
+import React from 'react';
+import './App.css';
+import SignUpTwo from './components/SignUpTwo';
+import Header from './components/Header';
+
+const App: React.FC = () => {
+    return (
+        <div className="App">
+            <Header />
+            <div className="form-container">
+                <SignUpTwo />
             </div>
         </div>
     );
