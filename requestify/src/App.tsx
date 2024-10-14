@@ -26,6 +26,8 @@ const App: React.FC = () => {
 };
 
 export default App; */
+
+/*
 import React from 'react';
 import './App.css';
 import SignUpTwo from './components/SignUpTwo';
@@ -37,6 +39,24 @@ const App: React.FC = () => {
             <Header />
             <div className="form-container">
                 <SignUpTwo />
+            </div>
+        </div>
+    );
+};
+
+export default App;*/
+
+import React from 'react';
+import './App.css';
+import PaymentRegistration from './components/PaymentRegistration';
+import Header from './components/Header';
+
+const App: React.FC = () => {
+    return (
+        <div className="App">
+            <Header />
+            <div className="form-container">
+                <PaymentRegistration />
             </div>
         </div>
     );
