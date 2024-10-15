@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import mysql.connector
 import bcrypt
+from spotify import search_song
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
@@ -75,7 +76,14 @@ def login():
             return jsonify({"message": "Invalid username or password"}), 401
     else:
         return jsonify({"message": "Invalid username or password"}), 401
-        
+    
+@app.route('/search', methods=['GET'])
+def search():
+    query = request.args.get('query')
+    if not query:
+        return jsonify({"message": "Search query is required"}), 400
+    tracks = search_song(query)
+    return jsonify(tracks)
     
 #set true for testing purposes
 if __name__ == '__main__':
