@@ -7,8 +7,8 @@ const port = 5000; // Define the port where your server will run
 //Code below sets up the stripe secret key from the .env and imports the
 //stripe library 
 require('dotenv').config();
-const Stripe = require('stripe');
-const stripe = new Stripe(process.env.REACT_APP_STRIPE_SECRET_KEY); // Use the correct key
+//const Stripe = require('stripe');
+//const stripe = new Stripe(process.env.REACT_APP_STRIPE_SECRET_KEY); // Use the correct key
 
 // Middleware
 app.use(cors());
@@ -56,6 +56,8 @@ app.post('/login', async (req, res) => {
 //--------------------------------------------------------------------------------
 
 // Route to handle creating a payment intent for tipping
+
+/*
 app.post('/stripe/create-tip-payment-intent', async (req, res) => {
   const { amount, currency } = req.body;
 
@@ -79,7 +81,8 @@ app.post('/stripe/create-tip-payment-intent', async (req, res) => {
     console.error('Error creating payment intent for tip:', error);
     res.status(500).json({ message: 'Error creating payment intent for tip' });
   }
-});
+});\
+*/
 
 //--------------------------------------------------------------------------------
 

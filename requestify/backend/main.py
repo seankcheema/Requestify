@@ -4,6 +4,7 @@ from flask_cors import CORS
 import mysql.connector
 import bcrypt
 from spotify import search_song
+from stripeFile import create_tip_payment
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
@@ -84,6 +85,23 @@ def search():
         return jsonify({"message": "Search query is required"}), 400
     tracks = search_song(query)
     return jsonify(tracks)
+
+#Sets up the stripe tip payment stuff
+@app.route('/stripe/create-tip-payment', methods=['POST'])
+def create_payment_intent():
+    data = request.get_json()
+    amount = data.get('amount')
+    currency = data.get('currency')
+
+    if not amount or not currency:
+        return jsonify({"message": "Amount and currency are required"}), 400
+
+    try:
+        #Calls to the imported function to create the payment intent
+        result = create_tip_payment(amount, currency)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"message": str(e)}), 500
     
 #set true for testing purposes
 if __name__ == '__main__':
