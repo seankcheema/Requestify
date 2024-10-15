@@ -1,4 +1,4 @@
-/*import React, { useState } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import SignUp from './components/SignUp';
 import SignUpTwo from './components/SignUpTwo';
@@ -25,7 +25,9 @@ const App: React.FC = () => {
     );
 };
 
-export default App; */
+export default App; 
+
+/*
 import React from 'react';
 import './App.css';
 import SignUpTwo from './components/SignUpTwo';
@@ -43,3 +45,5 @@ const App: React.FC = () => {
 };
 
 export default App;
+
+*/
