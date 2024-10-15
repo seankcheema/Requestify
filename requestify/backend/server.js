@@ -8,7 +8,7 @@ const port = 5000; // Define the port where your server will run
 //stripe library 
 require('dotenv').config();
 const Stripe = require('stripe');
-const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = new Stripe(process.env.REACT_APP_STRIPE_SECRET_KEY); // Use the correct key
 
 // Middleware
 app.use(cors());
