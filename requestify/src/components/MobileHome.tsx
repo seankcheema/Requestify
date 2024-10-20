@@ -14,7 +14,7 @@ const RequestifyLayout: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`/search?query=${encodeURIComponent(query)}`);
+      const response = await fetch(`http://localhost:5001/search?query=${encodeURIComponent(query)}`);
       const data = await response.json();
 
       if (response.ok) {
