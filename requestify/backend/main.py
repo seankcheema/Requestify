@@ -3,11 +3,13 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import mysql.connector
 import bcrypt
+# from spotify import search_song  # Commented out Spotify import
+# from stripeFile import create_tip_payment  # Commented out Stripe import
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
-#does this need to be the user we make for mariadb? If so we can use this user i have rn but we should change it later
+#Does this need to be the user we make for mariadb? If so we can use this user I have now but we should change it later
 #MySQL Connection
 mydb = mysql.connector.connect(
     host="localhost",
@@ -22,7 +24,7 @@ mycursor = mydb.cursor()
 
 mycursor.execute("USE requestifyAccount")
 
-#Create users table
+# Create users table
 mycursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(100) UNIQUE PRIMARY KEY,
@@ -75,8 +77,33 @@ def login():
             return jsonify({"message": "Invalid username or password"}), 401
     else:
         return jsonify({"message": "Invalid username or password"}), 401
-        
     
-#set true for testing purposes
+# Commented out Spotify search functionality
+# @app.route('/search', methods=['GET'])
+# def search():
+#     query = request.args.get('query')
+#     if not query:
+#         return jsonify({"message": "Search query is required"}), 400
+#     tracks = search_song(query)
+#     return jsonify(tracks)
+
+# Commented out Stripe tip payment functionality
+# @app.route('/stripe/create-tip-payment', methods=['POST'])
+# def create_payment_intent():
+#     data = request.get_json()
+#     amount = data.get('amount')
+#     currency = data.get('currency')
+
+#     if not amount or not currency:
+#         return jsonify({"message": "Amount and currency are required"}), 400
+
+#     try:
+#         # Calls to the imported function to create the payment intent
+#         result = create_tip_payment(amount, currency)
+#         return jsonify(result)
+#     except Exception as e:
+#         return jsonify({"message": str(e)}), 500
+    
+# Set true for testing purposes
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

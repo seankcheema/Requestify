@@ -3,26 +3,37 @@ import axios from 'axios';
 import './SignUp.css';
 
 interface SignUpProps {
-  setIsSignUpStepOne: (isSignUpStepOne: boolean) => void;
+  setIsSignUpStepOne: (isSignUpStepOne: boolean) => void; // Keep the prop
 }
 
 const SignUp: React.FC<SignUpProps> = ({ setIsSignUpStepOne }) => {
-  const [email, setEmail] = useState<string>('');
+  const [username, setUsername] = useState<string>(''); 
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [message, setMessage] = useState<string>('');
 
   const handleSignUp = async (event: React.FormEvent) => {
     event.preventDefault();
+    
+    // Ensure the username contains "@" symbol
+    if (!username.includes('@')) {
+      setMessage('Username must include "@" symbol');
+      return;
+    }
+
+    // Ensure the passwords match
     if (password !== confirmPassword) {
       setMessage('Passwords do not match');
       return;
     }
+    
     try {
+      // Send only 'username' and 'password' to the backend
       const response = await axios.post('http://localhost:5001/register', {
-        email,
+        username, 
         password,
       });
+      
       setMessage(response.data.message);
       setIsSignUpStepOne(false); // Proceed to the next step
     } catch (error) {
@@ -38,21 +49,14 @@ const SignUp: React.FC<SignUpProps> = ({ setIsSignUpStepOne }) => {
     <div className="sign-up-container">
       <div className="sign-up-form">
         <h2>Create Account</h2>
-        <div className="progress-bar">
-          <div className="circle active"></div>
-          <div className="line"></div>
-          <div className="circle"></div>
-          <div className="line"></div>
-          <div className="circle"></div>
-        </div>
         <form onSubmit={handleSignUp} className='form'>
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="username">Username</label>
             <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
             />
           </div>
@@ -76,7 +80,7 @@ const SignUp: React.FC<SignUpProps> = ({ setIsSignUpStepOne }) => {
               required
             />
           </div>
-          <button type="submit" className="next-button">Next</button>
+          <button type="submit" className="next-button">Sign Up</button>
         </form>
         {message && <p className="message">{message}</p>}
       </div>

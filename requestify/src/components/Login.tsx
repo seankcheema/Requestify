@@ -7,14 +7,14 @@ interface LoginProps {
 }
 
 const Login: React.FC<LoginProps> = ({ setIsSignUp }) => {
-    const [username, setUsername] = useState<string>('');
+    const [username, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [message, setMessage] = useState<string>('');
 
     const handleLogin = async (event: React.FormEvent) => {
         event.preventDefault();
         try {
-            const response = await axios.post('http://localhost:5001/login', {
+            const response = await axios.post('http://localhost:5000/login', {
                 username,
                 password,
             });
@@ -34,12 +34,12 @@ const Login: React.FC<LoginProps> = ({ setIsSignUp }) => {
                 <h2>Log in</h2>
                 <form onSubmit={handleLogin} className='form'>
                     <div className="form-group">
-                        <label htmlFor="username">Email</label>
+                        <label htmlFor="email">Email</label>
                         <input
-                            type="text"
-                            id="username"
+                            type="email"
+                            id="email"
                             value={username}
-                            onChange={e => setUsername(e.target.value)}
+                            onChange={e => setEmail(e.target.value)}
                             required
                         />
                     </div>
@@ -56,8 +56,10 @@ const Login: React.FC<LoginProps> = ({ setIsSignUp }) => {
                     <button type="submit" className="login-button">Log in</button>
                 </form>
                 <p className="create-account">
-                    {/* Use onClick handler correctly to toggle sign-up form */}
-                    <a href="#" onClick={() => setIsSignUp(true)}>
+                    <a href="#" onClick={(e) => {
+                        e.preventDefault();
+                        setIsSignUp(true);
+                    }}>
                         Create an account
                     </a>
                 </p>
