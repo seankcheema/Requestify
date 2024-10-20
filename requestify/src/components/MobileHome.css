@@ -1,21 +1,32 @@
 /* General container styling */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
 .mobile-container {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     height: 100vh;
-    background-color: #111;
+    background-color: #0b0b0b;
     color: white;
     font-family: 'Arial', sans-serif;
   }
   
   /* Header styling */
   .mobile-header {
-    background-color: #111;
+    background-color: #0b0b0b;
     padding: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+  }
+
+  .mobile-header-logo{
+    width: 200px;
+    height: auto;
   }
   
   .header-title h1 {
@@ -27,24 +38,34 @@
   .bell-icon {
     font-size: 1.5em;
     color: white;
+    align-self: right;
+    position: absolute;
+    right: 15px;
+    top: 15px;
   }
   
   /* Main content styling */
   .mobile-content {
+    overflow: hidden;  /* Disable scrolling in the main container */
+  height: 100vh;     /* Ensure the container takes up the full viewport height */
+  width: 100vw;      /* Ensure it takes up the full viewport width */
     padding: 20px;
     flex: 1;
   }
   
   .listening-section {
-    background-color: #333;
-    padding: 15px;
+    background-color: #1e1e1e;
+    height: 75px;
     border-radius: 8px;
     text-align: center;
+    align-content: center;
+    justify-content: center;
+    font-size: 1.1em;
     margin-bottom: 20px;
   }
   
   .listening-section p a {
-    color: #00ff88;
+    color: #00bf33;
     text-decoration: none;
   }
   
@@ -54,23 +75,35 @@
   }
   
   .activity-button button {
-    background-color: #444;
+    background-color: #1e1e1e;
     color: white;
     border: none;
+    height: 75px;
     padding: 12px 20px;
     border-radius: 8px;
     font-size: 1.1em;
     width: 100%;
   }
+
+  .request-tile{
+    background-color: #1e1e1e;
+    border-radius: 8px;
+    padding: 10px;
+    height: 150px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    position: relative;
+  }
   
   .request-section h3 {
     margin-bottom: 10px;
     font-size: 1.2em;
+    font-weight: normal;
   }
   
   .request-input {
     display: flex;
-    background-color: #333;
+    background-color: #121212;
     padding: 10px;
     border-radius: 8px;
   }
@@ -80,22 +113,42 @@
     border: none;
     color: white;
     flex: 1;
+    height: 30px;
     font-size: 1em;
     padding: 8px;
   }
   
-  .request-input button {
-    background-color: #00ff88;
+  .request-tile button {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    background-color: #00bf33;
     border: none;
     padding: 8px 12px;
     font-size: 1em;
-    color: black;
+    color: white;
+    font-weight: 600;
     border-radius: 4px;
     cursor: pointer;
+    margin-top: 10px;
   }
   
   .payment-section h3 {
     margin-bottom: 10px;
+  }
+
+  .payment-tile{
+    background-color: #1e1e1e;
+    border-radius: 8px;
+    padding: 10px;
+    /* height: 100px; */
+    margin-top: 20px;
+    position: relative;
+  }
+  .payment-tile h3 {
+    margin-bottom: 10px;
+    font-size: 1.2em;
+    font-weight: normal;
   }
   
   .payment-options {
@@ -104,14 +157,22 @@
   }
   
   .payment-options img {
-    width: 60px;
-    height: 40px;
+    width: 27%;
+    height: 50%;
   }
   
-  /* Bottom Navigation */
   .mobile-footer {
     background-color: #222;
     padding: 10px 0;
+    position: fixed;  /* Fix the navbar at the bottom */
+    bottom: 0;  /* Attach to the bottom of the viewport */
+    left: 0;
+    right: 0;
+    width: 100%;  /* Ensure it spans the entire width */
+    z-index: 100;  /* Ensure it stays on top of other elements */
+    
+    /* Add padding for devices with notches or bottom UI bars */
+    padding-bottom: env(safe-area-inset-bottom, 15px);  /* Fallback to 10px if the safe-area isn't supported */
   }
   
   .bottom-nav {
