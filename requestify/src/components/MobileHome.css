@@ -1,0 +1,133 @@
+/* General container styling */
+.mobile-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100vh;
+    background-color: #111;
+    color: white;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  /* Header styling */
+  .mobile-header {
+    background-color: #111;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .header-title h1 {
+    font-size: 1.8em;
+    color: #fff;
+    margin: 0;
+  }
+  
+  .bell-icon {
+    font-size: 1.5em;
+    color: white;
+  }
+  
+  /* Main content styling */
+  .mobile-content {
+    padding: 20px;
+    flex: 1;
+  }
+  
+  .listening-section {
+    background-color: #333;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .listening-section p a {
+    color: #00ff88;
+    text-decoration: none;
+  }
+  
+  .activity-button {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .activity-button button {
+    background-color: #444;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 1.1em;
+    width: 100%;
+  }
+  
+  .request-section h3 {
+    margin-bottom: 10px;
+    font-size: 1.2em;
+  }
+  
+  .request-input {
+    display: flex;
+    background-color: #333;
+    padding: 10px;
+    border-radius: 8px;
+  }
+  
+  .request-input input {
+    background: none;
+    border: none;
+    color: white;
+    flex: 1;
+    font-size: 1em;
+    padding: 8px;
+  }
+  
+  .request-input button {
+    background-color: #00ff88;
+    border: none;
+    padding: 8px 12px;
+    font-size: 1em;
+    color: black;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .payment-section h3 {
+    margin-bottom: 10px;
+  }
+  
+  .payment-options {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .payment-options img {
+    width: 60px;
+    height: 40px;
+  }
+  
+  /* Bottom Navigation */
+  .mobile-footer {
+    background-color: #222;
+    padding: 10px 0;
+  }
+  
+  .bottom-nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+  }
+  
+  .nav-item {
+    text-align: center;
+    color: white;
+    font-size: 1.1em;
+  }
+  
+  .nav-item span {
+    display: block;
+    font-size: 0.8em;
+  }
+  
