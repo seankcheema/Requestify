@@ -162,8 +162,10 @@
   }
   
   .mobile-footer {
-    background-color: #222;
+    background-color: #0b0b0b;
     padding: 10px 0;
+    border-top:1px solid #1e1e1e;
+
     position: fixed;  /* Fix the navbar at the bottom */
     bottom: 0;  /* Attach to the bottom of the viewport */
     left: 0;
@@ -172,13 +174,14 @@
     z-index: 100;  /* Ensure it stays on top of other elements */
     
     /* Add padding for devices with notches or bottom UI bars */
-    padding-bottom: env(safe-area-inset-bottom, 15px);  /* Fallback to 10px if the safe-area isn't supported */
+    padding-bottom: env(safe-area-inset-bottom, 10px);  /* Fallback to 10px if the safe-area isn't supported */
   }
   
   .bottom-nav {
     display: flex;
     justify-content: space-around;
     align-items: center;
+    margin-bottom: 5px;
   }
   
   .nav-item {
@@ -186,17 +189,22 @@
     color: white;
     font-size: 1.1em;
   }
+
+  .nav-item svg {
+    font-size: 1.4em;
+  }
   
   .nav-item span {
     display: block;
-    font-size: 0.8em;
+    font-size: 0.7em;
   }
-  
+
   /* Styles for the active item */
-.nav-item.active {
+  .nav-item.active {
     color: #00bf33; /* Change text color to green */
   }
   
   .nav-item.active svg {
     color: #00bf33; /* Change icon color to green */
   }
+  
