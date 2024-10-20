@@ -28,12 +28,12 @@ const App: React.FC = () => {
   );
 }
 
-<!--     return (
-        <div className="App">
-            <button onClick={() => setIsSignUp(true)}>Sign Up</button>
-            <button onClick={() => setIsSignUp(false)}>Login</button>
-            {isSignUp ? <SignUp /> : <Login />}
-        </div>
-    ); -->
+// return (
+//         <div className="App">
+//             <button onClick={() => setIsSignUp(true)}>Sign Up</button>
+//             <button onClick={() => setIsSignUp(false)}>Login</button>
+//             {isSignUp ? <SignUp /> : <Login />}
+//         </div>
+//     );
 
 export default App;
