@@ -15,16 +15,18 @@ if not REACT_APP_STRIPE_SECRET_KEY:
 #Initializes the stripe client w/ secret key
 stripe.api_key = REACT_APP_STRIPE_SECRET_KEY
 
-def create_tip_payment(amount, currency):
+def create_tip_payment(amount, currency, payment_method_types):
     """
-    amount is an integer w/ the amount in the smallest currency ynit, like cents for usd
-    currency is a string with the currency code, like 'usd'
-    Returns a dictionary w/ the client secret for the payment intent
+    Creates a Stripe PaymentIntent for the given amount, currency, and payment methods.
+    - amount: integer in the smallest currency unit (e.g., cents for USD)
+    - currency: string currency code (e.g., 'usd')
+    - payment_method_types: list of accepted payment methods (e.g., ['card', 'paypal'])
+    Returns: A dictionary with the client secret for the PaymentIntent
     """
     payment_intent = stripe.PaymentIntent.create(
         amount=amount,
         currency=currency,
-        payment_method_types=['card'],  # Allow card payments
+        payment_method_types=payment_method_types,
         description='Tip Payment'
     )
     return {"client_secret": payment_intent['client_secret']}

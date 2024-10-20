@@ -89,16 +89,18 @@ def search():
 #Sets up the stripe tip payment stuff
 @app.route('/stripe/create-tip-payment', methods=['POST'])
 def create_payment_intent():
+    # Get data from the request
     data = request.get_json()
     amount = data.get('amount')
     currency = data.get('currency')
+    payment_methods = data.get('payment_methods', ['card'])  # Default to 'card' if not provided
 
     if not amount or not currency:
         return jsonify({"message": "Amount and currency are required"}), 400
 
     try:
-        #Calls to the imported function to create the payment intent
-        result = create_tip_payment(amount, currency)
+        # Call the function from stripe.py to create the PaymentIntent
+        result = create_tip_payment(amount, currency, payment_methods)
         return jsonify(result)
     except Exception as e:
         return jsonify({"message": str(e)}), 500
