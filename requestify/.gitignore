@@ -3,6 +3,7 @@
 #Ignore the environment variable file (Stripe API and
 #Spotify API secret keys are here!!!!!) 
 /backend/.env
+/requestify/.env
 
 # dependencies
 /node_modules

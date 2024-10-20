@@ -7,7 +7,8 @@ from spotify import search_song
 from stripeFile import create_tip_payment
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+#may need to change origins once we are done developing
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 #does this need to be the user we make for mariadb? If so we can use this user i have rn but we should change it later
 #MySQL Connection
@@ -105,4 +106,4 @@ def create_payment_intent():
     
 #set true for testing purposes
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    app.run(debug=True, host='0.0.0.0', port=5001)

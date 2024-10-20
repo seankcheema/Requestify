@@ -13,8 +13,11 @@ const RequestifyLayout: React.FC = () => {
       return;
     }
 
+    const ipAddress = process.env.REACT_APP_API_IP;
+
+    // response needs your ipv4 address to work on mobile
     try {
-      const response = await fetch(`http://localhost:5001/search?query=${encodeURIComponent(query)}`);
+      const response = await fetch(`http://${ipAddress}:5001/search?query=${encodeURIComponent(query)}`);
       const data = await response.json();
 
       if (response.ok) {
@@ -33,11 +36,10 @@ const RequestifyLayout: React.FC = () => {
       {/* Header Section */}
       <header className="mobile-header">
         <div className="header-title">
-            <img src="/assets/requestify-logo.svg" alt="Requestify Logo" className="mobile-header-logo" />
+          <h1>Requestify</h1>
+          <FaBell className="bell-icon" />
         </div>
       </header>
-
-      <FaBell className="bell-icon" />
 
       {/* Main Content */}
       <main className="mobile-content">
@@ -52,35 +54,31 @@ const RequestifyLayout: React.FC = () => {
         </div>
 
         <div className="request-section">
-            <div className="request-tile">
-                <h3>Request a song</h3>
-                <div className="request-input">
-                    <input
-                    type="text"
-                    placeholder="Search by name or Spotify link"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)} // Update query state on input change
-                    />
-                </div>
-                {searchResult && (
-                    <div className="search-results">
-                    <h4>Search Results:</h4>
-                    <pre>{JSON.stringify(searchResult, null, 2)}</pre>
-                    </div>
-                )}
-                <button onClick={handleSearch}>Submit</button>
+          <h3>Request a song</h3>
+          <div className="request-input">
+            <input
+              type="text"
+              placeholder="Search by name or Spotify link"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)} // Update query state on input change
+            />
+            <button onClick={handleSearch}>Submit</button>
           </div>
+          {searchResult && (
+            <div className="search-results">
+              <h4>Search Results:</h4>
+              <pre>{JSON.stringify(searchResult, null, 2)}</pre>
+            </div>
+          )}
         </div>
 
         {/* Payment Section */}
         <div className="payment-section">
-            <div className="payment-tile">
-                <h3>Send a tip</h3>
-                <div className="payment-options">
-                    <img src="./assets/Apple pay icon.png" alt="Apple Pay" />
-                    <img src="./assets/Google pay icon.png" alt="Google Pay" />
-                    <img src="./assets/PayPal Icon.png" alt="PayPal" />
-                </div>
+          <h3>Send a tip</h3>
+          <div className="payment-options">
+            <img src="./assets/Apple pay icon.png" alt="Apple Pay" />
+            <img src="./assets/Google pay icon.png" alt="Google Pay" />
+            <img src="./assets/PayPal Icon.png" alt="PayPal" />
           </div>
         </div>
       </main>
