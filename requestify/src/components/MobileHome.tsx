@@ -88,7 +88,7 @@ const RequestifyLayout: React.FC = () => {
       {/* Bottom Navigation */}
       <footer className="mobile-footer">
         <nav className="bottom-nav">
-          <div className="nav-item">
+          <div className="nav-item active">
             <FaHome />
             <span>Home</span>
           </div>

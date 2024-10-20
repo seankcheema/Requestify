@@ -9,13 +9,15 @@ import SendMessage from './components/SendMessage';
 import SignUp from './components/SignUp';
 import Login from './components/Login';
 import MobileHome from './components/MobileHome';
+import MobilePayment from './components/MobilePayment';
 
 const App: React.FC = () => {
     const [isSignUp, setIsSignUp] = useState<boolean>(true);
     
   return (
     <div className="App">
-      <MobileHome />
+      {/* <MobileHome /> */}
+      <MobilePayment />
     </div>
     // <div className="container">
     //   <Header />
