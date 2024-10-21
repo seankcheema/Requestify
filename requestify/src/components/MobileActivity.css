@@ -1,4 +1,4 @@
-.queue{
+.mobile-queue{
     background-color: #1E1E1E;
     padding: 10px;
     border-radius: 5px;
@@ -6,17 +6,17 @@
     position: relative;
   }
   
-  .queue h2 {
+  .mobile-queue h2 {
     font-weight: normal;
     margin-bottom: 20px;
     font-size: 1.1em;
   }
-  .queue h2 a {
+  .mobile-queue h2 a {
     color: #00bf33;
     text-decoration: none;
   }
   
-  .song-container {
+  .mobile-song-container {
     background-color: #121212;
     padding: 1px;
     border-radius: 5px;
@@ -24,25 +24,25 @@
   }
   
   /* Style the scrollbar track (background) */
-  .song-container::-webkit-scrollbar {
+  .mobile-song-container::-webkit-scrollbar {
     width: 10px; /* Width of the vertical scrollbar */
   }
   
   /* Style the scrollbar itself */
-  .song-container::-webkit-scrollbar-thumb {
+  .mobile-song-container::-webkit-scrollbar-thumb {
     background-color: #00bf33; /* Scrollbar color */
     border-radius: 5px; /* Rounded corners */
   }
   
-  .song-list {
+  .mobile-song-list {
     margin: 5px;
     margin-top: 5px;
     margin-bottom: 5px;
   }
   
-  .song-item {
+  .mobile-song-item {
     display: flex;
-    height: 80px;
+    height: 70px;
     align-items: center;
     background-color: #222;
     margin-bottom: 10px;
@@ -51,37 +51,44 @@
     border: 1px solid #00bf33;
   }
   
-  .external-link {
-    color: #00bf33;
-    height: 15px;
-    width: 15px;
-    text-decoration: none;
-    cursor: pointer;
-  }
-  
-  .song-item img {
-    width: 60px;
-    height: 60px;
-    border-radius: 5px;
+  .mobile-song-item img {
+    width: 50px;
+    height: 50px;
     margin-right: 10px;
   }
   
-  .song-info {
+  .mobile-song-info {
     flex: 1;
     font-size: 1.0em;
   }
   
-  .song-info p {
+  .mobile-song-info p {
     margin-bottom: 2px;
   }
   
-  .song-info .artist {
+  .mobile-artist {
     font-size: 0.8em;
     color: gray;
   }
-  
-  .song-upvotes {
-    color: #ffffff;
-    font-size: 14px;
-    margin-right: 20px;
+
+  .mobile-upvote, .mobile-downvote {
+    width: 25px;
+    height: 25px;
   }
+  
+  .mobile-song-upvotes {
+    color: #ffffff;
+    font-size: 1.0em;
+    margin: 10px;
+  }
+
+  /* Styling for active upvote */
+.active-upvote {
+    color: #00bf33; /* Green color for upvoted */
+  }
+  
+  /* Styling for active downvote */
+  .active-downvote {
+    color: #ff3333; /* Red color for downvoted */
+  }
+  

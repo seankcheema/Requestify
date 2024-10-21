@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaHome, FaChartLine, FaDollarSign, FaBell } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';  // Import useNavigate from react-router-dom
 import './MobileHome.css';
 
 const RequestifyLayout: React.FC = () => {
+
   const [query, setQuery] = useState(''); // State to store the user's input
   const [searchResult, setSearchResult] = useState(null); // State to store the result from the backend
   const navigate = useNavigate(); // Initialize useNavigate for navigation
@@ -95,9 +96,7 @@ const RequestifyLayout: React.FC = () => {
                 </div>
           </div>
         </div>
-      </main>
-
-      {/* Bottom Navigation */}
+        {/* Bottom Navigation */}
       <footer className="mobile-footer">
         <nav className="bottom-nav">
           <div className="nav-item active">
@@ -114,6 +113,9 @@ const RequestifyLayout: React.FC = () => {
           </div>
         </nav>
       </footer>
+      </main>
+
+      
     </div>
   );
 };

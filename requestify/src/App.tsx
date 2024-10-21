@@ -1,12 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, useParams } from 'react-router-dom';
 import './App.css';
-import Header from './components/Header';
-import Queue from './components/Queue';
-import Notifications from './components/Notifications';
-import Profile from './components/Profile';
-import QRCode from './components/QRCode';
-import SendMessage from './components/SendMessage';
+import Dashboard from './components/Dashboard';
 import SignUp from './components/SignUp';
 import Login from './components/Login';
 import MobileHome from './components/MobileHome';
@@ -28,11 +23,12 @@ const App: React.FC = () => {
         <Router>
             <div className="App">
                 <Routes>
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/create-account" element={<SignUp />} />
-                    <Route path="/0" element={<MobileHome />} />
-                    <Route path="/0/payment" element={<MobilePayment />} />
-                    <Route path="/0/activity" element={<MobileActivity />} />
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="login" element={<Login />} />
+                    <Route path="create-account" element={<SignUp />} />
+                    <Route path="0" element={<MobileHome />} />
+                    <Route path="0/payment" element={<MobilePayment />} />
+                    <Route path="0/activity" element={<MobileActivity />} />
                 </Routes>
             </div>
         </Router>

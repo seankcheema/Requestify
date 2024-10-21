@@ -1,23 +1,46 @@
 import React, { useState } from 'react';
-import { FaHome, FaChartLine, FaDollarSign, FaBell } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';  // Import useNavigate from react-router-dom
+import { FaHome, FaChartLine, FaDollarSign, FaBell, FaArrowUp, FaArrowDown } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import './MobileActivity.css';
 
 const RequestifyLayout: React.FC = () => {
-  const [query, setQuery] = useState(''); // State to store the user's input
-  const [searchResult, setSearchResult] = useState(null); // State to store the result from the backend
-  const navigate = useNavigate(); // Initialize useNavigate for navigation
+  const [upvotes, setUpvotes] = useState(16); // State for current upvotes
+  const [hasUpvoted, setHasUpvoted] = useState(false); // Track if the user has upvoted
+  const [hasDownvoted, setHasDownvoted] = useState(false); // Track if the user has downvoted
+  const navigate = useNavigate();
 
-  // Function to navigate to the payment page
+  // Function to handle upvote
+  const handleUpvote = () => {
+    if (hasUpvoted) {
+      setUpvotes(upvotes - 1);
+      setHasUpvoted(false);
+    } else {
+      setUpvotes(hasDownvoted ? upvotes + 2 : upvotes + 1); // Adjust if previously downvoted
+      setHasUpvoted(true);
+      setHasDownvoted(false);
+    }
+  };
+
+  // Function to handle downvote
+  const handleDownvote = () => {
+    if (hasDownvoted) {
+      setUpvotes(upvotes + 1);
+      setHasDownvoted(false);
+    } else {
+      setUpvotes(hasUpvoted ? upvotes - 2 : upvotes - 1); // Adjust if previously upvoted
+      setHasDownvoted(true);
+      setHasUpvoted(false);
+    }
+  };
+
+  // Function to navigate to the home page
   const goToHome = () => {
-    // Replace 'some-id' with the actual ID value if needed
-    navigate('/0');  // Update the route with the correct ID for your app
+    navigate('/0');
   };
 
   // Function to navigate to the payment page
   const goToPayment = () => {
-    // Replace 'some-id' with the actual ID value if needed
-    navigate('/0/payment');  // Update the route with the correct ID for your app
+    navigate('/0/payment');
   };
 
   return (
@@ -25,7 +48,12 @@ const RequestifyLayout: React.FC = () => {
       {/* Header Section */}
       <header className="mobile-header">
         <div className="header-title">
-            <img src="/assets/requestify-logo.svg" alt="Requestify Logo" className="mobile-header-logo" onClick={goToHome}/>
+          <img
+            src="/assets/requestify-logo.svg"
+            alt="Requestify Logo"
+            className="mobile-header-logo"
+            onClick={goToHome}
+          />
         </div>
       </header>
 
@@ -33,27 +61,33 @@ const RequestifyLayout: React.FC = () => {
 
       {/* Main Content */}
       <main className="mobile-content">
-        {/* Listening Section */}
-        {/* <div className="listening-section">
-          <p>You are listening to <a href="#">DJ Grant</a></p>
-        </div> */}
-
-        <section className="queue">
-            <h2>Current Queue for <a href="#">DJ Grant</a></h2>
-            <div className='song-container'>
-            <div className="song-list">
-                <div className="song-item">
+        <section className="mobile-queue">
+          <h2>
+            Current Queue for <a href="#">DJ Grant</a>
+          </h2>
+          <div className="mobile-song-container">
+            <div className="mobile-song-list">
+              <div className="mobile-song-item">
                 <img src="/assets/song1.png" alt="Album cover" />
-                <div className="song-info">
-                    <p>Count me out</p>
-                    <p className="artist">Kendrick Lamar</p>
+                <div className="mobile-song-info">
+                  <p>Count me out</p>
+                  <p className="mobile-artist">Kendrick Lamar</p>
                 </div>
-                <div className="song-upvotes">16 upvotes</div>
-                </div>
+                {/* Upvote Arrow */}
+                <FaArrowUp
+                  className={`mobile-upvote ${hasUpvoted ? 'active-upvote' : ''}`}
+                  onClick={handleUpvote}
+                />
+                <div className="mobile-song-upvotes">{upvotes}</div>
+                {/* Downvote Arrow */}
+                <FaArrowDown
+                  className={`mobile-downvote ${hasDownvoted ? 'active-downvote' : ''}`}
+                  onClick={handleDownvote}
+                />
+              </div>
             </div>
-            </div>
+          </div>
         </section>
-
       </main>
 
       {/* Bottom Navigation */}
@@ -67,7 +101,7 @@ const RequestifyLayout: React.FC = () => {
             <FaChartLine />
             <span>Activity</span>
           </div>
-          <div className="nav-item" onClick={goToPayment}>  {/* Navigate on click */}
+          <div className="nav-item" onClick={goToPayment}>
             <FaDollarSign />
             <span>Payment</span>
           </div>

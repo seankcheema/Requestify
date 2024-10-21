@@ -82,14 +82,14 @@
     font-weight: normal;
 }
 
-.payment-content{
+.mobile-payment-content{
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
 }
 
-.payment-content img{
+.mobile-payment-content img{
   width: 150px;
   height: auto;
   margin-bottom: 10px;

@@ -10,10 +10,15 @@ const PaymentPage: React.FC = () => {
         window.open(paymentLink, '_blank');  // Redirects to Stripe Payment Page
     };
 
-    // Function to navigate to the payment page
+    // Function to navigate to the home page
     const goToHome = () => {
         // Replace 'some-id' with the actual ID value if needed
         navigate('/0');  // Update the route with the correct ID for your app
+    };
+
+    const goToActivity = () => {
+        // Replace 'some-id' with the actual ID value if needed
+        navigate('/0/activity');  // Update the route with the correct ID for your app
     };
 
     return (
@@ -31,8 +36,8 @@ const PaymentPage: React.FC = () => {
                 <div className="payment-section">
                     <div className="payment-tile">
                         <h3>Send a Tip</h3>
-                        <div className="payment-content">
-                            <img src="/assets/profile.png" alt="Profile" className="popup-profile-img" />
+                        <div className="mobile-payment-content">
+                            <img src="/assets/profile.png" alt="Profile" />
                             <p className="payment-description">Support your favorite DJ with a quick tip!</p>
                             <button onClick={handlePayment} className="payment-button">
                                 Pay with Stripe
@@ -58,7 +63,7 @@ const PaymentPage: React.FC = () => {
                         <FaHome />
                         <span>Home</span>
                     </div>
-                    <div className="nav-item">
+                    <div className="nav-item" onClick={goToActivity}>
                         <FaChartLine />
                         <span>Activity</span>
                     </div>
