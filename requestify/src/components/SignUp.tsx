@@ -69,14 +69,6 @@ const SignUp: React.FC<SignUpProps> = ({ setIsSignUp }) => {
     <div className="sign-up-container">
       <div className="sign-up-form">
         <h2>Create Account</h2>
-        <div className="progress-bar">
-          <div className={`circle ${isSignUpStepOne ? 'active' : ''}`}></div>
-          <div className="line"></div>
-          <div className={`circle ${!isSignUpStepOne ? 'active' : ''}`}></div>
-          <div className="line"></div>
-          <div className="circle"></div>
-        </div>
-        {isSignUpStepOne ? (
           <form onSubmit={handleSignUpStepOne} className="form">
             <div className="form-group">
               <label htmlFor="username">Username</label>
@@ -111,9 +103,7 @@ const SignUp: React.FC<SignUpProps> = ({ setIsSignUp }) => {
                 className="input-field"
               />
             </div>
-            <button type="submit" className="next-button">Next</button>
           </form>
-        ) : (
           <form onSubmit={handleSignUpStepTwo} className="form">
             <div className="form-group">
               <label htmlFor="djName">DJ Name</label>
@@ -150,7 +140,6 @@ const SignUp: React.FC<SignUpProps> = ({ setIsSignUp }) => {
             </div>
             <button type="submit" className="next-button">Sign Up</button>
           </form>
-        )}
         {message && <p className="message">{message}</p>}
       </div>
     </div>
