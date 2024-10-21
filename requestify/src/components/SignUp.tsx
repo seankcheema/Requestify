@@ -131,9 +131,9 @@ const SignUp: React.FC = () => {
                             className="input-field"
                         />
                     </div>
-                    <button type="submit" className="sign-up-button" onClick={goToLogin}>Sign Up</button>
+                    <button type="submit" className="sign-up-button" >Sign Up</button>
                 </form>
-                <p className="login">
+                <p className="login" onClick={goToLogin}>
                     <a href="#">
                         Already have an account? Login
                     </a>

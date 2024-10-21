@@ -9,6 +9,10 @@ const Login: React.FC = () => {
     const [message, setMessage] = useState<string>('');
     const navigate = useNavigate();
 
+    const goToDashboard = () => {
+        navigate('/dashboard');
+    };
+
     const handleLogin = async (event: React.FormEvent) => {
         event.preventDefault();
         try {
@@ -17,6 +21,8 @@ const Login: React.FC = () => {
                 password,
             });
             setMessage(response.data.message);
+
+            goToDashboard();
         } catch (error) {
             if (axios.isAxiosError(error) && error.response) {
                 setMessage(error.response.data.message);
