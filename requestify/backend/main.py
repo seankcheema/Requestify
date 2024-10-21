@@ -107,17 +107,18 @@ def create_payment_intent():
     except Exception as e:
         return jsonify({"message": str(e)}), 500
 
-@app.route('/create-payment-link', methods=['POST'])
-def create_payment_link_route():
-    data = request.get_json()
-    amount = data.get('amount')  # Default to $10
-    currency = data.get('currency', 'usd')
 
-    try:
-        url = create_payment_link(amount, currency)
-        return jsonify({'url': url}), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+# @app.route('/create-payment-link', methods=['POST'])
+# def create_payment_link_route():
+#     data = request.get_json()
+#     amount = data.get('amount')  # Default to $10
+#     currency = data.get('currency', 'usd')
+
+#     try:
+#         url = create_payment_link(amount, currency)
+#         return jsonify({'url': url}), 200
+#     except Exception as e:
+#         return jsonify({'error': str(e)}), 500
 
     
 # Set true for testing purposes
