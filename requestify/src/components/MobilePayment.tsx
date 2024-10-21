@@ -5,7 +5,7 @@ import './MobilePayment.css';
 const PaymentPage: React.FC = () => {
     const handlePayment = () => {
         const paymentLink = 'https://buy.stripe.com/test_3csfYZ4QjeNicCs7ss';
-        window.location.href = paymentLink;  // Redirects to Stripe Payment Page
+        window.open(paymentLink, '_blank');  // Redirects to Stripe Payment Page
     };
 
     return (
@@ -23,10 +23,13 @@ const PaymentPage: React.FC = () => {
                 <div className="payment-section">
                     <div className="payment-tile">
                         <h3>Send a Tip</h3>
-                        <p className="payment-description">Support your favorite DJ with a quick tip!</p>
-                        <button onClick={handlePayment} className="payment-button">
-                            Pay with Stripe
-                        </button>
+                        <div className="payment-content">
+                            <img src="/assets/profile.png" alt="Profile" className="popup-profile-img" />
+                            <p className="payment-description">Support your favorite DJ with a quick tip!</p>
+                            <button onClick={handlePayment} className="payment-button">
+                                Pay with Stripe
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div className="listening-section">
