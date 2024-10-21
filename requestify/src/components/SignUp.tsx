@@ -3,39 +3,59 @@ import axios from 'axios';
 import './SignUp.css';
 
 interface SignUpProps {
-  setIsSignUpStepOne: (isSignUpStepOne: boolean) => void; // Keep the prop
+  setIsSignUp: (isSignUp: boolean) => void;
 }
 
-const SignUp: React.FC<SignUpProps> = ({ setIsSignUpStepOne }) => {
+const SignUp: React.FC<SignUpProps> = ({ setIsSignUp }) => {
+  const [isSignUpStepOne, setIsSignUpStepOne] = useState<boolean>(true);
   const [username, setUsername] = useState<string>(''); 
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [djName, setDjName] = useState<string>('');
+  const [location, setLocation] = useState<string>('');
+  const [socialMedia, setSocialMedia] = useState<string>('');
   const [message, setMessage] = useState<string>('');
 
-  const handleSignUp = async (event: React.FormEvent) => {
+  const handleSignUpStepOne = async (event: React.FormEvent) => {
     event.preventDefault();
-    
-    // Ensure the username contains "@" symbol
+
     if (!username.includes('@')) {
       setMessage('Username must include "@" symbol');
       return;
     }
 
-    // Ensure the passwords match
     if (password !== confirmPassword) {
       setMessage('Passwords do not match');
       return;
     }
-    
+
     try {
-      // Send only 'username' and 'password' to the backend
       const response = await axios.post('http://localhost:5001/register', {
         username, 
         password,
       });
       
       setMessage(response.data.message);
-      setIsSignUpStepOne(false); // Proceed to the next step
+      setIsSignUpStepOne(false);
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        setMessage(error.response.data.message);
+      } else {
+        setMessage('An error occurred');
+      }
+    }
+  };
+
+  const handleSignUpStepTwo = async (event: React.FormEvent) => {
+    event.preventDefault();
+    try {
+      const response = await axios.post('http://localhost:5001/registername', {
+        djName,
+        location,
+        socialMedia,
+      });
+      setMessage(response.data.message);
+      setIsSignUp(false); // Go back to login after sign-up completion
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
         setMessage(error.response.data.message);
@@ -49,39 +69,88 @@ const SignUp: React.FC<SignUpProps> = ({ setIsSignUpStepOne }) => {
     <div className="sign-up-container">
       <div className="sign-up-form">
         <h2>Create Account</h2>
-        <form onSubmit={handleSignUp} className='form'>
-          <div className="form-group">
-            <label htmlFor="username">Username</label>
-            <input
-              type="text"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="confirm-password">Re-enter Password</label>
-            <input
-              type="password"
-              id="confirm-password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
-          </div>
-          <button type="submit" className="next-button">Sign Up</button>
-        </form>
+        <div className="progress-bar">
+          <div className={`circle ${isSignUpStepOne ? 'active' : ''}`}></div>
+          <div className="line"></div>
+          <div className={`circle ${!isSignUpStepOne ? 'active' : ''}`}></div>
+          <div className="line"></div>
+          <div className="circle"></div>
+        </div>
+        {isSignUpStepOne ? (
+          <form onSubmit={handleSignUpStepOne} className="form">
+            <div className="form-group">
+              <label htmlFor="username">Username</label>
+              <input
+                type="text"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                className="input-field"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="input-field"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="confirm-password">Re-enter Password</label>
+              <input
+                type="password"
+                id="confirm-password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                className="input-field"
+              />
+            </div>
+            <button type="submit" className="next-button">Next</button>
+          </form>
+        ) : (
+          <form onSubmit={handleSignUpStepTwo} className="form">
+            <div className="form-group">
+              <label htmlFor="djName">DJ Name</label>
+              <input
+                type="text"
+                id="djName"
+                value={djName}
+                onChange={(e) => setDjName(e.target.value)}
+                required
+                className="input-field"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="location">Location</label>
+              <input
+                type="text"
+                id="location"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                required
+                className="input-field"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="socialMedia">Social Media</label>
+              <input
+                type="text"
+                id="socialMedia"
+                value={socialMedia}
+                onChange={(e) => setSocialMedia(e.target.value)}
+                required
+                className="input-field"
+              />
+            </div>
+            <button type="submit" className="next-button">Sign Up</button>
+          </form>
+        )}
         {message && <p className="message">{message}</p>}
       </div>
     </div>

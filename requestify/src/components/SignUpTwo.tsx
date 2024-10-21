@@ -30,13 +30,6 @@ const SignUpTwo: React.FC = () => {
     <div className="sign-up-container">
       <div className="sign-up-form">
         <h2>Create Account</h2>
-        <div className="progress-bar">
-          <div className="circle active"></div>
-          <div className="line"></div>
-          <div className="circle active"></div>
-          <div className="line"></div>
-          <div className="circle"></div>
-        </div>
         <form onSubmit={handleSignUp} className='form'>
           <div className="form-group">
             <label htmlFor="djName">DJ Name</label>
