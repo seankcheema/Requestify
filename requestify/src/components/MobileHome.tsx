@@ -36,7 +36,7 @@ const RequestifyLayout: React.FC = () => {
     navigate('/0/payment');  // Update the route with the correct ID for your app
   };
 
-  // Function to navigate to the payment page
+  // Function to navigate to the activity page
   const goToActivity = () => {
     // Replace 'some-id' with the actual ID value if needed
     navigate('/0/activity');  // Update the route with the correct ID for your app

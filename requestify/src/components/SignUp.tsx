@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';  // Import useNavigate from react-router-dom
 import './SignUp.css';
 
-interface SignUpProps {
-  setIsSignUp: (isSignUp: boolean) => void;
-}
-
-const SignUp: React.FC<SignUpProps> = ({ setIsSignUp }) => {
+const SignUp: React.FC = () =>{
   const [username, setUsername] = useState<string>(''); 
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
@@ -14,6 +11,7 @@ const SignUp: React.FC<SignUpProps> = ({ setIsSignUp }) => {
   const [location, setLocation] = useState<string>('');
   const [socialMedia, setSocialMedia] = useState<string>('');
   const [message, setMessage] = useState<string>('');
+  const navigate = useNavigate(); // Initialize useNavigate for navigation
 
   const handleSignUp = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -38,9 +36,6 @@ const SignUp: React.FC<SignUpProps> = ({ setIsSignUp }) => {
       });
       
       setMessage(response.data.message);
-      if (response.data.success) {
-        setIsSignUp(false); // Go back to login after sign-up completion
-      }
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
         setMessage(error.response.data.message);
@@ -48,6 +43,11 @@ const SignUp: React.FC<SignUpProps> = ({ setIsSignUp }) => {
         setMessage('An error occurred');
       }
     }
+  };
+
+  const goToLogin = () => {
+    // Replace 'some-id' with the actual ID value if needed
+    navigate('/login');  // Update the route with the correct ID for your app
   };
 
   return (
@@ -123,6 +123,13 @@ const SignUp: React.FC<SignUpProps> = ({ setIsSignUp }) => {
           </div>
           <button type="submit" className="sign-up-button">Sign Up</button>
         </form>
+        <p className="login">
+                    <a href="#" onClick={
+                        goToLogin
+                    }>
+                        Already have an account? Login
+                    </a>
+                </p>
         {message && <p className="message">{message}</p>}
       </div>
     </div>
