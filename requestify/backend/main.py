@@ -91,17 +91,30 @@ def search():
 def create_payment_intent():
     data = request.get_json()
     amount = data.get('amount')
-    currency = data.get('currency')
+    currency = data.get('currency', 'usd')
 
     if not amount or not currency:
         return jsonify({"message": "Amount and currency are required"}), 400
 
     try:
-        #Calls to the imported function to create the payment intent
+        # Call the function from stripeFile to create a PaymentIntent
         result = create_tip_payment(amount, currency)
         return jsonify(result)
     except Exception as e:
         return jsonify({"message": str(e)}), 500
+
+@app.route('/create-payment-link', methods=['POST'])
+def create_payment_link_route():
+    data = request.get_json()
+    amount = data.get('amount')  # Default to $10
+    currency = data.get('currency', 'usd')
+
+    try:
+        url = create_payment_link(amount, currency)
+        return jsonify({'url': url}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
     
 #set true for testing purposes
 if __name__ == '__main__':

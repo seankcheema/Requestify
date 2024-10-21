@@ -8,23 +8,29 @@ import QRCode from './components/QRCode';
 import SendMessage from './components/SendMessage';
 import SignUp from './components/SignUp';
 import Login from './components/Login';
+import MobileHome from './components/MobileHome';
+import MobilePayment from './components/MobilePayment';
 
 const App: React.FC = () => {
     const [isSignUp, setIsSignUp] = useState<boolean>(true);
     
   return (
-    <div className="container">
-      <Header />
-      <div className="main-content">
-        <Queue />
-        <Notifications />
-        <div className='mini-tiles'>
-          <Profile />
-          <QRCode />
-          <SendMessage />
-        </div>
-      </div>
+    <div className="App">
+      {/* <MobileHome /> */}
+      <MobilePayment />
     </div>
+    // <div className="container">
+    //   <Header />
+    //   <div className="main-content">
+    //     <Queue />
+    //     <Notifications />
+    //     <div className='mini-tiles'>
+    //       <Profile />
+    //       <QRCode />
+    //       <SendMessage />
+    //     </div>
+    //   </div>
+    // </div>
   );
 }
 
