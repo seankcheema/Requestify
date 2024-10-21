@@ -6,11 +6,11 @@ import bcrypt
 from spotify import search_song
 from stripeFile import create_tip_payment
 
+
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
-#does this need to be the user we make for mariadb? If so we can use this user i have rn but we should change it later
-#MySQL Connection
+# MySQL Connection
 mydb = mysql.connector.connect(
     host="localhost",
     user="kylemcclelland",
@@ -23,12 +23,16 @@ mydb = mysql.connector.connect(
 mycursor = mydb.cursor()
 
 mycursor.execute("USE requestifyAccount")
-
-#Create users table
+mycursor.execute("DROP TABLE IF EXISTS users")
+# mycursor.execute("DROP TABLE IF EXISTS usersinfo")
+# Create users table with additional fields
 mycursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(100) UNIQUE PRIMARY KEY,
-    password VARCHAR(100)
+    password VARCHAR(100),
+    djName VARCHAR(100),
+    location VARCHAR(100),
+    socialMedia VARCHAR(100)
     )
 """)
 print("Table created successfully or already exists")
@@ -38,9 +42,10 @@ def register():
     data = request.get_json()
     username = data['username']
     password = data['password']
+    djName = data['djName']
+    location = data['location']
+    socialMedia = data['socialMedia']
 
-    #Testing if user already exists stuff
-    #---------------------------------------------------------------
     # Check if the user already exists in the database
     query_check = "SELECT * FROM users WHERE username = %s"
     mycursor.execute(query_check, (username,))
@@ -48,12 +53,11 @@ def register():
     if existing_user:
         # If the user already exists, return a 409 Conflict status
         return jsonify({"message": "User already exists"}), 409
-    #---------------------------------------------------------------
 
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-    query = "INSERT INTO users (username, password) VALUES (%s, %s)"
-    mycursor.execute(query, (username, hashed_password))
+    query = "INSERT INTO users (username, password, djName, location, socialMedia) VALUES (%s, %s, %s, %s, %s)"
+    mycursor.execute(query, (username, hashed_password, djName, location, socialMedia))
     mydb.commit()
 
     return jsonify({"message": "User registered successfully from main"}), 201
@@ -116,6 +120,6 @@ def create_payment_link_route():
         return jsonify({'error': str(e)}), 500
 
     
-#set true for testing purposes
+# Set true for testing purposes
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

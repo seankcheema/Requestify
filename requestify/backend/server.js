@@ -16,13 +16,16 @@ app.use(express.json()); // Parse incoming JSON requests
 
 // Routes
 app.post('/register', async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, djName, location, socialMedia } = req.body;
 
   try {
     // Make a request to the Flask backend to register the user
     const response = await axios.post('http://localhost:5001/register', {
       username,
       password,
+      djName,
+      location,
+      socialMedia,
     });
 
     // Send Flask's response back to the frontend

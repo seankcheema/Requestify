@@ -1,0 +1,9 @@
+.header {
+    width: 100%;
+    text-align: left;
+  }
+  
+  .header-logo {
+    width: 325px;
+    height: auto;
+  }
