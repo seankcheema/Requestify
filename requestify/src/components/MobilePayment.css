@@ -1,202 +1,166 @@
 /* General container styling */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-.mobile-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100vh;
-    background-color: #0b0b0b;
-    color: white;
-    font-family: 'Arial', sans-serif;
-  }
-  
-  /* Header styling */
-  .mobile-header {
-    background-color: #0b0b0b;
-    padding: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .mobile-header-logo{
-    width: 200px;
-    height: auto;
-  }
-  
-  .header-title h1 {
-    font-size: 1.8em;
-    color: #fff;
-    margin: 0;
-  }
-  
-  .bell-icon {
-    font-size: 1.5em;
-    color: white;
-    align-self: right;
-    position: absolute;
-    right: 15px;
-    top: 15px;
-  }
-  
-  /* Main content styling */
-  .mobile-content {
-    overflow: hidden;  /* Disable scrolling in the main container */
-    height: 100vh;     /* Ensure the container takes up the full viewport height */
-    width: 100vw;      /* Ensure it takes up the full viewport width */
-    padding: 20px;
-    flex: 1;
-  }
-  
-  .listening-section {
-    background-color: #1e1e1e;
-    height: 75px;
-    border-radius: 8px;
-    text-align: center;
-    align-items: center;
-    justify-content: center;
-    display: flex;
-    flex-direction: row;
-    font-size: 1.1em;
-    margin-bottom: 20px;
-  }
-  
-  .listening-section p a {
-    color: #00bf33;
-    text-decoration: none;
-  }
-  
-  .payment-section h3 {
-    margin-bottom: 10px;
-  }
-
-  .payment-tile{
-    background-color: #1e1e1e;
-    border-radius: 8px;
-    padding: 10px;
-    /* height: 100px; */
-    margin-top: 20px;
-    margin-bottom: 20px;
-    position: relative;
-  }
-  .payment-tile h3 {
-    margin-bottom: 10px;
-    font-size: 1.2em;
-    font-weight: normal;
-  }
-
-  .amount-input-container {
-    display: flex;
-    align-items: center; /* Center the dollar sign and input vertically */
-    justify-content: center; /* Center the contents horizontally */
-    margin-bottom: 10px;
-  }
-  
-  .dollar-sign {
-    font-size: 2rem; /* Match the font size of the input */
-    color: #FFF; /* Adjust text color as needed */
-    margin-right: 0px;
-  }
-  
-  .amount-input::-webkit-outer-spin-button,
-  .amount-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-  
-  .amount-input {
-    border: none;
-    background: none;
-    font-size: 3rem; /* Large text */
-    width: auto;
-    text-align: center;
-    outline: none;
-    color: #FFF; /* Text color */
-    transition: width 0.2s ease; /* Smooth transition for width change */
-  }
-  
-  .amount-input:focus {
-    outline: none; /* Prevent showing the default browser outline */
-  }
-  
-  .amount-label {
-    display: block;
-    width: 100%;
-    text-align: center; /* Center the label if needed */
-  }
-  
-  .payment-help-link {
-    display: flex; /* Use flexbox */
-    align-items: center; /* Center items vertically */
-    text-decoration: none; /* Remove underline */
-    color: inherit; /* Use the current color of the parent element */
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
-  
-  .payment-options {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-  }
-  
-  .payment-options img {
-    width: 90%;
-  }
 
-  .external-link{
-    color: #00bf33;
-    margin-left: 5px;
-  }
-  
-  .mobile-footer {
-    background-color: #0b0b0b;
-    padding: 10px 0;
-    border-top:1px solid #1e1e1e;
+.mobile-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100vh;
+  background-color: #0b0b0b;
+  color: white;
+  font-family: 'Arial', sans-serif;
+}
 
-    position: fixed;  /* Fix the navbar at the bottom */
-    bottom: 0;  /* Attach to the bottom of the viewport */
-    left: 0;
-    right: 0;
-    width: 100%;  /* Ensure it spans the entire width */
-    z-index: 100;  /* Ensure it stays on top of other elements */
-    
-    /* Add padding for devices with notches or bottom UI bars */
-    padding-bottom: env(safe-area-inset-bottom, 10px);  /* Fallback to 10px if the safe-area isn't supported */
-  }
-  
-  .bottom-nav {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    margin-bottom: 5px;
-  }
-  
-  .nav-item {
-    text-align: center;
-    color: white;
-    font-size: 1.1em;
-  }
+/* Header styling */
+.mobile-header {
+  background-color: #0b0b0b;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-  .nav-item svg {
-    font-size: 1.4em;
-  }
-  
-  .nav-item span {
-    display: block;
-    font-size: 0.7em;
-  }
+.mobile-header-logo {
+  width: 200px;
+  height: auto;
+}
 
-  /* Styles for the active item */
-  .nav-item.active {
-    color: #00bf33; /* Change text color to green */
-  }
-  
-  .nav-item.active svg {
-    color: #00bf33; /* Change icon color to green */
-  }
-  
+.bell-icon {
+  font-size: 1.5em;
+  color: white;
+  position: absolute;
+  right: 15px;
+  top: 15px;
+}
+
+/* Main content styling */
+.mobile-content {
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  padding: 20px;
+  flex: 1;
+}
+
+/* Listening section styling */
+.listening-section {
+  background-color: #1e1e1e;
+  height: 75px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1em;
+  margin-bottom: 20px;
+}
+
+.listening-section p a {
+  color: #00bf33;
+  text-decoration: none;
+}
+
+/* Payment tile styling */
+.payment-tile {
+  background-color: #1e1e1e;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.payment-tile:hover {
+  transform: translateY(-5px); /* Subtle hover effect */
+}
+
+.payment-tile h3 {
+  margin-bottom: 5px;
+  font-size: 1.5em;
+}
+
+.payment-description {
+  margin-bottom: 15px;
+  font-size: 0.9em;
+  color: #d3d3d3;
+}
+
+/* Payment button styling */
+.payment-button {
+  background-color: #00bf33;
+  color: white;
+  font-size: 1.1em;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s, box-shadow 0.2s;
+}
+
+.payment-button:hover {
+  background-color: #019628;
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Payment help link styling */
+.payment-help-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+
+.external-link {
+  color: #00bf33;
+  margin-left: 5px;
+}
+
+/* Footer styling */
+.mobile-footer {
+  background-color: #0b0b0b;
+  padding: 10px 0;
+  border-top: 1px solid #1e1e1e;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom, 10px);
+}
+
+.bottom-nav {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.nav-item {
+  text-align: center;
+  color: white;
+  font-size: 1.1em;
+}
+
+.nav-item svg {
+  font-size: 1.4em;
+}
+
+.nav-item span {
+  display: block;
+  font-size: 0.7em;
+}
+
+/* Active item styles */
+.nav-item.active {
+  color: #00bf33;
+}
+
+.nav-item.active svg {
+  color: #00bf33;
+}
