@@ -16,8 +16,10 @@ const RequestifyLayout: React.FC = () => {
       return;
     }
 
+    const ipAddress = process.env.REACT_APP_API_IP;
+
     try {
-      const response = await fetch(`http://localhost:5001/search?query=${encodeURIComponent(query)}`);
+      const response = await fetch(`http://${ipAddress}:5001/search?query=${encodeURIComponent(query)}`);
       const data = await response.json();
 
       if (response.ok) {
