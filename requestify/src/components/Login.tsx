@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';  // Import useNavigate from react-router-dom
+import { useNavigate } from 'react-router-dom'; 
 import './Login.css';
 
 const Login: React.FC = () => {
     const [username, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [message, setMessage] = useState<string>('');
-    const navigate = useNavigate(); // Initialize useNavigate for navigation
-
+    const navigate = useNavigate();
 
     const handleLogin = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -28,12 +27,18 @@ const Login: React.FC = () => {
     };
 
     const goToCreateAccount = () => {
-        // Replace 'some-id' with the actual ID value if needed
-        navigate('/create-account');  // Update the route with the correct ID for your app
-      };
+        navigate('/create-account');
+    };
 
     return (
-        <div className="login-container">
+        <div
+            className="login-container"
+            style={{ 
+                backgroundImage: "url('assets/Login_Background_img.png')", 
+                backgroundSize: 'cover', 
+                backgroundPosition: 'center' 
+            }}
+        >
             <div className="login-form">
                 <h2>Log in</h2>
                 <form onSubmit={handleLogin} className='form'>
@@ -60,9 +65,7 @@ const Login: React.FC = () => {
                     <button type="submit" className="login-button">Log in</button>
                 </form>
                 <p className="create-account">
-                    <a href="#" onClick={
-                        goToCreateAccount
-                    }>
+                    <a href="#" onClick={goToCreateAccount}>
                         Create an account
                     </a>
                 </p>
