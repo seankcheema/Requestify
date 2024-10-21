@@ -12,6 +12,21 @@
             "name": "backendTest",
             "database": "requestifyAccount",
             "username": "kylemcclelland"
+        },
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3306,
+            "driver": "MariaDB",
+            "name": "backendTestMadhav",
+            "database": "requestifyAccount",
+            "username": "root",
+            "password": "password",
+            "connectionTimeout": 30
         }
     ]
 }
