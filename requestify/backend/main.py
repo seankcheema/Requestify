@@ -24,7 +24,7 @@ mycursor = mydb.cursor()
 
 mycursor.execute("USE requestifyAccount")
 mycursor.execute("DROP TABLE IF EXISTS users")
-# mycursor.execute("DROP TABLE IF EXISTS usersinfo")
+
 # Create users table with additional fields
 mycursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
