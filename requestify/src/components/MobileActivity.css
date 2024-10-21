@@ -1,0 +1,87 @@
+.queue{
+    background-color: #1E1E1E;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    position: relative;
+  }
+  
+  .queue h2 {
+    font-weight: normal;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+  }
+  .queue h2 a {
+    color: #00bf33;
+    text-decoration: none;
+  }
+  
+  .song-container {
+    background-color: #121212;
+    padding: 1px;
+    border-radius: 5px;
+    overflow-y: auto;
+  }
+  
+  /* Style the scrollbar track (background) */
+  .song-container::-webkit-scrollbar {
+    width: 10px; /* Width of the vertical scrollbar */
+  }
+  
+  /* Style the scrollbar itself */
+  .song-container::-webkit-scrollbar-thumb {
+    background-color: #00bf33; /* Scrollbar color */
+    border-radius: 5px; /* Rounded corners */
+  }
+  
+  .song-list {
+    margin: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+  
+  .song-item {
+    display: flex;
+    height: 80px;
+    align-items: center;
+    background-color: #222;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #00bf33;
+  }
+  
+  .external-link {
+    color: #00bf33;
+    height: 15px;
+    width: 15px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  
+  .song-item img {
+    width: 60px;
+    height: 60px;
+    border-radius: 5px;
+    margin-right: 10px;
+  }
+  
+  .song-info {
+    flex: 1;
+    font-size: 1.0em;
+  }
+  
+  .song-info p {
+    margin-bottom: 2px;
+  }
+  
+  .song-info .artist {
+    font-size: 0.8em;
+    color: gray;
+  }
+  
+  .song-upvotes {
+    color: #ffffff;
+    font-size: 14px;
+    margin-right: 20px;
+  }

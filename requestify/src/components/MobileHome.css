@@ -5,15 +5,25 @@
     box-sizing: border-box;
   }
   
+/* Prevent scrolling when there's not enough content */
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden; /* Prevent scrollbars */
+}
+
+/* Ensure the main container takes full height */
 .mobile-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100vh;
-    background-color: #0b0b0b;
-    color: white;
-    font-family: 'Arial', sans-serif;
-  }
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: calc(100vh - env(safe-area-inset-bottom)); /* Adjusts for mobile devices */
+  background-color: #0b0b0b;
+  color: white;
+  font-family: 'Arial', sans-serif;
+  overflow: hidden; /* Ensure no extra scrollbars appear */
+}
+
   
   /* Header styling */
   .mobile-header {
@@ -116,6 +126,7 @@
     height: 30px;
     font-size: 1em;
     padding: 8px;
+    outline: none;  /* Remove any outline that can cause shifting */
   }
   
   .request-tile button {
@@ -153,12 +164,13 @@
   
   .payment-options {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    align-items: center;
   }
   
   .payment-options img {
-    width: 27%;
-    height: 50%;
+    width: 50%;
+    border-radius: 8px;
   }
   
   .mobile-footer {
