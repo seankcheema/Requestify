@@ -3,8 +3,9 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import mysql.connector
 import bcrypt
-# from spotify import search_song  # Commented out Spotify import
-# from stripeFile import create_tip_payment  # Commented out Stripe import
+from spotify import search_song
+from stripeFile import create_tip_payment
+
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
@@ -80,6 +81,44 @@ def login():
             return jsonify({"message": "Invalid username or password"}), 401
     else:
         return jsonify({"message": "Invalid username or password"}), 401
+    
+@app.route('/search', methods=['GET'])
+def search():
+    query = request.args.get('query')
+    if not query:
+        return jsonify({"message": "Search query is required"}), 400
+    tracks = search_song(query)
+    return jsonify(tracks)
+
+#Sets up the stripe tip payment stuff
+@app.route('/stripe/create-tip-payment', methods=['POST'])
+def create_payment_intent():
+    data = request.get_json()
+    amount = data.get('amount')
+    currency = data.get('currency', 'usd')
+
+    if not amount or not currency:
+        return jsonify({"message": "Amount and currency are required"}), 400
+
+    try:
+        # Call the function from stripeFile to create a PaymentIntent
+        result = create_tip_payment(amount, currency)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"message": str(e)}), 500
+
+@app.route('/create-payment-link', methods=['POST'])
+def create_payment_link_route():
+    data = request.get_json()
+    amount = data.get('amount')  # Default to $10
+    currency = data.get('currency', 'usd')
+
+    try:
+        url = create_payment_link(amount, currency)
+        return jsonify({'url': url}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
     
 # Set true for testing purposes
 if __name__ == '__main__':

@@ -13,6 +13,10 @@ root.render(
   </React.StrictMode>
 );
 
+<script async
+  src="https://js.stripe.com/v3/buy-button.js">
+</script>
+
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
