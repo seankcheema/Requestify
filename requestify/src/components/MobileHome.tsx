@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { FaHome, FaChartLine, FaDollarSign, FaBell } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';  // Import useNavigate from react-router-dom
 import './MobileHome.css';
 
 const RequestifyLayout: React.FC = () => {
-    const [query, setQuery] = useState(''); // State to store the user's input
+  const [query, setQuery] = useState(''); // State to store the user's input
   const [searchResult, setSearchResult] = useState(null); // State to store the result from the backend
+  const navigate = useNavigate(); // Initialize useNavigate for navigation
 
   // Function to handle the search request
   const handleSearch = async () => {
@@ -28,6 +30,18 @@ const RequestifyLayout: React.FC = () => {
     }
   };
 
+  // Function to navigate to the payment page
+  const goToPayment = () => {
+    // Replace 'some-id' with the actual ID value if needed
+    navigate('/0/payment');  // Update the route with the correct ID for your app
+  };
+
+  // Function to navigate to the payment page
+  const goToActivity = () => {
+    // Replace 'some-id' with the actual ID value if needed
+    navigate('/0/activity');  // Update the route with the correct ID for your app
+  };
+
   return (
     <div className="mobile-container">
       {/* Header Section */}
@@ -47,7 +61,7 @@ const RequestifyLayout: React.FC = () => {
         </div>
 
         {/* Current Activity Button */}
-        <div className="activity-button">
+        <div className="activity-button" onClick={goToActivity}>
           <button>View current activity</button>
         </div>
 
@@ -74,12 +88,10 @@ const RequestifyLayout: React.FC = () => {
 
         {/* Payment Section */}
         <div className="payment-section">
-            <div className="payment-tile">
+            <div className="payment-tile" onClick={goToPayment}>  {/* Navigate on click */}
                 <h3>Send a tip</h3>
                 <div className="payment-options">
-                    <img src="./assets/Apple pay icon.png" alt="Apple Pay" />
-                    <img src="./assets/Google pay icon.png" alt="Google Pay" />
-                    <img src="./assets/PayPal Icon.png" alt="PayPal" />
+                    <img src="./assets/stripe.png" alt="Stripe" />
                 </div>
           </div>
         </div>
@@ -92,11 +104,11 @@ const RequestifyLayout: React.FC = () => {
             <FaHome />
             <span>Home</span>
           </div>
-          <div className="nav-item">
+          <div className="nav-item" onClick={goToActivity}>
             <FaChartLine />
             <span>Activity</span>
           </div>
-          <div className="nav-item">
+          <div className="nav-item" onClick={goToPayment}>  {/* Navigate on click */}
             <FaDollarSign />
             <span>Payment</span>
           </div>
