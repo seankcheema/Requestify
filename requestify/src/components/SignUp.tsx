@@ -7,7 +7,6 @@ interface SignUpProps {
 }
 
 const SignUp: React.FC<SignUpProps> = ({ setIsSignUp }) => {
-  const [isSignUpStepOne, setIsSignUpStepOne] = useState<boolean>(true);
   const [username, setUsername] = useState<string>(''); 
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
@@ -16,7 +15,7 @@ const SignUp: React.FC<SignUpProps> = ({ setIsSignUp }) => {
   const [socialMedia, setSocialMedia] = useState<string>('');
   const [message, setMessage] = useState<string>('');
 
-  const handleSignUpStepOne = async (event: React.FormEvent) => {
+  const handleSignUp = async (event: React.FormEvent) => {
     event.preventDefault();
 
     if (!username.includes('@')) {
@@ -31,31 +30,17 @@ const SignUp: React.FC<SignUpProps> = ({ setIsSignUp }) => {
 
     try {
       const response = await axios.post('http://localhost:5001/register', {
-        username, 
+        username,
         password,
-      });
-      
-      setMessage(response.data.message);
-      setIsSignUpStepOne(false);
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        setMessage(error.response.data.message);
-      } else {
-        setMessage('An error occurred');
-      }
-    }
-  };
-
-  const handleSignUpStepTwo = async (event: React.FormEvent) => {
-    event.preventDefault();
-    try {
-      const response = await axios.post('http://localhost:5001/registername', {
         djName,
         location,
         socialMedia,
       });
+      
       setMessage(response.data.message);
-      setIsSignUp(false); // Go back to login after sign-up completion
+      if (response.data.success) {
+        setIsSignUp(false); // Go back to login after sign-up completion
+      }
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
         setMessage(error.response.data.message);
@@ -69,77 +54,75 @@ const SignUp: React.FC<SignUpProps> = ({ setIsSignUp }) => {
     <div className="sign-up-container">
       <div className="sign-up-form">
         <h2>Create Account</h2>
-          <form onSubmit={handleSignUpStepOne} className="form">
-            <div className="form-group">
-              <label htmlFor="username">Username</label>
-              <input
-                type="text"
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                className="input-field"
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="password">Password</label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="input-field"
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="confirm-password">Re-enter Password</label>
-              <input
-                type="password"
-                id="confirm-password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                className="input-field"
-              />
-            </div>
-          </form>
-          <form onSubmit={handleSignUpStepTwo} className="form">
-            <div className="form-group">
-              <label htmlFor="djName">DJ Name</label>
-              <input
-                type="text"
-                id="djName"
-                value={djName}
-                onChange={(e) => setDjName(e.target.value)}
-                required
-                className="input-field"
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="location">Location</label>
-              <input
-                type="text"
-                id="location"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                required
-                className="input-field"
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="socialMedia">Social Media</label>
-              <input
-                type="text"
-                id="socialMedia"
-                value={socialMedia}
-                onChange={(e) => setSocialMedia(e.target.value)}
-                required
-                className="input-field"
-              />
-            </div>
-            <button type="submit" className="next-button">Sign Up</button>
-          </form>
+        <form onSubmit={handleSignUp} className="form">
+          <div className="form-group">
+            <label htmlFor="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              className="input-field"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="input-field"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="confirm-password">Re-enter Password</label>
+            <input
+              type="password"
+              id="confirm-password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              className="input-field"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="djName">DJ Name</label>
+            <input
+              type="text"
+              id="djName"
+              value={djName}
+              onChange={(e) => setDjName(e.target.value)}
+              required
+              className="input-field"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="location">Location</label>
+            <input
+              type="text"
+              id="location"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              required
+              className="input-field"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="socialMedia">Social Media</label>
+            <input
+              type="text"
+              id="socialMedia"
+              value={socialMedia}
+              onChange={(e) => setSocialMedia(e.target.value)}
+              required
+              className="input-field"
+            />
+          </div>
+          <button type="submit" className="sign-up-button">Sign Up</button>
+        </form>
         {message && <p className="message">{message}</p>}
       </div>
     </div>

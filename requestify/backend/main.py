@@ -9,8 +9,7 @@ import bcrypt
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
-#Does this need to be the user we make for mariadb? If so we can use this user I have now but we should change it later
-#MySQL Connection
+# MySQL Connection
 mydb = mysql.connector.connect(
     host="localhost",
     user="kylemcclelland",
@@ -23,12 +22,16 @@ mydb = mysql.connector.connect(
 mycursor = mydb.cursor()
 
 mycursor.execute("USE requestifyAccount")
-
-# Create users table
+mycursor.execute("DROP TABLE IF EXISTS users")
+# mycursor.execute("DROP TABLE IF EXISTS usersinfo")
+# Create users table with additional fields
 mycursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(100) UNIQUE PRIMARY KEY,
-    password VARCHAR(100)
+    password VARCHAR(100),
+    djName VARCHAR(100),
+    location VARCHAR(100),
+    socialMedia VARCHAR(100)
     )
 """)
 print("Table created successfully or already exists")
@@ -38,9 +41,10 @@ def register():
     data = request.get_json()
     username = data['username']
     password = data['password']
+    djName = data['djName']
+    location = data['location']
+    socialMedia = data['socialMedia']
 
-    #Testing if user already exists stuff
-    #---------------------------------------------------------------
     # Check if the user already exists in the database
     query_check = "SELECT * FROM users WHERE username = %s"
     mycursor.execute(query_check, (username,))
@@ -48,12 +52,11 @@ def register():
     if existing_user:
         # If the user already exists, return a 409 Conflict status
         return jsonify({"message": "User already exists"}), 409
-    #---------------------------------------------------------------
 
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-    query = "INSERT INTO users (username, password) VALUES (%s, %s)"
-    mycursor.execute(query, (username, hashed_password))
+    query = "INSERT INTO users (username, password, djName, location, socialMedia) VALUES (%s, %s, %s, %s, %s)"
+    mycursor.execute(query, (username, hashed_password, djName, location, socialMedia))
     mydb.commit()
 
     return jsonify({"message": "User registered successfully from main"}), 201
@@ -77,32 +80,6 @@ def login():
             return jsonify({"message": "Invalid username or password"}), 401
     else:
         return jsonify({"message": "Invalid username or password"}), 401
-    
-# Commented out Spotify search functionality
-# @app.route('/search', methods=['GET'])
-# def search():
-#     query = request.args.get('query')
-#     if not query:
-#         return jsonify({"message": "Search query is required"}), 400
-#     tracks = search_song(query)
-#     return jsonify(tracks)
-
-# Commented out Stripe tip payment functionality
-# @app.route('/stripe/create-tip-payment', methods=['POST'])
-# def create_payment_intent():
-#     data = request.get_json()
-#     amount = data.get('amount')
-#     currency = data.get('currency')
-
-#     if not amount or not currency:
-#         return jsonify({"message": "Amount and currency are required"}), 400
-
-#     try:
-#         # Calls to the imported function to create the payment intent
-#         result = create_tip_payment(amount, currency)
-#         return jsonify(result)
-#     except Exception as e:
-#         return jsonify({"message": str(e)}), 500
     
 # Set true for testing purposes
 if __name__ == '__main__':
