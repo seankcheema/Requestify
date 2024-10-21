@@ -13,6 +13,11 @@ const SignUp: React.FC = () => {
     const [message, setMessage] = useState<string>('');
     const navigate = useNavigate();
 
+    
+    const goToLogin = () => {
+        navigate('/login');
+    };
+
     const handleSignUp = async (event: React.FormEvent) => {
         event.preventDefault();
 
@@ -36,6 +41,8 @@ const SignUp: React.FC = () => {
             });
 
             setMessage(response.data.message);
+
+            goToLogin();
         } catch (error) {
             if (axios.isAxiosError(error) && error.response) {
                 setMessage(error.response.data.message);
@@ -45,9 +52,6 @@ const SignUp: React.FC = () => {
         }
     };
 
-    const goToLogin = () => {
-        navigate('/login');
-    };
 
     return (
         <div
@@ -127,10 +131,10 @@ const SignUp: React.FC = () => {
                             className="input-field"
                         />
                     </div>
-                    <button type="submit" className="sign-up-button">Sign Up</button>
+                    <button type="submit" className="sign-up-button" onClick={goToLogin}>Sign Up</button>
                 </form>
                 <p className="login">
-                    <a href="#" onClick={goToLogin}>
+                    <a href="#">
                         Already have an account? Login
                     </a>
                 </p>
