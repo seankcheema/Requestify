@@ -37,6 +37,7 @@ const Login: React.FC = () => {
                 }
             );
 
+            console.log(response.data.message)
             setMessage(response.data.message);
             goToDashboard();
         } catch (error: any) {

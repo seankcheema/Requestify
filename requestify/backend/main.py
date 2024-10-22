@@ -5,6 +5,13 @@ import bcrypt
 import requests  # For REST API calls to Firebase
 from spotify import search_song
 from stripeFile import create_payment_link, create_tip_payment
+from dotenv import load_dotenv
+import os
+
+load_dotenv(".env")
+
+#Sets up the stripe api key from the env var
+REACT_APP_FIREBASE_API_KEY = os.getenv('REACT_APP_FIREBASE_API_KEY')
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
@@ -32,7 +39,7 @@ print("Table created successfully or already exists")
 
 def verify_id_token(id_token):
     """Verify Firebase ID token using Firebase REST API."""
-    api_key = 'YOUR_FIREBASE_API_KEY'  # Replace with your actual API key
+    api_key = REACT_APP_FIREBASE_API_KEY  # Replace with your actual API key
     url = f'https://identitytoolkit.googleapis.com/v1/accounts:lookup?key={api_key}'
 
     try:
