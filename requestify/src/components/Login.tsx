@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from './firebaseConfig'; // Firebase config
 import './Login.css';
 
 const Login: React.FC = () => {
-    const [username, setEmail] = useState<string>('');
+    const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [message, setMessage] = useState<string>('');
     const navigate = useNavigate();
@@ -16,18 +18,32 @@ const Login: React.FC = () => {
     const handleLogin = async (event: React.FormEvent) => {
         event.preventDefault();
         try {
-            const response = await axios.post('http://localhost:5001/login', {
-                username,
-                password,
-            });
-            setMessage(response.data.message);
+            // Log in using Firebase Authentication
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
 
+            // Get the Firebase ID token (force a fresh token)
+            const idToken = await user.getIdToken(true);  // 'true' forces new token
+
+            // Send the ID token to the backend for validation
+            const response = await axios.post(
+                'http://localhost:5001/login',
+                {},
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${idToken}`,
+                    },
+                }
+            );
+
+            setMessage(response.data.message);
             goToDashboard();
-        } catch (error) {
+        } catch (error: any) {
             if (axios.isAxiosError(error) && error.response) {
                 setMessage(error.response.data.message);
             } else {
-                setMessage('An error occurred');
+                setMessage('An error occurred during login.');
             }
         }
     };
@@ -37,24 +53,17 @@ const Login: React.FC = () => {
     };
 
     return (
-        <div
-            className="login-container"
-            style={{ 
-                backgroundImage: "url('assets/Login_Background_img.png')", 
-                backgroundSize: 'cover', 
-                backgroundPosition: 'center' 
-            }}
-        >
+        <div className="login-container" style={{ backgroundImage: "url('assets/Login_Background_img.png')" }}>
             <div className="login-form">
                 <h2>Log in</h2>
-                <form onSubmit={handleLogin} className='form'>
+                <form onSubmit={handleLogin} className="form">
                     <div className="form-group">
                         <label htmlFor="email">Email</label>
                         <input
                             type="email"
                             id="email"
-                            value={username}
-                            onChange={e => setEmail(e.target.value)}
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                             required
                         />
                     </div>
@@ -64,7 +73,7 @@ const Login: React.FC = () => {
                             type="password"
                             id="password"
                             value={password}
-                            onChange={e => setPassword(e.target.value)}
+                            onChange={(e) => setPassword(e.target.value)}
                             required
                         />
                     </div>

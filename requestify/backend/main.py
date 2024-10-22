@@ -1,14 +1,13 @@
-#Back End code for Login and Register
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import mysql.connector
 import bcrypt
+import requests  # For REST API calls to Firebase
 from spotify import search_song
-from stripeFile import create_tip_payment
-
+from stripeFile import create_payment_link, create_tip_payment
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
 # MySQL Connection
 mydb = mysql.connector.connect(
@@ -19,69 +18,95 @@ mydb = mysql.connector.connect(
     charset='utf8mb4',
     collation='utf8mb4_general_ci'
 )
-
 mycursor = mydb.cursor()
-
 mycursor.execute("USE requestifyAccount")
-mycursor.execute("DROP TABLE IF EXISTS users")
 
-# Create users table with additional fields
+# Create users table if it doesn't exist
 mycursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(100) UNIQUE PRIMARY KEY,
-    password VARCHAR(100),
-    djName VARCHAR(100),
-    location VARCHAR(100),
-    socialMedia VARCHAR(100)
+    password VARCHAR(100)
     )
 """)
 print("Table created successfully or already exists")
 
+def verify_id_token(id_token):
+    """Verify Firebase ID token using Firebase REST API."""
+    api_key = 'YOUR_FIREBASE_API_KEY'  # Replace with your actual API key
+    url = f'https://identitytoolkit.googleapis.com/v1/accounts:lookup?key={api_key}'
+
+    try:
+        # Make a POST request to verify the token
+        response = requests.post(url, json={"idToken": id_token})
+
+        # Check if the response is successful
+        if response.status_code == 200:
+            return response.json()  # Return the decoded token data
+        else:
+            print(f"Failed to verify token: {response.text}")
+            return None
+    except Exception as e:
+        print(f"Error verifying token: {e}")
+        return None
+
 @app.route('/register', methods=['POST'])
 def register():
+    auth_header = request.headers.get('Authorization')
+
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return jsonify({"message": "Authorization header missing or malformed"}), 401
+
+    id_token = auth_header.split(' ')[1]
+    decoded_token = verify_id_token(id_token)
+
+    if not decoded_token:
+        return jsonify({"message": "Invalid Firebase token"}), 401
+
     data = request.get_json()
     username = data['username']
-    password = data['password']
-    djName = data['djName']
-    location = data['location']
-    socialMedia = data['socialMedia']
+    dj_name = data.get('djName')
+    location = data.get('location')
+    social_media = data.get('socialMedia')
 
-    # Check if the user already exists in the database
+    # Check if the user already exists
     query_check = "SELECT * FROM users WHERE username = %s"
     mycursor.execute(query_check, (username,))
-    existing_user = mycursor.fetchone()
-    if existing_user:
-        # If the user already exists, return a 409 Conflict status
+    if mycursor.fetchone():
         return jsonify({"message": "User already exists"}), 409
 
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-
-    query = "INSERT INTO users (username, password, djName, location, socialMedia) VALUES (%s, %s, %s, %s, %s)"
-    mycursor.execute(query, (username, hashed_password, djName, location, socialMedia))
+    # Insert user into MySQL database
+    query = "INSERT INTO users (username, password) VALUES (%s, %s)"
+    mycursor.execute(query, (username, None))  # Password is managed by Firebase
     mydb.commit()
 
-    return jsonify({"message": "User registered successfully from main"}), 201
+    return jsonify({"message": "User registered successfully"}), 201
+
 
 @app.route('/login', methods=['POST'])
 def login():
-    data = request.json
-    username = data['username']
-    password = data['password']
+    auth_header = request.headers.get('Authorization')
 
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return jsonify({"message": "Authorization header missing or malformed"}), 401
+
+    id_token = auth_header.split(' ')[1]  # Extract the Firebase ID token
+    decoded_token = verify_id_token(id_token)  # Verify the token
+
+    if not decoded_token:
+        return jsonify({"message": "Invalid token"}), 401
+
+    email = decoded_token['users'][0]['email']  # Extract email from decoded token
+
+    # Check if the user exists in the MySQL database
     query = "SELECT password FROM users WHERE username = %s"
-    mycursor.execute(query, (username,))
+    mycursor.execute(query, (email,))
     result = mycursor.fetchone()
 
     if result:
-        stored_hash_password = result[0].encode('utf-8') if isinstance(result[0], str) else result[0]
-
-        if bcrypt.checkpw(password.encode('utf-8'), stored_hash_password):
-            return jsonify({"message": "Login successful"}), 200
-        else:
-            return jsonify({"message": "Invalid username or password"}), 401
+        return jsonify({"message": f"Welcome, {email}!"}), 200
     else:
-        return jsonify({"message": "Invalid username or password"}), 401
-    
+        return jsonify({"message": "User not found"}), 404
+
 @app.route('/search', methods=['GET'])
 def search():
     query = request.args.get('query')
@@ -90,7 +115,6 @@ def search():
     tracks = search_song(query)
     return jsonify(tracks)
 
-#Sets up the stripe tip payment stuff
 @app.route('/stripe/create-tip-payment', methods=['POST'])
 def create_payment_intent():
     data = request.get_json()
@@ -101,26 +125,22 @@ def create_payment_intent():
         return jsonify({"message": "Amount and currency are required"}), 400
 
     try:
-        # Call the function from stripeFile to create a PaymentIntent
         result = create_tip_payment(amount, currency)
         return jsonify(result)
     except Exception as e:
         return jsonify({"message": str(e)}), 500
 
+@app.route('/create-payment-link', methods=['POST'])
+def create_payment_link_route():
+    data = request.get_json()
+    amount = data.get('amount')
+    currency = data.get('currency', 'usd')
 
-# @app.route('/create-payment-link', methods=['POST'])
-# def create_payment_link_route():
-#     data = request.get_json()
-#     amount = data.get('amount')  # Default to $10
-#     currency = data.get('currency', 'usd')
+    try:
+        url = create_payment_link(amount, currency)
+        return jsonify({'url': url}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
-#     try:
-#         url = create_payment_link(amount, currency)
-#         return jsonify({'url': url}), 200
-#     except Exception as e:
-#         return jsonify({'error': str(e)}), 500
-
-    
-# Set true for testing purposes
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    app.run(debug=True, port=5001)
