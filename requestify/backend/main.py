@@ -82,8 +82,8 @@ def register():
         return jsonify({"message": "User already exists"}), 409
 
     # Insert user into MySQL database
-    query = "INSERT INTO users (username, password) VALUES (%s, %s)"
-    mycursor.execute(query, (username, None))  # Password is managed by Firebase
+    query = "INSERT INTO users (username, password, djName, location, socialMedia) VALUES (%s, %s, %s, %s, %s)"
+    mycursor.execute(query, (username, None, dj_name, location, social_media))  # Password is managed by Firebase
     mydb.commit()
 
     return jsonify({"message": "User registered successfully"}), 201
@@ -148,6 +148,25 @@ def create_payment_link_route():
         return jsonify({'url': url}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+#Used to get information about the DJ
+@app.route('/user/<username>', methods=['GET'])
+def get_user_profile(username):
+    query = "SELECT username, djName, location, socialMedia FROM users WHERE username = %s"
+    mycursor.execute(query, (username,))
+    user = mycursor.fetchone()
+
+    if user:
+        user_data = {
+            "username": user[0],
+            "djName": user[1],
+            "location": user[2],
+            "socialMedia": user[3]
+        }
+        return jsonify(user_data), 200
+    else:
+        return jsonify({"message": "User not found"}), 404
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

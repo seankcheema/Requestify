@@ -1,14 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from './Header';
 import Queue from './Queue';
 import Notifications from './Notifications';
 import Profile from './Profile';
 import QRCode from './QRCode';
 import SendMessage from './SendMessage';
-import { getAuth, signOut } from 'firebase/auth';
+import { getAuth, signOut, User } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Dashboard: React.FC = () => {
+    const [profileData, setProfileData] = useState<any>(null);
     const navigate = useNavigate();
     const auth = getAuth();
 
@@ -17,7 +19,28 @@ const Dashboard: React.FC = () => {
             (document.body.style as any).zoom = '90%';
         };
         zoom();
-    }, []);
+
+        const fetchProfileData = async (user: User | null) => {
+            if (!user) return;
+
+            try {
+                const response = await axios.get(`http://localhost:5000/user/${user.email}`);
+                setProfileData(response.data);
+            } catch (error) {
+                console.error('Error fetching profile data:', error);
+            }
+        };
+
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            if (user) {
+                fetchProfileData(user);
+            } else {
+                navigate('/login');
+            }
+        });
+
+        return () => unsubscribe();
+    }, [auth, navigate]);
 
     const handleLogout = () => {
         signOut(auth)
@@ -40,7 +63,14 @@ const Dashboard: React.FC = () => {
                 <Queue />
                 <Notifications />
                 <div className="mini-tiles">
-                    <Profile />
+                    {profileData && (
+                        <Profile
+                            username={profileData.username}
+                            djName={profileData.djName}
+                            location={profileData.location}
+                            socialMedia={profileData.socialMedia}
+                        />
+                    )}
                     <QRCode />
                     <SendMessage />
                 </div>

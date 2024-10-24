@@ -54,6 +54,20 @@ app.post('/login', async (req, res) => {
   }
 });
 
+//Used to get the information about the DJ
+app.get('/user/:username', async (req, res) => {
+  const { username } = req.params;
+
+  try {
+    const response = await axios.get(`http://localhost:5001/user/${username}`);
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error('Error fetching user profile:', error.message);
+    res.status(500).json({ message: 'Error fetching user profile' });
+  }
+});
+
+
 
 //Below is the stripe stuff//
 //--------------------------------------------------------------------------------

@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
 import './Dashboard.css';
 
-const Profile: React.FC = () => {
+interface ProfileProps {
+  username: string;
+  djName: string;
+  location: string;
+  socialMedia: string;
+}
+
+const Profile: React.FC<ProfileProps> = ({ username, djName, location, socialMedia }) => {
   const [isProfilePopupOpen, setIsProfilePopupOpen] = useState(false);
 
   const handleOpenProfilePopup = () => {
@@ -16,7 +23,7 @@ const Profile: React.FC = () => {
     <>
       <aside className="profile" onClick={handleOpenProfilePopup}>
         <img src="/assets/profile.png" alt="Profile" className="profile-img" />
-        <p>Profile</p>
+        <p>{djName || "Profile"}</p>
       </aside>
 
       {isProfilePopupOpen && (
@@ -25,12 +32,10 @@ const Profile: React.FC = () => {
             <button className="close-btn" onClick={handleCloseProfilePopup}>×</button>
             <div className="profile-popup-content">
               <img src="/assets/profile.png" alt="Profile" className="popup-profile-img" />
-              <h2>DJ Grant</h2>
-              <p>Detroit, Michigan</p>
-              <p>Hey y'all! I'm DJ Grant, I love rap music, kickin' it with the boys, and having a good time with good vibes! 🎉</p>
-              <p><strong>Instagram:</strong> @meekergrant</p>
-              <p><strong>X:</strong> @meekergrant</p>
-              <p><strong>YouTube:</strong> Hivemind TV</p>
+              <h2>DJ name: {djName}</h2>
+              <p>DJ Location: {location}</p>
+              <p>Welcome, {username}!</p>
+              <p>Social Media: {socialMedia}</p>
             </div>
           </div>
         </div>
