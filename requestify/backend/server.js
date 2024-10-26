@@ -16,14 +16,15 @@ app.use(express.json()); // Parse incoming JSON requests
 
 // Routes
 app.post('/register', async (req, res) => {
-  const { username, password, djName, location, socialMedia } = req.body;
+  const { email, password, djName, displayName, location, socialMedia } = req.body;
 
   try {
     // Make a request to the Flask backend to register the user
     const response = await axios.post('http://localhost:5001/register', {
-      username,
+      email,
       password,
       djName,
+      displayName,
       location,
       socialMedia,
     });
@@ -37,12 +38,12 @@ app.post('/register', async (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
   try {
     // Make a request to the Flask backend to log in the user
     const response = await axios.post('http://localhost:5001/login', {
-      username,
+      email,
       password,
     });
 
@@ -55,11 +56,11 @@ app.post('/login', async (req, res) => {
 });
 
 //Used to get the information about the DJ
-app.get('/user/:username', async (req, res) => {
-  const { username } = req.params;
+app.get('/user/:email', async (req, res) => {
+  const { email } = req.params;
 
   try {
-    const response = await axios.get(`http://localhost:5001/user/${username}`);
+    const response = await axios.get(`http://localhost:5001/user/${email}`);
     res.status(response.status).json(response.data);
   } catch (error) {
     console.error('Error fetching user profile:', error.message);
