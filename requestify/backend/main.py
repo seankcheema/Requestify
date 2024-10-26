@@ -19,7 +19,7 @@ REACT_APP_FIREBASE_API_KEY = os.getenv('REACT_APP_FIREBASE_API_KEY')
 IP = os.getenv('REACT_APP_API_IP')
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # MySQL Connection
 mydb = mysql.connector.connect(
@@ -52,14 +52,14 @@ mycursor.execute("DROP TABLE IF EXISTS tracks")
 # Create users table with additional fields
 mycursor.execute("""
     CREATE TABLE IF NOT EXISTS tracks (
-        djName VARCHAR(100) UNIQUE PRIMARY KEY,
+        djName VARCHAR(100),
         trackName VARCHAR(100),
         artist VARCHAR(100),
         album VARCHAR(100),
-        external_url VARCHAR(100)
+        external_url VARCHAR(100),
+        UNIQUE KEY (djName, trackName, artist, album)
     )
 """)
-
 
 def verify_id_token(id_token):
     """Verify Firebase ID token using Firebase REST API."""
@@ -81,33 +81,28 @@ def verify_id_token(id_token):
         return None
 
 def get_dj():
-    api_key = REACT_APP_FIREBASE_API_KEY
-    url = 'https://identitytoolkit.googleapis.com/v1/accounts:lookup?key={api_key}'
-    id_token = request.headers.get('Authorization')
-    if not id_token:
-        return None
-    try:
-        #verify the id token using firebase rest api
-        response = requests.post(url, json={"idToken": id_token})
-        response_data = response.json()
-        if 'users' in response_data:
-            djName = response_data['users'][0]['localId']
-            return djName
-        else:
-            return None
-    except Exception as e:
-        print(f"Error verifying token: {e}")
-        return None
+    url = request.url
+    djName = url.split('/')[-1]
+    print(djName)
+    return djName
 
-def get_dj_name(djName):
-    query = "SELECT displayName FROM users WHERE djName = %s"
-    mycursor.execute(query, (djName,))
-    result = mycursor.fetchone()
-    json_result = jsonify(result)
-    if result:
-        return json_result
+#def get_dj_name(djName):
+#    query = "SELECT displayName FROM users WHERE djName = %s"
+#    mycursor.execute(query, (djName,))
+#    result = mycursor.fetchone()
+#    json_result = jsonify(result)
+#    if result:
+#        return json_result
+#    else:
+#        return None
+    
+@app.route('/api/current-dj', methods=['GET'])
+def get_current_dj():
+    dj_name = get_dj()
+    if dj_name:
+        return jsonify(dj_name)
     else:
-        return None
+        return jsonify({"message": "DJ not found"}), 404
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -210,14 +205,11 @@ def search():
         sql = """
         INSERT INTO tracks (djName, trackName, artist, album, external_url)
         VALUES (%s, %s, %s, %s, %s)
-        ON DUPLICATE KEY UPDATE
-            trackName = VALUES(trackName),
-            artist = VALUES(artist),
-            album = VALUES(album),
+            ON DUPLICATE KEY UPDATE
             external_url = VALUES(external_url);
         """
 
-        val = (user_id, track_name, artist, album, external_url)
+        val = (djName, track_name, artist, album, external_url)
         mycursor.execute(sql, val)
         mydb.commit()
 
@@ -274,4 +266,4 @@ def get_user_profile(email):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    app.run(debug=True, host='0.0.0.0', port=5001)
