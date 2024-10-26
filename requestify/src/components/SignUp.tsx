@@ -14,6 +14,7 @@ const SignUp: React.FC = () => {
     const [location, setLocation] = useState<string>('');
     const [socialMedia, setSocialMedia] = useState<string>('');
     const [message, setMessage] = useState<string>('');
+    const [djNameError, setDjNameError] = useState<string>(''); // Error state for DJ Name
     const navigate = useNavigate();
 
     const goToLogin = () => {
@@ -31,6 +32,12 @@ const SignUp: React.FC = () => {
 
         if (password !== confirmPassword) {
             setMessage('Passwords do not match.');
+            return;
+        }
+
+        // DJ Name validation
+        if (djName.includes('/')) {
+            setDjNameError('DJ Name cannot contain slashes.');
             return;
         }
 
@@ -73,6 +80,16 @@ const SignUp: React.FC = () => {
                 setMessage('An error occurred: ' + error.message);
             }
         }
+    };
+
+    const handleDjNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        if (value.includes('/')) {
+            setDjNameError('DJ Name cannot contain slashes.');
+        } else {
+            setDjNameError('');
+        }
+        setDjName(value);
     };
 
     return (
@@ -126,10 +143,11 @@ const SignUp: React.FC = () => {
                             type="text"
                             id="djName"
                             value={djName}
-                            onChange={(e) => setDjName(e.target.value)}
+                            onChange={handleDjNameChange}
                             required
                             className="input-field"
                         />
+                        {djNameError && <p style={{ color: 'red' }}>{djNameError}</p>}
                     </div>
                     <div className="form-group">
                         <label htmlFor="displayName">Display Name</label>
