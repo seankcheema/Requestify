@@ -195,10 +195,10 @@ def search():
     if not djName:
         return jsonify({"message": "User not found"}), 404
 
-    
     query = request.args.get('query')
     if not query:
         return jsonify({"message": "Search query is required"}), 400
+
     tracks = search_song(query)
 
     for track in tracks:
@@ -210,11 +210,11 @@ def search():
         sql = """
         INSERT INTO tracks (djName, trackName, artist, album, external_url)
         VALUES (%s, %s, %s, %s, %s)
-        djName = VALUES(djName),
-        trackName = VALUES(trackName),
-        artist = VALUES(artist),
-        album = VALUES(album),
-        external_url = VALUES(external_url)
+        ON DUPLICATE KEY UPDATE
+            trackName = VALUES(trackName),
+            artist = VALUES(artist),
+            album = VALUES(album),
+            external_url = VALUES(external_url);
         """
 
         val = (user_id, track_name, artist, album, external_url)
@@ -222,6 +222,7 @@ def search():
         mydb.commit()
 
     return jsonify(tracks)
+
 
 @app.route('/stripe/create-tip-payment', methods=['POST'])
 def create_payment_intent():

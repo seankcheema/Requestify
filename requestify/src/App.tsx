@@ -25,13 +25,14 @@ import MobileHome from './components/MobileHome';
 import MobilePayment from './components/MobilePayment';
 import MobileActivity from './components/MobileActivity';
 import ProtectedRoute from './components/ProtectedRoute';
+import Search from './components/Search';
 import { mobileOrDesktop } from './utils/DeviceTypeCheck';
 import { getAuth } from 'firebase/auth';
 
 const App: React.FC = () => {
     const isMobile = mobileOrDesktop();
     const auth = getAuth();
-    const user = auth.currentUser;  // Check if user is authenticated
+    const user = auth.currentUser; // Check if user is authenticated
 
     return (
         <Router>
@@ -63,6 +64,9 @@ const App: React.FC = () => {
                     <Route path="login" element={<Login />} />
                     <Route path="create-account" element={<SignUp />} />
 
+                    {/* Search Route */}
+                    <Route path="search/:djName" element={<MobileHome />} />
+
                     {/* Mobile Routes */}
                     <Route path="0" element={<MobileHome />} />
                     <Route path="0/payment" element={<MobilePayment />} />
@@ -77,4 +81,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-
