@@ -26,22 +26,30 @@ import MobilePayment from './components/MobilePayment';
 import MobileActivity from './components/MobileActivity';
 import ProtectedRoute from './components/ProtectedRoute';
 import { mobileOrDesktop } from './utils/DeviceTypeCheck';
+import { getAuth } from 'firebase/auth';
 
 const App: React.FC = () => {
-    //Checks if user is on a phone or desktop
     const isMobile = mobileOrDesktop();
+    const auth = getAuth();
+    const user = auth.currentUser;  // Check if user is authenticated
 
     return (
         <Router>
             <div className="App">
                 <Routes>
-                    {/* If the user is on mobile, redirects "/" to the mobile home route*/}
-                    <Route 
-                        path="/" 
-                        element={isMobile ? <Navigate to="/0" /> : <Navigate to="/dashboard" />} 
+                    {/* Default Route */}
+                    <Route
+                        path="/"
+                        element={
+                            isMobile ? (
+                                <Navigate to="/0" />
+                            ) : (
+                                user ? <Navigate to="/dashboard" /> : <Navigate to="/login" />
+                            )
+                        }
                     />
 
-                    {/*Protected Dashboard Route for Logged in Users Only */}
+                    {/* Protected Dashboard Route */}
                     <Route
                         path="dashboard"
                         element={
@@ -51,16 +59,16 @@ const App: React.FC = () => {
                         }
                     />
 
-                    {/*Public Routes for Authentication*/}
+                    {/* Public Routes */}
                     <Route path="login" element={<Login />} />
                     <Route path="create-account" element={<SignUp />} />
 
-                    {/*Routes for Mobile*/}
+                    {/* Mobile Routes */}
                     <Route path="0" element={<MobileHome />} />
                     <Route path="0/payment" element={<MobilePayment />} />
                     <Route path="0/activity" element={<MobileActivity />} />
 
-                    {/*Catch-all that redirects any unknown routes to the correct homepage*/}
+                    {/* Catch-all Route */}
                     <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
             </div>
@@ -69,3 +77,4 @@ const App: React.FC = () => {
 };
 
 export default App;
+
