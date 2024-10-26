@@ -10,6 +10,7 @@ const SignUp: React.FC = () => {
     const [password, setPassword] = useState<string>('');
     const [confirmPassword, setConfirmPassword] = useState<string>('');
     const [djName, setDjName] = useState<string>('');
+    const [displayName, setDisplayName] = useState<string>('');
     const [location, setLocation] = useState<string>('');
     const [socialMedia, setSocialMedia] = useState<string>('');
     const [message, setMessage] = useState<string>('');
@@ -45,8 +46,9 @@ const SignUp: React.FC = () => {
             await axios.post(
                 'http://localhost:5001/register',
                 {
-                    username: email,
+                    email: email,
                     djName,
+                    displayName,
                     location,
                     socialMedia,
                 },
@@ -125,6 +127,17 @@ const SignUp: React.FC = () => {
                             id="djName"
                             value={djName}
                             onChange={(e) => setDjName(e.target.value)}
+                            required
+                            className="input-field"
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="displayName">Display Name</label>
+                        <input
+                            type="text"
+                            id="displayName"
+                            value={displayName}
+                            onChange={(e) => setDisplayName(e.target.value)}
                             required
                             className="input-field"
                         />
