@@ -7,6 +7,9 @@ from spotify import search_song
 from stripeFile import create_payment_link, create_tip_payment
 from dotenv import load_dotenv
 import os
+import qrcode
+import base64
+from io import BytesIO
 
 load_dotenv(".env")
 
@@ -60,6 +63,7 @@ def verify_id_token(id_token):
 def register():
     auth_header = request.headers.get('Authorization')
 
+    # Check for a valid Authorization header
     if not auth_header or not auth_header.startswith("Bearer "):
         return jsonify({"message": "Authorization header missing or malformed"}), 401
 
@@ -75,18 +79,38 @@ def register():
     location = data.get('location')
     social_media = data.get('socialMedia')
 
+    # Validate DJ name is provided
+    if not dj_name:
+        return jsonify({"message": "DJ name is required"}), 400
+
     # Check if the user already exists
     query_check = "SELECT * FROM users WHERE username = %s"
     mycursor.execute(query_check, (username,))
     if mycursor.fetchone():
         return jsonify({"message": "User already exists"}), 409
 
-    # Insert user into MySQL database
-    query = "INSERT INTO users (username, password, djName, location, socialMedia) VALUES (%s, %s, %s, %s, %s)"
-    mycursor.execute(query, (username, None, dj_name, location, social_media))  # Password is managed by Firebase
+    # Generate the URL for the QR code: http://localhost:3000/search/dj_name
+    qr_url = f"http://localhost:3000/search/{dj_name}"
+
+    # Generate the QR Code with the above URL
+    qr_img = qrcode.make(qr_url)
+
+    # Convert QR Code to Base64 string
+    buffered = BytesIO()
+    qr_img.save(buffered, format="PNG")
+    qr_code_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
+
+    # Insert the user data along with the QR code and link into the database
+    query = """
+        INSERT INTO users (username, password, djName, location, socialMedia, qrCode, productLink)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+    """
+
+    #Doesn't need to store the link to the DJ search page, only the generated QR code (hence None at the end)
+    mycursor.execute(query, (username, None, dj_name, location, social_media, qr_code_base64, None))
     mydb.commit()
 
-    return jsonify({"message": "User registered successfully"}), 201
+    return jsonify({"message": "User registered successfully", "qrCode": qr_code_base64}), 201
 
 
 @app.route('/login', methods=['POST'])
@@ -152,7 +176,7 @@ def create_payment_link_route():
 #Used to get information about the DJ
 @app.route('/user/<username>', methods=['GET'])
 def get_user_profile(username):
-    query = "SELECT username, djName, location, socialMedia FROM users WHERE username = %s"
+    query = "SELECT username, djName, location, socialMedia, qrCode FROM users WHERE username = %s"
     mycursor.execute(query, (username,))
     user = mycursor.fetchone()
 
@@ -161,11 +185,13 @@ def get_user_profile(username):
             "username": user[0],
             "djName": user[1],
             "location": user[2],
-            "socialMedia": user[3]
+            "socialMedia": user[3],
+            "qrCode": user[4]  # Base64 QR code
         }
         return jsonify(user_data), 200
     else:
         return jsonify({"message": "User not found"}), 404
+
 
 
 if __name__ == '__main__':

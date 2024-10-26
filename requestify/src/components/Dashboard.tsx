@@ -3,7 +3,7 @@ import Header from './Header';
 import Queue from './Queue';
 import Notifications from './Notifications';
 import Profile from './Profile';
-import QRCode from './QRCode';
+import QRCode from './QRCode1';
 import SendMessage from './SendMessage';
 import { getAuth, signOut, User } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
@@ -64,14 +64,19 @@ const Dashboard: React.FC = () => {
                 <Notifications />
                 <div className="mini-tiles">
                     {profileData && (
-                        <Profile
-                            username={profileData.username}
-                            djName={profileData.djName}
-                            location={profileData.location}
-                            socialMedia={profileData.socialMedia}
-                        />
+                        <>
+                            <Profile
+                                username={profileData.username}
+                                djName={profileData.djName}
+                                location={profileData.location}
+                                socialMedia={profileData.socialMedia}
+                            />
+                            {/* Render QR Code Component if Available */}
+                            {profileData.qrCode && (
+                                <QRCode qrCodeData={profileData.qrCode} />
+                            )}
+                        </>
                     )}
-                    <QRCode />
                     <SendMessage />
                 </div>
             </div>
