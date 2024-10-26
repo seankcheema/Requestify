@@ -24,7 +24,7 @@ const Dashboard: React.FC = () => {
             if (!user) return;
 
             try {
-                const response = await axios.get(`http://localhost:5000/user/${user.email}`);
+                const response = await axios.get(`http://localhost:5001/user/${user.email}`);
                 setProfileData(response.data);
             } catch (error) {
                 console.error('Error fetching profile data:', error);
@@ -66,8 +66,9 @@ const Dashboard: React.FC = () => {
                     {profileData && (
                         <>
                             <Profile
-                                username={profileData.username}
+                                email={profileData.email}
                                 djName={profileData.djName}
+                                displayName={profileData.displayName}
                                 location={profileData.location}
                                 socialMedia={profileData.socialMedia}
                             />

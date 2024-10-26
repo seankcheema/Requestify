@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import './Dashboard.css';
 
 interface ProfileProps {
-  username: string;
+  email: string;
   djName: string;
+  displayName: string;
   location: string;
   socialMedia: string;
 }
 
-const Profile: React.FC<ProfileProps> = ({ username, djName, location, socialMedia }) => {
+const Profile: React.FC<ProfileProps> = ({ email, djName, displayName, location, socialMedia }) => {
   const [isProfilePopupOpen, setIsProfilePopupOpen] = useState(false);
 
   const handleOpenProfilePopup = () => {
@@ -34,7 +35,7 @@ const Profile: React.FC<ProfileProps> = ({ username, djName, location, socialMed
               <img src="/assets/profile.png" alt="Profile" className="popup-profile-img" />
               <h2>DJ name: {djName}</h2>
               <p>DJ Location: {location}</p>
-              <p>Welcome, {username}!</p>
+              <p>Welcome, {displayName}!</p>
               <p>Social Media: {socialMedia}</p>
             </div>
           </div>

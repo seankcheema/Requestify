@@ -16,6 +16,8 @@ load_dotenv(".env")
 #Sets up the stripe api key from the env var
 REACT_APP_FIREBASE_API_KEY = os.getenv('REACT_APP_FIREBASE_API_KEY')
 
+IP = os.getenv('REACT_APP_API_IP')
+
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
@@ -31,14 +33,33 @@ mydb = mysql.connector.connect(
 mycursor = mydb.cursor()
 mycursor.execute("USE requestifyAccount")
 
+mycursor.execute("DROP TABLE IF EXISTS users")
 # Create users table if it doesn't exist
 mycursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
-    username VARCHAR(100) UNIQUE PRIMARY KEY,
-    password VARCHAR(100)
+    email VARCHAR(100) UNIQUE PRIMARY KEY,
+    djName VARCHAR(100) UNIQUE,
+    displayName VARCHAR(100),
+    location VARCHAR(100),
+    socialMedia VARCHAR(100),
+    qrCode TEXT,
+    productLink TEXT
     )
 """)
 print("Table created successfully or already exists")
+
+mycursor.execute("DROP TABLE IF EXISTS tracks")
+# Create users table with additional fields
+mycursor.execute("""
+    CREATE TABLE IF NOT EXISTS tracks (
+        djName VARCHAR(100) UNIQUE PRIMARY KEY,
+        trackName VARCHAR(100),
+        artist VARCHAR(100),
+        album VARCHAR(100),
+        external_url VARCHAR(100)
+    )
+""")
+
 
 def verify_id_token(id_token):
     """Verify Firebase ID token using Firebase REST API."""
@@ -59,6 +80,35 @@ def verify_id_token(id_token):
         print(f"Error verifying token: {e}")
         return None
 
+def get_user():
+    api_key = REACT_APP_FIREBASE_API_KEY
+    url = 'https://identitytoolkit.googleapis.com/v1/accounts:lookup?key={api_key}'
+    id_token = request.headers.get('Authorization')
+    if not id_token:
+        return None
+    try:
+        #verify the id token using firebase rest api
+        response = requests.post(url, json={"idToken": id_token})
+        response_data = response.json()
+        if 'users' in response_data:
+            user_id = response_data['users'][0]['localId']
+            return user_id
+        else:
+            return None
+    except Exception as e:
+        print(f"Error verifying token: {e}")
+        return None
+
+def get_dj_name(djName):
+    query = "SELECT displayName FROM users WHERE djName = %s"
+    mycursor.execute(query, (djName,))
+    result = mycursor.fetchone()
+    json_result = jsonify(result)
+    if result:
+        return json_result
+    else:
+        return None
+
 @app.route('/register', methods=['POST'])
 def register():
     auth_header = request.headers.get('Authorization')
@@ -74,8 +124,9 @@ def register():
         return jsonify({"message": "Invalid Firebase token"}), 401
 
     data = request.get_json()
-    username = data['username']
+    email = data['email']
     dj_name = data.get('djName')
+    displayName = data.get('displayName')
     location = data.get('location')
     social_media = data.get('socialMedia')
 
@@ -84,13 +135,13 @@ def register():
         return jsonify({"message": "DJ name is required"}), 400
 
     # Check if the user already exists
-    query_check = "SELECT * FROM users WHERE username = %s"
-    mycursor.execute(query_check, (username,))
+    query_check = "SELECT * FROM users WHERE email = %s"
+    mycursor.execute(query_check, (email,))
     if mycursor.fetchone():
         return jsonify({"message": "User already exists"}), 409
 
     # Generate the URL for the QR code: http://localhost:3000/search/dj_name
-    qr_url = f"http://localhost:3000/search/{dj_name}"
+    qr_url = f"http://{IP}:3000/search/{dj_name}"
 
     # Generate the QR Code with the above URL
     qr_img = qrcode.make(qr_url)
@@ -102,12 +153,12 @@ def register():
 
     # Insert the user data along with the QR code and link into the database
     query = """
-        INSERT INTO users (username, password, djName, location, socialMedia, qrCode, productLink)
+        INSERT INTO users (email, djName, displayName, location, socialMedia, qrCode, productLink)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
     """
 
     #Doesn't need to store the link to the DJ search page, only the generated QR code (hence None at the end)
-    mycursor.execute(query, (username, None, dj_name, location, social_media, qr_code_base64, None))
+    mycursor.execute(query, (email, dj_name, displayName, location, social_media, qr_code_base64, None))
     mydb.commit()
 
     return jsonify({"message": "User registered successfully", "qrCode": qr_code_base64}), 201
@@ -129,7 +180,7 @@ def login():
     email = decoded_token['users'][0]['email']  # Extract email from decoded token
 
     # Check if the user exists in the MySQL database
-    query = "SELECT password FROM users WHERE username = %s"
+    query = "SELECT djName FROM users WHERE email = %s"
     mycursor.execute(query, (email,))
     result = mycursor.fetchone()
 
@@ -140,10 +191,36 @@ def login():
 
 @app.route('/search', methods=['GET'])
 def search():
+    user_id = get_user()
+    if not user_id:
+        return jsonify({"message": "User not found"}), 404
+
+    
     query = request.args.get('query')
     if not query:
         return jsonify({"message": "Search query is required"}), 400
     tracks = search_song(query)
+
+    for track in tracks:
+        track_name = track['name']
+        artist = track['artist']
+        album = track['album']
+        external_url = track['external_url']
+
+        sql = """
+        INSERT INTO tracks (djName, trackName, artist, album, external_url)
+        VALUES (%s, %s, %s, %s, %s)
+        djName = VALUES(djName),
+        trackName = VALUES(trackName),
+        artist = VALUES(artist),
+        album = VALUES(album),
+        external_url = VALUES(external_url)
+        """
+
+        val = (user_id, track_name, artist, album, external_url)
+        mycursor.execute(sql, val)
+        mydb.commit()
+
     return jsonify(tracks)
 
 @app.route('/stripe/create-tip-payment', methods=['POST'])
@@ -174,19 +251,20 @@ def create_payment_link_route():
         return jsonify({'error': str(e)}), 500
 
 #Used to get information about the DJ
-@app.route('/user/<username>', methods=['GET'])
-def get_user_profile(username):
-    query = "SELECT username, djName, location, socialMedia, qrCode FROM users WHERE username = %s"
-    mycursor.execute(query, (username,))
+@app.route('/user/<email>', methods=['GET'])
+def get_user_profile(email):
+    query = "SELECT email, djName, displayName, location, socialMedia, qrCode FROM users WHERE email = %s"
+    mycursor.execute(query, (email,))
     user = mycursor.fetchone()
 
     if user:
         user_data = {
-            "username": user[0],
+            "email": user[0],
             "djName": user[1],
-            "location": user[2],
-            "socialMedia": user[3],
-            "qrCode": user[4]  # Base64 QR code
+            "displayName": user[2],
+            "location": user[3],
+            "socialMedia": user[4],
+            "qrCode": user[5]  # Base64 QR code
         }
         return jsonify(user_data), 200
     else:
