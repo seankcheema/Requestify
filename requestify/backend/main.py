@@ -80,7 +80,7 @@ def verify_id_token(id_token):
         print(f"Error verifying token: {e}")
         return None
 
-def get_user():
+def get_dj():
     api_key = REACT_APP_FIREBASE_API_KEY
     url = 'https://identitytoolkit.googleapis.com/v1/accounts:lookup?key={api_key}'
     id_token = request.headers.get('Authorization')
@@ -91,8 +91,8 @@ def get_user():
         response = requests.post(url, json={"idToken": id_token})
         response_data = response.json()
         if 'users' in response_data:
-            user_id = response_data['users'][0]['localId']
-            return user_id
+            djName = response_data['users'][0]['localId']
+            return djName
         else:
             return None
     except Exception as e:
@@ -191,8 +191,8 @@ def login():
 
 @app.route('/search', methods=['GET'])
 def search():
-    user_id = get_user()
-    if not user_id:
+    djName = get_dj()
+    if not djName:
         return jsonify({"message": "User not found"}), 404
 
     
