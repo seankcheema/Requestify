@@ -4,31 +4,9 @@ import { useNavigate } from 'react-router-dom';  // Import useNavigate from reac
 import './MobileHome.css';
 
 const RequestifyLayout: React.FC = () => {
-
   const [query, setQuery] = useState(''); // State to store the user's input
-  const [djName, setDjName] = useState(''); // State to store the DJ's name
   const [searchResult, setSearchResult] = useState(null); // State to store the result from the backend
   const navigate = useNavigate(); // Initialize useNavigate for navigation
-
-  // Fetch the DJ's name when the component mounts
-  useEffect(() => {
-    const fetchDjName = async () => {
-        const ipAddress = process.env.REACT_APP_API_IP;
-        try {
-            const response = await fetch(`http://${ipAddress}:5001/api/current-dj`);
-            const data = await response.json();
-            if (response.ok) {
-                setDjName(data.name);
-            } else {
-                console.error('Error fetching DJ name:', data.message);
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    };
-
-    fetchDjName();
-}, []);
 
   // Function to handle the search request
   const handleSearch = async () => {
@@ -38,7 +16,6 @@ const RequestifyLayout: React.FC = () => {
     }
 
     const ipAddress = process.env.REACT_APP_API_IP;
-    console.log(djName);
 
     try {
       const response = await fetch(`http://${ipAddress}:5001/search?query=${encodeURIComponent(query)}`);
