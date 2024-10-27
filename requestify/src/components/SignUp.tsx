@@ -1,19 +1,22 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
+import { createUserWithEmailAndPassword } from 'firebase/auth'; // Firebase method
+import { auth } from './firebaseConfig'; // Firebase config
 import './SignUp.css';
 
 const SignUp: React.FC = () => {
-    const [username, setUsername] = useState<string>(''); 
+    const [email, setEmail] = useState<string>(''); // Changed from setUsername to setEmail
     const [password, setPassword] = useState<string>('');
     const [confirmPassword, setConfirmPassword] = useState<string>('');
     const [djName, setDjName] = useState<string>('');
+    const [displayName, setDisplayName] = useState<string>('');
     const [location, setLocation] = useState<string>('');
     const [socialMedia, setSocialMedia] = useState<string>('');
     const [message, setMessage] = useState<string>('');
+    const [djNameError, setDjNameError] = useState<string>(''); // Error state for DJ Name
     const navigate = useNavigate();
 
-    
     const goToLogin = () => {
         navigate('/login');
     };
@@ -21,57 +24,93 @@ const SignUp: React.FC = () => {
     const handleSignUp = async (event: React.FormEvent) => {
         event.preventDefault();
 
-        if (!username.includes('@')) {
-            setMessage('Username must include "@" symbol');
+        // Basic email validation
+        if (!email.includes('@')) {
+            setMessage('Please enter a valid email.');
             return;
         }
 
         if (password !== confirmPassword) {
-            setMessage('Passwords do not match');
+            setMessage('Passwords do not match.');
+            return;
+        }
+
+        // DJ Name validation
+        if (djName.includes('/')) {
+            setDjNameError('DJ Name cannot contain slashes.');
             return;
         }
 
         try {
-            const response = await axios.post('http://localhost:5001/register', {
-                username,
-                password,
-                djName,
-                location,
-                socialMedia,
-            });
+            // Register the user with Firebase
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
 
-            setMessage(response.data.message);
+            // Get the Firebase ID token to send to the backend
+            const idToken = await user.getIdToken();
 
+            // Send additional user data along with the ID token to the Flask backend
+            await axios.post(
+                'http://localhost:5001/register',
+                {
+                    email: email,
+                    djName,
+                    displayName,
+                    location,
+                    socialMedia,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${idToken}`, // Send the ID token in the header
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            setMessage('Account created successfully!');
             goToLogin();
-        } catch (error) {
-            if (axios.isAxiosError(error) && error.response) {
-                setMessage(error.response.data.message);
+        } catch (error: any) {
+            if (error.code === 'auth/email-already-in-use') {
+                setMessage('Email is already registered.');
+            } else if (error.code === 'auth/invalid-email') {
+                setMessage('Invalid email format.');
+            } else if (error.code === 'auth/weak-password') {
+                setMessage('Password should be at least 6 characters.');
             } else {
-                setMessage('An error occurred');
+                setMessage('An error occurred: ' + error.message);
             }
         }
     };
 
+    const handleDjNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        if (value.includes('/')) {
+            setDjNameError('DJ Name cannot contain slashes.');
+        } else {
+            setDjNameError('');
+        }
+        setDjName(value);
+    };
 
     return (
         <div
             className="sign-up-container"
-            style={{ 
-                backgroundImage: "url('assets/Login_Background_img.png')", 
-                backgroundSize: 'cover', 
-                backgroundPosition: 'center' 
+            style={{
+                backgroundImage: "url('assets/Login_Background_img.png')",
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
             }}
         >
             <div className="sign-up-form">
                 <h2>Create Account</h2>
                 <form onSubmit={handleSignUp} className="form">
                     <div className="form-group">
-                        <label htmlFor="username">Username</label>
+                        <label htmlFor="email">Email</label>
                         <input
-                            type="text"
-                            id="username"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            type="email"
+                            id="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                             required
                             className="input-field"
                         />
@@ -104,7 +143,19 @@ const SignUp: React.FC = () => {
                             type="text"
                             id="djName"
                             value={djName}
-                            onChange={(e) => setDjName(e.target.value)}
+                            onChange={handleDjNameChange}
+                            required
+                            className="input-field"
+                        />
+                        {djNameError && <p style={{ color: 'red' }}>{djNameError}</p>}
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="displayName">Display Name</label>
+                        <input
+                            type="text"
+                            id="displayName"
+                            value={displayName}
+                            onChange={(e) => setDisplayName(e.target.value)}
                             required
                             className="input-field"
                         />
@@ -131,12 +182,12 @@ const SignUp: React.FC = () => {
                             className="input-field"
                         />
                     </div>
-                    <button type="submit" className="sign-up-button" >Sign Up</button>
+                    <button type="submit" className="sign-up-button">
+                        Sign Up
+                    </button>
                 </form>
                 <p className="login" onClick={goToLogin}>
-                    <a href="#">
-                        Already have an account? Login
-                    </a>
+                    <a href="#">Already have an account? Login</a>
                 </p>
                 {message && <p className="message">{message}</p>}
             </div>

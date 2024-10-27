@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';  // Import useNavigate from reac
 import './MobileHome.css';
 
 const RequestifyLayout: React.FC = () => {
-
   const [query, setQuery] = useState(''); // State to store the user's input
   const [searchResult, setSearchResult] = useState(null); // State to store the result from the backend
   const navigate = useNavigate(); // Initialize useNavigate for navigation

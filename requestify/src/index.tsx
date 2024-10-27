@@ -13,6 +13,7 @@ root.render(
   </React.StrictMode>
 );
 
+
 <script async
   src="https://js.stripe.com/v3/buy-button.js">
 </script>

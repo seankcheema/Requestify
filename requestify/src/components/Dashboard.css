@@ -430,3 +430,38 @@
   margin: 5px 0;
   margin-top: 15px;
 }
+
+.logout-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+/* Ensure container fills the screen */
+.container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+}
+
+/* Position logout button in top-right corner */
+.logout-container {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+/* Style for the logout button */
+.logout-container button {
+  padding: 10px 20px;
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.logout-container button:hover {
+  background-color: #ff7875;
+}
