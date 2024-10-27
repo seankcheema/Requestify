@@ -82,9 +82,7 @@ def verify_id_token(id_token):
 
 def get_dj():
     url = request.referrer
-    print(url)
     djName = url.split('/')[-1]
-    
     return djName
 
 #def get_dj_name(djName):
