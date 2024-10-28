@@ -93,7 +93,7 @@ const RequestifyLayout: React.FC = () => {
             <div className="payment-tile" onClick={goToPayment}>  {/* Navigate on click */}
                 <h3>Send a tip</h3>
                 <div className="payment-options">
-                    <img src="./assets/stripe.png" alt="Stripe" />
+                    <img src="/assets/stripe.png" alt="Stripe" />
                 </div>
           </div>
         </div>

@@ -251,7 +251,7 @@
   padding: 20px;
   padding-top: 0; /* Remove padding from the top */
   border-radius: 10px;
-  width: 600px;  /* Increased width */
+  width: 75%;  /* Increased width */
   max-width: 90%; /* Allow resizing */
   flex-direction: column;
   max-height: 90%; /* Allow vertical resizing */
