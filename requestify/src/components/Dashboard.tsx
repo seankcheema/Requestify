@@ -11,6 +11,7 @@ import axios from 'axios';
 
 const Dashboard: React.FC = () => {
     const [profileData, setProfileData] = useState<any>(null);
+    const [djName, setDjName] = useState('');
     const navigate = useNavigate();
     const auth = getAuth();
 
@@ -54,13 +55,17 @@ const Dashboard: React.FC = () => {
     };
 
     return (
+
+    
+
         <div className="container">
             <div className="logout-container">
                 <button onClick={handleLogout}>Logout</button>
             </div>
             <Header />
             <div className="main-content">
-                <Queue />
+                {/* Render Queue component only when profileData is available */}
+                {profileData && <Queue djName={profileData.djName} />}
                 <Notifications />
                 <div className="mini-tiles">
                     {profileData && (
