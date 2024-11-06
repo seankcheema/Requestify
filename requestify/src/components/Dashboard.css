@@ -431,6 +431,33 @@
   margin-top: 15px;
 }
 
+/* QR Code-specific styles */
+
+/* QR Code caption below the image */
+.qrcode .qr-code-caption {
+  font-size: 1rem;
+  color: #ffffff;
+  margin-top: 8px;
+}
+
+/* Popup QR code button spacing */
+.qr-popup-content .download-btn {
+  margin-bottom: 16px; /* Space between the download button and link text */
+}
+
+/* Popup QR code link text */
+.qr-popup-content .qr-link-text {
+  margin-bottom: 8px;
+  font-size: 1rem;
+  color: #ffffff;
+}
+
+.qr-popup-content .qr-link {
+  color: #00bfff;
+  text-decoration: underline;
+}
+
+
 .logout-container {
   display: flex;
   justify-content: center;
