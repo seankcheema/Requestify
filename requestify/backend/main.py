@@ -57,6 +57,7 @@ mycursor.execute("""
         artist VARCHAR(100),
         album VARCHAR(100),
         external_url VARCHAR(100),
+        album_cover_url VARCHAR(255),
         UNIQUE KEY (djName, trackName, artist, album)
     )
 """)
@@ -200,15 +201,17 @@ def search():
         artist = track['artist']
         album = track['album']
         external_url = track['external_url']
+        album_cover_url = track['album_cover_url']
 
         sql = """
-        INSERT INTO tracks (djName, trackName, artist, album, external_url)
-        VALUES (%s, %s, %s, %s, %s)
+        INSERT INTO tracks (djName, trackName, artist, album, external_url, album_cover_url)
+        VALUES (%s, %s, %s, %s, %s, %s)
             ON DUPLICATE KEY UPDATE
-            external_url = VALUES(external_url);
+            external_url = %s,
+            album_cover_url = %s;
         """
 
-        val = (djName, track_name, artist, album, external_url)
+        val = (djName, track_name, artist, album, external_url, album_cover_url, external_url, album_cover_url)
         mycursor.execute(sql, val)
         mydb.commit()
 
@@ -265,7 +268,7 @@ def get_user_profile(email):
 @app.route('/tracks/<djName>', methods=['GET'])
 def get_tracks(djName):
     try:
-        query = "SELECT trackName, artist, album, external_url FROM tracks WHERE djName = %s"
+        query = "SELECT trackName, artist, album, external_url, album_cover_url FROM tracks WHERE djName = %s"
         mycursor.execute(query, (djName,))
         tracks = mycursor.fetchall()
         #add something to remove tracks once we have this working

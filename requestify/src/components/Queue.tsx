@@ -7,13 +7,13 @@ interface QueueProps {
   djName: string;
 }
 
-// Define a type for the track data if you know the structure
+// Define a type for the track data
 interface Track {
   trackName: string;
   artist: string;
   album: string;
   external_url: string;
-  upvotes: number;
+  album_cover_url: string;
 }
 
 const Queue: React.FC<QueueProps> = ({ djName }) => {
@@ -55,7 +55,7 @@ const Queue: React.FC<QueueProps> = ({ djName }) => {
           {tracks.length > 0 ? (
             tracks.map((track, index) => (
               <div key={index} className="song-item">
-                <img src="/assets/song1.png" alt="Album cover" />
+                <img src={track[4]} alt={`${track[2]} cover`} className="album-cover" />
                 <div className="song-info">
                   <p>{track[0]}</p> {/* Track name */}
                   <p className="artist">{track[1]}</p> {/* Artist name */}
