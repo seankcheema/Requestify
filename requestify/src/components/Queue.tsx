@@ -19,31 +19,33 @@ interface Track {
 const Queue: React.FC<QueueProps> = ({ djName }) => {
   const [tracks, setTracks] = useState<string[][]>([]);
 
-
-  useEffect(() => {
-    const fetchTracks = async () => {
-      try {
-        const response = await fetch(`http://localhost:5001/tracks/${djName}`);
-        
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status}`);
-        }
-
-        const data: string[][] = await response.json();
-        setTracks(data);
-      } catch (error) {
-        console.error("Failed to fetch tracks:", error);
+  const fetchTracks = async () => {
+    try {
+      const response = await fetch(`http://localhost:5001/tracks/${djName}`);
+      
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
       }
-    };
 
-    fetchTracks();
-  }, [djName]);
+      const data: string[][] = await response.json();
+      setTracks(data);
+    } catch (error) {
+      console.error("Failed to fetch tracks:", error);
+    }
+  };
 
   useEffect(() => {
-    console.log("Tracks fetched:", tracks); // Log the entire tracks array
-  }, [tracks]);
+    // Initial fetch
+    fetchTracks();
 
+    // Set up polling interval
+    const intervalId = setInterval(() => {
+      fetchTracks();
+    }, 5000); // Fetch every 5 seconds (adjust as needed)
 
+    // Clear the interval on component unmount
+    return () => clearInterval(intervalId);
+  }, [djName]);
 
   return (
     <section className="queue">
