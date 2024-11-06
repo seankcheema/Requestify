@@ -12,7 +12,6 @@ import axios from 'axios';
 
 const Dashboard: React.FC = () => {
     const [profileData, setProfileData] = useState<any>(null);
-    const [djName, setDjName] = useState('');
     const navigate = useNavigate();
     const { djName: paramDJName } = useParams<{ djName: string }>(); // Get djName from URL params
     const auth = getAuth();
@@ -56,40 +55,37 @@ const Dashboard: React.FC = () => {
             });
     };
 
-    return (
-
-    
-
-        <div className="container">
-            <div className="logout-container">
-                <button onClick={handleLogout}>Logout</button>
-            </div>
-            <Header />
-            <div className="main-content">
-                {/* Render Queue component only when profileData is available */}
-                {profileData && <Queue djName={profileData.djName} />}
-                <Notifications />
-                <div className="mini-tiles">
-                    {profileData && (
-                        <>
-                            <Profile
-                                email={profileData.email}
-                                djName={profileData.djName}
-                                displayName={profileData.displayName}
-                                location={profileData.location}
-                                socialMedia={profileData.socialMedia}
-                            />
-                            {/* Render QR Code Component if Available */}
-                            {profileData.qrCode && (
-                                <QRCode qrCodeData={profileData.qrCode} djName={profileData.djName} />
-                            )}
-                        </>
-                    )}
-                    <SendMessage />
-                </div>
+   return (
+    <div className="container">
+        <div className="logout-container">
+            <button onClick={handleLogout}>Logout</button>
+        </div>
+        <Header />
+        <div className="main-content">
+            {profileData && <Queue djName={profileData.djName} />} {/* Pass the djName prop */}
+            <Notifications />
+            <div className="mini-tiles">
+                {profileData && (
+                    <>
+                        <Profile
+                            email={profileData.email}
+                            djName={profileData.djName}
+                            displayName={profileData.displayName}
+                            location={profileData.location}
+                            socialMedia={profileData.socialMedia}
+                        />
+                        {/* Render QR Code Component if Available */}
+                        {profileData.qrCode && (
+                            <QRCode qrCodeData={profileData.qrCode} djName={profileData.djName} />
+                        )}
+                    </>
+                )}
+                <SendMessage />
             </div>
         </div>
-    );
+    </div>
+);
+
 };
 
 export default Dashboard;
