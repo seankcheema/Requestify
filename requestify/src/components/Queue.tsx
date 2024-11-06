@@ -17,7 +17,7 @@ interface Track {
 }
 
 const Queue: React.FC<QueueProps> = ({ djName }) => {
-  const [tracks, setTracks] = useState<Track[]>([]);
+  const [tracks, setTracks] = useState<string[][]>([]);
 
 
   useEffect(() => {
@@ -29,8 +29,7 @@ const Queue: React.FC<QueueProps> = ({ djName }) => {
           throw new Error(`Error: ${response.status}`);
         }
 
-        const data: Track[] = await response.json();
-        console.log("Fetched tracks:", data); // Log the fetched data
+        const data: string[][] = await response.json();
         setTracks(data);
       } catch (error) {
         console.error("Failed to fetch tracks:", error);
@@ -39,6 +38,12 @@ const Queue: React.FC<QueueProps> = ({ djName }) => {
 
     fetchTracks();
   }, [djName]);
+
+  useEffect(() => {
+    console.log("Tracks fetched:", tracks); // Log the entire tracks array
+  }, [tracks]);
+
+
 
   return (
     <section className="queue">
@@ -50,8 +55,8 @@ const Queue: React.FC<QueueProps> = ({ djName }) => {
               <div key={index} className="song-item">
                 <img src="/assets/song1.png" alt="Album cover" />
                 <div className="song-info">
-                  <p>{track.trackName || "Unknown Title"}</p>
-                  <p className="artist">{track.artist}</p>
+                  <p>{track[0]}</p> {/* Track name */}
+                  <p className="artist">{track[1]}</p> {/* Artist name */}
                 </div>
                 <img src="/assets/Remove icon.svg" alt="Remove button" className="remove-btn" />
               </div>
