@@ -1,16 +1,24 @@
+// Search.tsx
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useDJ } from './DJContext';
 import './MobileHome.css';
 
 const Search: React.FC = () => {
-    const { djName } = useParams<{ djName: string }>(); // Capture the djName from the URL
-    console.log(djName); // Test if the correct value is captured from the URL
-
+    const { djName } = useParams<{ djName: string }>();
+    const { setDJName } = useDJ();
+    const navigate = useNavigate();
     const [tracks, setTracks] = useState<any[]>([]);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        if (djName) {
+            setDJName(djName); // Set djName in context
+            console.log("Setting djName in context and redirecting to /0:", djName); // Debug
+            navigate('/0'); // Redirect to MobileHome after setting djName
+        }
+
         const fetchSearchResults = async () => {
             try {
                 const response = await axios.get(`http://localhost:5001/search`, {
@@ -24,7 +32,7 @@ const Search: React.FC = () => {
         };
 
         fetchSearchResults();
-    }, [djName]);
+    }, [djName, setDJName, navigate]);
 
     if (error) return <p>{error}</p>;
 

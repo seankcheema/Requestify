@@ -1,3 +1,4 @@
+// Login.tsx
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -11,8 +12,8 @@ const Login: React.FC = () => {
     const [message, setMessage] = useState<string>('');
     const navigate = useNavigate();
 
-    const goToDashboard = () => {
-        navigate('/dashboard');
+    const goToDashboard = (djName: string) => {
+        navigate(`/dashboard/${djName}`);
     };
 
     const handleLogin = async (event: React.FormEvent) => {
@@ -23,7 +24,7 @@ const Login: React.FC = () => {
             const user = userCredential.user;
 
             // Get the Firebase ID token (force a fresh token)
-            const idToken = await user.getIdToken(true);  // 'true' forces new token
+            const idToken = await user.getIdToken(true);
 
             // Send the ID token to the backend for validation
             const response = await axios.post(
@@ -37,9 +38,10 @@ const Login: React.FC = () => {
                 }
             );
 
-            console.log(response.data.message)
+            const djName = response.data.djName || user.displayName || 'default'; // Use djName from backend
+
             setMessage(response.data.message);
-            goToDashboard();
+            goToDashboard(djName); // Redirect to dashboard with djName
         } catch (error: any) {
             if (axios.isAxiosError(error) && error.response) {
                 setMessage(error.response.data.message);

@@ -1,37 +1,46 @@
-import React from 'react';
+// MobilePayment.tsx
+import React, { useEffect } from 'react';
 import { FaHome, FaChartLine, FaDollarSign, FaBell, FaExternalLinkAlt } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';  // Import useNavigate from react-router-dom
+import { useNavigate, useParams } from 'react-router-dom';
+import { useDJ } from './DJContext'; // Import DJContext
 import './MobilePayment.css';
 
 const PaymentPage: React.FC = () => {
-    const navigate = useNavigate(); // Initialize useNavigate for navigation
+    const navigate = useNavigate();
+    const { djName: paramDJName } = useParams<{ djName: string }>(); // Get djName from URL parameters
+    const { djName, setDJName } = useDJ();
+
+    // Set djName in context whenever paramDJName changes
+    useEffect(() => {
+        if (paramDJName) {
+            setDJName(paramDJName);
+        }
+    }, [paramDJName, setDJName]);
+
     const handlePayment = () => {
         const paymentLink = 'https://buy.stripe.com/test_3csfYZ4QjeNicCs7ss';
-        window.open(paymentLink, '_blank');  // Redirects to Stripe Payment Page
+        window.open(paymentLink, '_blank'); // Redirects to Stripe Payment Page
     };
 
-    // Function to navigate to the home page
     const goToHome = () => {
-        // Replace 'some-id' with the actual ID value if needed
-        navigate('/0');  // Update the route with the correct ID for your app
+        navigate(`/dj/${paramDJName}`);
     };
 
     const goToActivity = () => {
-        // Replace 'some-id' with the actual ID value if needed
-        navigate('/0/activity');  // Update the route with the correct ID for your app
+        navigate(`/dj/${paramDJName}/activity`);
     };
 
     return (
         <div className="mobile-container">
             <header className="mobile-header">
                 <div className="header-title">
-                    <img src="/assets/requestify-logo.svg" alt="Requestify Logo" className="mobile-header-logo" onClick={goToHome}/>
+                    <img src="/assets/requestify-logo.svg" alt="Requestify Logo" className="mobile-header-logo" onClick={goToHome} />
                 </div>
             </header>
             <FaBell className="bell-icon" />
             <main className="mobile-content">
                 <div className="listening-section">
-                    <p>You are listening to <a href="#">DJ Grant</a></p>
+                    <p>You are listening to <a href="#">{djName}</a></p> {/* Use djName from context */}
                 </div>
                 <div className="payment-section">
                     <div className="payment-tile">
@@ -77,6 +86,4 @@ const PaymentPage: React.FC = () => {
     );
 };
 
-const MobilePayment: React.FC = () => <PaymentPage />;
-
-export default MobilePayment;
+export default PaymentPage;

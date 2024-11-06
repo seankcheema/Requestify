@@ -1,51 +1,57 @@
-import React, { useState } from 'react';
+// MobileActivity.tsx
+import React, { useState, useEffect } from 'react';
 import { FaHome, FaChartLine, FaDollarSign, FaBell, FaArrowUp, FaArrowDown } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useDJ } from './DJContext'; // Import DJContext
 import './MobileActivity.css';
 
 const RequestifyLayout: React.FC = () => {
-  const [upvotes, setUpvotes] = useState(16); // State for current upvotes
-  const [hasUpvoted, setHasUpvoted] = useState(false); // Track if the user has upvoted
-  const [hasDownvoted, setHasDownvoted] = useState(false); // Track if the user has downvoted
+  const [upvotes, setUpvotes] = useState(16);
+  const [hasUpvoted, setHasUpvoted] = useState(false);
+  const [hasDownvoted, setHasDownvoted] = useState(false);
   const navigate = useNavigate();
+  const { djName: paramDJName } = useParams<{ djName: string }>(); // Get djName from URL parameters
+  const { djName, setDJName } = useDJ();
 
-  // Function to handle upvote
+  // Set djName in context whenever paramDJName changes
+  useEffect(() => {
+    if (paramDJName) {
+      setDJName(paramDJName);
+    }
+  }, [paramDJName, setDJName]);
+
   const handleUpvote = () => {
     if (hasUpvoted) {
       setUpvotes(upvotes - 1);
       setHasUpvoted(false);
     } else {
-      setUpvotes(hasDownvoted ? upvotes + 2 : upvotes + 1); // Adjust if previously downvoted
+      setUpvotes(hasDownvoted ? upvotes + 2 : upvotes + 1);
       setHasUpvoted(true);
       setHasDownvoted(false);
     }
   };
 
-  // Function to handle downvote
   const handleDownvote = () => {
     if (hasDownvoted) {
       setUpvotes(upvotes + 1);
       setHasDownvoted(false);
     } else {
-      setUpvotes(hasUpvoted ? upvotes - 2 : upvotes - 1); // Adjust if previously upvoted
+      setUpvotes(hasUpvoted ? upvotes - 2 : upvotes - 1);
       setHasDownvoted(true);
       setHasUpvoted(false);
     }
   };
 
-  // Function to navigate to the home page
   const goToHome = () => {
-    navigate('/0');
+    navigate(`/dj/${paramDJName}`);
   };
 
-  // Function to navigate to the payment page
   const goToPayment = () => {
-    navigate('/0/payment');
+    navigate(`/dj/${paramDJName}/payment`);
   };
 
   return (
     <div className="mobile-container">
-      {/* Header Section */}
       <header className="mobile-header">
         <div className="header-title">
           <img
@@ -59,11 +65,10 @@ const RequestifyLayout: React.FC = () => {
 
       <FaBell className="bell-icon" />
 
-      {/* Main Content */}
       <main className="mobile-content">
         <section className="mobile-queue">
           <h2>
-            Current Queue for <a href="#">DJ Grant</a>
+            Current Queue for <a href="#">{djName}</a> {/* Use djName from context */}
           </h2>
           <div className="mobile-song-container">
             <div className="mobile-song-list">
@@ -73,13 +78,11 @@ const RequestifyLayout: React.FC = () => {
                   <p>Count me out</p>
                   <p className="mobile-artist">Kendrick Lamar</p>
                 </div>
-                {/* Upvote Arrow */}
                 <FaArrowUp
                   className={`mobile-upvote ${hasUpvoted ? 'active-upvote' : ''}`}
                   onClick={handleUpvote}
                 />
                 <div className="mobile-song-upvotes">{upvotes}</div>
-                {/* Downvote Arrow */}
                 <FaArrowDown
                   className={`mobile-downvote ${hasDownvoted ? 'active-downvote' : ''}`}
                   onClick={handleDownvote}
@@ -90,7 +93,6 @@ const RequestifyLayout: React.FC = () => {
         </section>
       </main>
 
-      {/* Bottom Navigation */}
       <footer className="mobile-footer">
         <nav className="bottom-nav">
           <div className="nav-item" onClick={goToHome}>

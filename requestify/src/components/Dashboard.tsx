@@ -1,31 +1,33 @@
+// Dashboard.tsx
 import React, { useEffect, useState } from 'react';
 import Header from './Header';
 import Queue from './Queue';
 import Notifications from './Notifications';
 import Profile from './Profile';
-import QRCode from './QRCode1';
+import QRCode from './QRCode';
 import SendMessage from './SendMessage';
 import { getAuth, signOut, User } from 'firebase/auth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 
 const Dashboard: React.FC = () => {
     const [profileData, setProfileData] = useState<any>(null);
     const navigate = useNavigate();
+    const { djName: paramDJName } = useParams<{ djName: string }>(); // Get djName from URL params
     const auth = getAuth();
 
     useEffect(() => {
-        const zoom = () => {
-            (document.body.style as any).zoom = '90%';
-        };
-        zoom();
-
         const fetchProfileData = async (user: User | null) => {
             if (!user) return;
 
             try {
                 const response = await axios.get(`http://localhost:5001/user/${user.email}`);
                 setProfileData(response.data);
+
+                // Redirect to /dashboard/:djName if URL's djName doesn't match
+                if (response.data.djName && response.data.djName !== paramDJName) {
+                    navigate(`/dashboard/${response.data.djName}`, { replace: true });
+                }
             } catch (error) {
                 console.error('Error fetching profile data:', error);
             }
@@ -40,7 +42,7 @@ const Dashboard: React.FC = () => {
         });
 
         return () => unsubscribe();
-    }, [auth, navigate]);
+    }, [auth, navigate, paramDJName]);
 
     const handleLogout = () => {
         signOut(auth)
@@ -74,7 +76,7 @@ const Dashboard: React.FC = () => {
                             />
                             {/* Render QR Code Component if Available */}
                             {profileData.qrCode && (
-                                <QRCode qrCodeData={profileData.qrCode} />
+                                <QRCode qrCodeData={profileData.qrCode} djName={profileData.djName} />
                             )}
                         </>
                     )}
