@@ -262,6 +262,22 @@ def get_user_profile(email):
     else:
         return jsonify({"message": "User not found"}), 404
 
+@app.route('/tracks/<djName>', methods=['GET'])
+def get_tracks(djName):
+    try:
+        query = "SELECT trackName, artist, album, external_url FROM tracks WHERE djName = %s"
+        mycursor.execute(query, (djName,))
+        tracks = mycursor.fetchall()
+        #add something to remove tracks once we have this working
+
+        if not tracks:
+            return jsonify({"message": "No tracks found"}), 404
+        
+        return jsonify(tracks), 200
+    except Exception as e:
+        print(f"Error retrieving tracks: {e}")
+        return jsonify({"message": "Error retrieving tracks"}), 500
+    
 
 
 if __name__ == '__main__':
