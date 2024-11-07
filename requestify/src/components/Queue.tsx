@@ -14,6 +14,7 @@ interface Track {
   album: string;
   external_url: string;
   album_cover_url: string;
+  upvotes: number;
 }
 
 const Queue: React.FC<QueueProps> = ({ djName }) => {
@@ -31,6 +32,26 @@ const Queue: React.FC<QueueProps> = ({ djName }) => {
       setTracks(data);
     } catch (error) {
       console.error("Failed to fetch tracks:", error);
+    }
+  };
+
+  const removeTrack = async (trackName: string, artist: string) => {
+    try {
+      const response = await fetch(`http://localhost:5001/tracks/delete`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ djName, trackName, artist })
+    });
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+
+    setTracks(tracks.filter(track => track[0] !== trackName && track[1] !== artist));
+    } 
+    catch (error) {
+      console.error("Failed to remove track:", error);
     }
   };
 
@@ -60,7 +81,7 @@ const Queue: React.FC<QueueProps> = ({ djName }) => {
                   <p>{track[0]}</p> {/* Track name */}
                   <p className="artist">{track[1]}</p> {/* Artist name */}
                 </div>
-                <img src="/assets/Remove icon.svg" alt="Remove button" className="remove-btn" />
+                <img src="/assets/Remove icon.svg" alt="Remove button" className="remove-btn" onClick={() => removeTrack(track[0], track[1])}/>
               </div>
             ))
           ) : (
