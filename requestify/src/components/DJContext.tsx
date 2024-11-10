@@ -27,3 +27,28 @@ export const useDJ = (): DJContextProps => {
     }
     return context;
 };
+
+interface DisplayNameContextProps {
+    displayName: string;
+    setDisplayName: (name: string) => void;
+}
+
+const DisplayNameContext = createContext<DisplayNameContextProps | undefined>(undefined);
+
+export const DisplayNameProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    const [displayName, setDisplayName] = useState('Default Display Name');
+
+    return (
+        <DisplayNameContext.Provider value={{ displayName, setDisplayName }}>
+            {children}
+        </DisplayNameContext.Provider>
+    );
+};
+
+export const useDisplayName = (): DisplayNameContextProps => {
+    const context = useContext(DisplayNameContext);
+    if (!context) {
+        throw new Error('useDisplayName must be used within a DisplayNameProvider');
+    }
+    return context;
+};
