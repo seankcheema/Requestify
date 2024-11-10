@@ -1,25 +1,24 @@
 import React, { useState } from 'react';
+import { io } from 'socket.io-client';
 import MessagePopup from './MessagePopup';
 import './Dashboard.css';
 
+const socket = io("http://localhost:5000"); // Connect to your Socket.IO server
+
 const SendMessage: React.FC = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  
-  // Messages now an array of objects with text and sent fields
   const [messages, setMessages] = useState<{ text: string; sent: boolean }[]>([]);
 
   const handleSendMessage = (message: string) => {
-    // Add a new message object with text and sent properties
+    // Emit the message to the server
+    socket.emit("send_message", { text: message, sent: true });
+
+    // Update the local messages array
     setMessages((prevMessages) => [...prevMessages, { text: message, sent: true }]);
   };
 
-  const handleOpenPopup = () => {
-    setIsPopupOpen(true);
-  };
-
-  const handleClosePopup = () => {
-    setIsPopupOpen(false);
-  };
+  const handleOpenPopup = () => setIsPopupOpen(true);
+  const handleClosePopup = () => setIsPopupOpen(false);
 
   return (
     <>

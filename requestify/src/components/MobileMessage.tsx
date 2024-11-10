@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { FaHome, FaChartLine, FaDollarSign } from 'react-icons/fa';
+import { FaHome, FaChartLine, FaDollarSign, FaBell } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
+//import './MobileMessage.css';
 
-const socket = io("http://localhost:5000"); // Connect to your Socket.IO server
+const socket = io("http://localhost:5000"); // Connect to your socket.io server
 
 const MobileMessage: React.FC = () => {
   const navigate = useNavigate();

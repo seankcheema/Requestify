@@ -11,6 +11,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { DJProvider } from './components/DJContext';
 import { mobileOrDesktop } from './utils/DeviceTypeCheck';
 import { getAuth } from 'firebase/auth';
+import MobileMessage from './components/MobileMessage';
 
 const App: React.FC = () => {
     const isMobile = mobileOrDesktop();
@@ -55,6 +56,7 @@ const App: React.FC = () => {
                         <Route path="dj/:djName" element={<MobileHome />} />
                         <Route path="dj/:djName/payment" element={<MobilePayment />} />
                         <Route path="dj/:djName/activity" element={<MobileActivity />} />
+                        <Route path="dj/:djName/message" element={<MobileMessage />} />
 
                         {/* Catch-all Route */}
                         <Route path="*" element={<Navigate to="/" />} />
