@@ -6,6 +6,8 @@ interface DJContextProps {
     setDJName: (name: string) => void;
 }
 
+
+
 const DJContext = createContext<DJContextProps | undefined>(undefined);
 
 export const DJProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
