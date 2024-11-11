@@ -16,6 +16,7 @@ const SignUp: React.FC = () => {
     const [message, setMessage] = useState<string>('');
     const [djNameError, setDjNameError] = useState<string>(''); // Error state for DJ Name
     const navigate = useNavigate();
+    const ipAddress = process.env.REACT_APP_API_IP;
 
     const goToLogin = () => {
         navigate('/login');
@@ -51,7 +52,7 @@ const SignUp: React.FC = () => {
 
             // Send additional user data along with the ID token to the Flask backend
             await axios.post(
-                'http://localhost:5001/register',
+                `http://${ipAddress}:5001/register`,
                 {
                     email: email,
                     djName,

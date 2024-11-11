@@ -7,21 +7,23 @@ interface QueueProps {
   djName: string;
 }
 
-// Define a type for the track data if you know the structure
+// Define a type for the track data, for reference only
 interface Track {
   trackName: string;
   artist: string;
   album: string;
   external_url: string;
+  album_cover_url: string;
   upvotes: number;
 }
 
 const Queue: React.FC<QueueProps> = ({ djName }) => {
   const [tracks, setTracks] = useState<string[][]>([]);
+  const ipAddress = process.env.REACT_APP_API_IP;
 
   const fetchTracks = async () => {
     try {
-      const response = await fetch(`http://localhost:5001/tracks/${djName}`);
+      const response = await fetch(`http://${ipAddress}:5001/tracks/${djName}`);
       
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
@@ -31,6 +33,26 @@ const Queue: React.FC<QueueProps> = ({ djName }) => {
       setTracks(data);
     } catch (error) {
       console.error("Failed to fetch tracks:", error);
+    }
+  };
+
+  const removeTrack = async (trackName: string, artist: string) => {
+    try {
+      const response = await fetch(`http://${ipAddress}:5001/tracks/delete`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ djName, trackName, artist })
+    });
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+
+    setTracks(tracks.filter(track => track[0] !== trackName && track[1] !== artist));
+    } 
+    catch (error) {
+      console.error("Failed to remove track:", error);
     }
   };
 
@@ -55,13 +77,17 @@ const Queue: React.FC<QueueProps> = ({ djName }) => {
           {tracks.length > 0 ? (
             tracks.map((track, index) => (
               <div key={index} className="song-item">
-                <img src="/assets/song1.png" alt="Album cover" />
+                <img src={track[4]} alt={`${track[2]} cover`} className="album-cover" />
                 <div className="song-info">
                   <p>{track[0]}</p> {/* Track name */}
                   <p className="artist">{track[1]}</p> {/* Artist name */}
                 </div>
-                <img src="/assets/Remove icon.svg" alt="Remove button" className="remove-btn" />
+                <div className="song-upvotes">
+                  {track[5]}
+                </div>
+                <img src="/assets/Remove icon.svg" alt="Remove button" className="remove-btn" onClick={() => removeTrack(track[0], track[1])}/>
               </div>
+              
             ))
           ) : (
             <p>No tracks in the queue.</p>

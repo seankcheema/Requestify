@@ -5,8 +5,6 @@ import { useDJ } from './DJContext';
 import './MobilePayment.css';
 
 const PaymentPage: React.FC = () => {
-    const [productLink, setProductLink] = useState(''); // State for dynamic product link
-    const [displayName, setDisplayName] = useState(''); // State for display name
     const navigate = useNavigate();
     const { djName: paramDJName } = useParams<{ djName: string }>(); // Get djName from URL parameters
     const { djName, setDJName } = useDJ();
@@ -17,37 +15,6 @@ const PaymentPage: React.FC = () => {
             setDJName(paramDJName);
         }
     }, [paramDJName, setDJName]);
-
-    // Fetch both the product link and display name whenever djName changes
-    useEffect(() => {
-        const fetchDJInfo = async () => {
-            try {
-                // Fetch product link
-                const productLinkResponse = await fetch(`http://localhost:5001/dj/productLink/${djName}`);
-                if (productLinkResponse.ok) {
-                    const productLinkData = await productLinkResponse.json();
-                    setProductLink(productLinkData.productLink); // Assuming response has { productLink: "URL" }
-                } else {
-                    console.error('Failed to fetch product link');
-                }
-
-                // Fetch display name
-                const displayNameResponse = await fetch(`http://localhost:5001/dj/displayName/${djName}`);
-                if (displayNameResponse.ok) {
-                    const displayNameData = await displayNameResponse.json();
-                    setDisplayName(displayNameData.displayName); // Assuming response has { displayName: "Name" }
-                } else {
-                    console.error('Failed to fetch display name');
-                }
-            } catch (error) {
-                console.error('Error fetching DJ information:', error);
-            }
-        };
-
-        if (djName) {
-            fetchDJInfo();
-        }
-    }, [djName]);
 
     const handlePayment = () => {
         if (productLink) {

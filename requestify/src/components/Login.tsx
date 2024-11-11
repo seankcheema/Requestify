@@ -11,6 +11,7 @@ const Login: React.FC = () => {
     const [password, setPassword] = useState<string>('');
     const [message, setMessage] = useState<string>('');
     const navigate = useNavigate();
+    const ipAddress = process.env.REACT_APP_API_IP;
 
     const goToDashboard = (djName: string) => {
         navigate(`/dashboard/${djName}`);
@@ -28,7 +29,7 @@ const Login: React.FC = () => {
 
             // Send the ID token to the backend for validation
             const response = await axios.post(
-                'http://localhost:5001/login',
+                `http://${ipAddress}:5001/login`,
                 {},
                 {
                     headers: {

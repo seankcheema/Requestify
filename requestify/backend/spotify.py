@@ -21,10 +21,14 @@ def search_song(query):
     results = spotify.search(q=query, type= 'track', limit=1)
     tracks = []
     for track in results['tracks']['items']:
+        album_images = track['album']['images']
+        album_cover_url = album_images[0]['url'] if album_images else None
+
         tracks.append({
             'name': track['name'],
             'artist': track['artists'][0]['name'],
             'album': track['album']['name'],
-            'external_url': track['external_urls']['spotify']
+            'external_url': track['external_urls']['spotify'],
+            'album_cover_url': album_cover_url
         })
     return tracks

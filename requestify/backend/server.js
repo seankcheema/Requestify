@@ -1,72 +1,50 @@
 const express = require('express');
 const cors = require('cors');
-const axios = require('axios'); // Import axios to make HTTP requests
+const http = require('http');
+const { Server } = require('socket.io');
 const app = express();
-const port = 5000; // Define the port where your server will run
+const port = 5000;
 
-//Code below sets up the stripe secret key from the .env and imports the
-//stripe library 
-require('dotenv').config();
-//const Stripe = require('stripe');
-//const stripe = new Stripe(process.env.REACT_APP_STRIPE_SECRET_KEY); // Use the correct key
+// Enable CORS for all origins (or you can specify specific origins if you prefer)
+app.use(cors({
+  origin: '*',  // Allow all origins, or you can specify a specific domain like 'http://192.168.x.x:3000/'
+  methods: ["GET", "POST"]
+}));
 
-// Middleware
-app.use(cors());
-app.use(express.json()); // Parse incoming JSON requests
+app.use(express.json());
 
-// Routes
-app.post('/register', async (req, res) => {
-  const { email, password, djName, displayName, location, socialMedia } = req.body;
+// Create an HTTP server for both Express and Socket.IO
+const server = http.createServer(app);
 
-  try {
-    // Make a request to the Flask backend to register the user
-    const response = await axios.post('http://localhost:5001/register', {
-      email,
-      password,
-      djName,
-      displayName,
-      location,
-      socialMedia,
-    });
-
-    // Send Flask's response back to the frontend
-    res.status(response.status).json(response.data);
-  } catch (error) {
-    // Handle any errors from the Flask API call
-    res.status(500).json({ message: 'Error registering user', error: error.message });
+// Setup Socket.IO with CORS configuration
+const io = new Server(server, {
+  cors: {
+    origin: "*", // This allows any origin, you can specify a more restrictive origin like 'http://192.168.x.x:3000/'
+    methods: ["GET", "POST"]
   }
 });
 
-app.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+// Listen for client connections
+io.on("connection", (socket) => {
+  console.log("A user connected:", socket.id);
 
-  try {
-    // Make a request to the Flask backend to log in the user
-    const response = await axios.post('http://localhost:5001/login', {
-      email,
-      password,
-    });
+  // Handle receiving a message from the client
+  socket.on("send_message", (message) => {
+    // Broadcast the message to all connected clients except the sender
+    socket.broadcast.emit("receive_message", message);
+  });
 
-    // Send Flask's response back to the frontend
-    res.status(response.status).json(response.data);
-  } catch (error) {
-    // Handle any errors from the Flask API call
-    res.status(500).json({ message: 'Error logging in', error: error.message });
-  }
+  // Handle disconnection
+  socket.on("disconnect", () => {
+    console.log("A user disconnected:", socket.id);
+  });
 });
 
-//Used to get the information about the DJ
-app.get('/user/:email', async (req, res) => {
-  const { email } = req.params;
-
-  try {
-    const response = await axios.get(`http://localhost:5001/user/${email}`);
-    res.status(response.status).json(response.data);
-  } catch (error) {
-    console.error('Error fetching user profile:', error.message);
-    res.status(500).json({ message: 'Error fetching user profile' });
-  }
+// Update to listen on all network interfaces (0.0.0.0) or a specific local IP
+server.listen(port, '0.0.0.0', () => {
+  console.log('Server running at http://0.0.0.0:${port}');
 });
+
 
 
 
@@ -103,8 +81,3 @@ app.post('/stripe/create-tip-payment-intent', async (req, res) => {
 */
 
 //--------------------------------------------------------------------------------
-
-// Start the Express server
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
-});

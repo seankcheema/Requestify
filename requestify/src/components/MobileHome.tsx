@@ -19,7 +19,7 @@ const RequestifyLayout: React.FC = () => {
         }
     }, [paramDJName, setDJName]);
 
-    // Fetch display name whenever djName changes
+    // Fetch the display name whenever djName changes
     useEffect(() => {
         const fetchDisplayName = async () => {
             try {

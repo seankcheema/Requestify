@@ -12,9 +12,9 @@ const RequestifyLayout: React.FC = () => {
   const [displayName, setDisplayName] = useState(''); // State for display name
   const ipAddress = process.env.REACT_APP_API_IP;
 
-  // Set djName in context whenever paramDJName changes
   useEffect(() => {
     if (paramDJName && djName !== paramDJName) {
+      console.log("Setting djName from paramDJName:", paramDJName);
       setDJName(paramDJName);
     }
   }, [paramDJName, djName, setDJName]);
