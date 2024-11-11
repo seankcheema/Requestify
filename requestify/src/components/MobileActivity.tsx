@@ -2,16 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import { FaHome, FaChartLine, FaDollarSign, FaBell, FaArrowUp, FaArrowDown } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useDJ } from './DJContext'; // Import DJContext
+import { useDJ } from './DJContext';
 import './MobileActivity.css';
 
 const RequestifyLayout: React.FC = () => {
-  const [hasUpvoted, setHasUpvoted] = useState(false);
-  const [hasDownvoted, setHasDownvoted] = useState(false);
   const navigate = useNavigate();
-  const { djName: paramDJName } = useParams<{ djName: string }>(); // Get djName from URL parameters
+  const { djName: paramDJName } = useParams<{ djName: string }>();
   const { djName, setDJName } = useDJ();
-  const [tracks, setTracks] = useState<string[][]>([]);
+  const [tracks, setTracks] = useState<{ track: string[]; hasUpvoted: boolean; hasDownvoted: boolean }[]>([]);
 
   // Set djName in context whenever paramDJName changes
   useEffect(() => {
@@ -29,31 +27,34 @@ const RequestifyLayout: React.FC = () => {
       }
 
       const data: string[][] = await response.json();
-      setTracks(data);
+      setTracks(data.map(track => ({ track, hasUpvoted: false, hasDownvoted: false })));
     } catch (error) {
       console.error("Failed to fetch tracks:", error);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchTracks();
+    if (djName) {
+      fetchTracks();
+    }
   }, [paramDJName]);
 
-  const handleUpvote = async (djName: string, trackName: string, artist: string) => {
-    console.log("here");
+  const handleUpvote = async (trackName: string, artist: string, index: number) => {
     try {
-      if (hasUpvoted) {
+      const updatedTracks = [...tracks];
+
+      if (updatedTracks[index].hasUpvoted) {
         // Remove upvote by calling downvote once
         await fetch('http://localhost:5001/tracks/downvote', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ djName, trackName, artist })
         });
-        setHasUpvoted(false);
-        fetchTracks();
+        updatedTracks[index].track[5] = (parseInt(updatedTracks[index].track[5]) - 1).toString();
+        updatedTracks[index].hasUpvoted = false;
       } else {
-        // If previously downvoted, call upvote twice to reset and then upvote
-        if (hasDownvoted) {
+        if (updatedTracks[index].hasDownvoted) {
+          // Remove downvote and add upvote
           await fetch('http://localhost:5001/tracks/upvote', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -64,6 +65,7 @@ const RequestifyLayout: React.FC = () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ djName, trackName, artist })
           });
+          updatedTracks[index].track[5] = (parseInt(updatedTracks[index].track[5]) + 2).toString();
         } else {
           // Normal upvote
           await fetch('http://localhost:5001/tracks/upvote', {
@@ -71,30 +73,34 @@ const RequestifyLayout: React.FC = () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ djName, trackName, artist })
           });
+          updatedTracks[index].track[5] = (parseInt(updatedTracks[index].track[5]) + 1).toString();
         }
-        setHasUpvoted(true);
-        setHasDownvoted(false);
-        fetchTracks();
+        updatedTracks[index].hasUpvoted = true;
+        updatedTracks[index].hasDownvoted = false;
       }
+      
+      setTracks(updatedTracks);
     } catch (error) {
       console.error("Error upvoting:", error);
     }
   };
   
-  const handleDownvote = async (djName: string, trackName: string, artist: string) => {
+  const handleDownvote = async (trackName: string, artist: string, index: number) => {
     try {
-      if (hasDownvoted) {
+      const updatedTracks = [...tracks];
+
+      if (updatedTracks[index].hasDownvoted) {
         // Remove downvote by calling upvote once
         await fetch('http://localhost:5001/tracks/upvote', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ djName, trackName, artist })
         });
-        setHasDownvoted(false);
-        fetchTracks();
+        updatedTracks[index].track[5] = (parseInt(updatedTracks[index].track[5]) + 1).toString();
+        updatedTracks[index].hasDownvoted = false;
       } else {
-        // If previously upvoted, call downvote twice to reset and then downvote
-        if (hasUpvoted) {
+        if (updatedTracks[index].hasUpvoted) {
+          // Remove upvote and add downvote
           await fetch('http://localhost:5001/tracks/downvote', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -105,6 +111,7 @@ const RequestifyLayout: React.FC = () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ djName, trackName, artist })
           });
+          updatedTracks[index].track[5] = (parseInt(updatedTracks[index].track[5]) - 2).toString();
         } else {
           // Normal downvote
           await fetch('http://localhost:5001/tracks/downvote', {
@@ -112,11 +119,13 @@ const RequestifyLayout: React.FC = () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ djName, trackName, artist })
           });
+          updatedTracks[index].track[5] = (parseInt(updatedTracks[index].track[5]) - 1).toString();
         }
-        setHasDownvoted(true);
-        setHasUpvoted(false);
-        fetchTracks();
+        updatedTracks[index].hasDownvoted = true;
+        updatedTracks[index].hasUpvoted = false;
       }
+      
+      setTracks(updatedTracks);
     } catch (error) {
       console.error("Error downvoting:", error);
     }
@@ -146,35 +155,35 @@ const RequestifyLayout: React.FC = () => {
       <FaBell className="bell-icon" />
 
       <main className="mobile-content">
-      <section className="mobile-queue">
-      <h2>Current Queue</h2>
-      <div className="song-container">
-        <div className="song-list">
-          {tracks.length > 0 ? (
-            tracks.map((track, index) => (
-              <div key={index} className="song-item">
-                <img src={track[4]} alt={`${track[2]} cover`} className="album-cover" />
-                <div className="song-info">
-                  <p>{track[0]}</p> {/* Track name */}
-                  <p className="artist">{track[1]}</p> {/* Artist name */}
-                </div>
-                <FaArrowUp
-                  className={`mobile-upvote ${hasUpvoted ? 'active-upvote' : ''}`}
-                  onClick={() => handleUpvote(djName, track[0], track[1])}
-                />
-                <div className="mobile-song-upvotes">{track[5]}</div>
-                <FaArrowDown
-                  className={`mobile-downvote ${hasDownvoted ? 'active-downvote' : ''}`}
-                  onClick={() => handleDownvote(djName, track[0], track[1])}
-                />
-              </div>
-            ))
-          ) : (
-            <p>No tracks in the queue.</p>
-          )}
-        </div>
-      </div>
-    </section>
+        <section className="mobile-queue">
+          <h2>Current Queue</h2>
+          <div className="song-container">
+            <div className="song-list">
+              {tracks.length > 0 ? (
+                tracks.map((trackObj, index) => (
+                  <div key={index} className="song-item">
+                    <img src={trackObj.track[4]} alt={`${trackObj.track[2]} cover`} className="album-cover" />
+                    <div className="song-info">
+                      <p>{trackObj.track[0]}</p> {/* Track name */}
+                      <p className="artist">{trackObj.track[1]}</p> {/* Artist name */}
+                    </div>
+                    <FaArrowUp
+                      className={`mobile-upvote ${trackObj.hasUpvoted ? 'active-upvote' : ''}`}
+                      onClick={() => handleUpvote(trackObj.track[0], trackObj.track[1], index)}
+                    />
+                    <div className="mobile-song-upvotes">{trackObj.track[5]}</div>
+                    <FaArrowDown
+                      className={`mobile-downvote ${trackObj.hasDownvoted ? 'active-downvote' : ''}`}
+                      onClick={() => handleDownvote(trackObj.track[0], trackObj.track[1], index)}
+                    />
+                  </div>
+                ))
+              ) : (
+                <p>No tracks in the queue.</p>
+              )}
+            </div>
+          </div>
+        </section>
       </main>
 
       <footer className="mobile-footer">
