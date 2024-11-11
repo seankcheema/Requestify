@@ -7,43 +7,52 @@ import './MobileActivity.css';
 const RequestifyLayout: React.FC = () => {
   const navigate = useNavigate();
   const { djName: paramDJName } = useParams<{ djName: string }>();
-  const { djName, setDJName } = useDJ();
+  const { djName, setDJName, displayName, setDisplayName, productLink, setProductLink } = useDJ();
   const [tracks, setTracks] = useState<{ track: string[]; hasUpvoted: boolean; hasDownvoted: boolean }[]>([]);
-  const [displayName, setDisplayName] = useState(''); // State for display name
   const ipAddress = process.env.REACT_APP_API_IP;
 
   useEffect(() => {
     if (paramDJName && djName !== paramDJName) {
-      console.log("Setting djName from paramDJName:", paramDJName);
       setDJName(paramDJName);
     }
   }, [paramDJName, djName, setDJName]);
 
-  // Fetch display name whenever djName changes
+  // Fetch display name and product link only if not already set in context
   useEffect(() => {
-    const fetchDisplayName = async () => {
+    const fetchDJInfo = async () => {
       try {
-        const response = await fetch(`http://${ipAddress}:5001/dj/displayName/${djName}`);
-        if (response.ok) {
-          const data = await response.json();
-          setDisplayName(data.displayName); // Assuming response has { displayName: "Actual Display Name" }
-        } else {
-          console.error('Failed to fetch display name');
+        if (!displayName) {
+          const response = await fetch(`http://${ipAddress}:5001/dj/displayName/${djName}`);
+          if (response.ok) {
+            const data = await response.json();
+            setDisplayName(data.displayName);
+          } else {
+            console.error('Failed to fetch display name');
+          }
+        }
+
+        if (!productLink) {
+          const response = await fetch(`http://${ipAddress}:5001/dj/productLink/${djName}`);
+          if (response.ok) {
+            const data = await response.json();
+            setProductLink(data.productLink);
+          } else {
+            console.error('Failed to fetch product link');
+          }
         }
       } catch (error) {
-        console.error('Error fetching display name:', error);
+        console.error('Error fetching DJ information:', error);
       }
     };
 
     if (djName) {
-      fetchDisplayName();
+      fetchDJInfo();
     }
-  }, [djName]);
+  }, [djName, displayName, setDisplayName, productLink, setProductLink]);
 
   const fetchTracks = async () => {
     try {
       const response = await fetch(`http://${ipAddress}:5001/tracks/${djName}`);
-
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
@@ -64,7 +73,6 @@ const RequestifyLayout: React.FC = () => {
   const handleUpvote = async (trackName: string, artist: string, index: number) => {
     try {
       const updatedTracks = [...tracks];
-
       if (updatedTracks[index].hasUpvoted) {
         await fetch(`http://${ipAddress}:5001/tracks/downvote`, {
           method: 'POST',
@@ -97,7 +105,6 @@ const RequestifyLayout: React.FC = () => {
         updatedTracks[index].hasUpvoted = true;
         updatedTracks[index].hasDownvoted = false;
       }
-
       setTracks(updatedTracks);
     } catch (error) {
       console.error("Error upvoting:", error);
@@ -107,7 +114,6 @@ const RequestifyLayout: React.FC = () => {
   const handleDownvote = async (trackName: string, artist: string, index: number) => {
     try {
       const updatedTracks = [...tracks];
-
       if (updatedTracks[index].hasDownvoted) {
         await fetch(`http://${ipAddress}:5001/tracks/upvote`, {
           method: 'POST',
@@ -140,7 +146,6 @@ const RequestifyLayout: React.FC = () => {
         updatedTracks[index].hasDownvoted = true;
         updatedTracks[index].hasUpvoted = false;
       }
-
       setTracks(updatedTracks);
     } catch (error) {
       console.error("Error downvoting:", error);

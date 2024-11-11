@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { FaHome, FaChartLine, FaDollarSign, FaBell, FaExternalLinkAlt } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDJ } from './DJContext';
@@ -6,8 +6,9 @@ import './MobilePayment.css';
 
 const PaymentPage: React.FC = () => {
     const navigate = useNavigate();
-    const { djName: paramDJName } = useParams<{ djName: string }>(); // Get djName from URL parameters
-    const { djName, setDJName } = useDJ();
+    const { djName: paramDJName } = useParams<{ djName: string }>();
+    const { djName, setDJName, displayName, setDisplayName, productLink, setProductLink } = useDJ(); // Access productLink and displayName from DJContext
+    const ipAddress = process.env.REACT_APP_API_IP;
 
     // Set djName in context whenever paramDJName changes
     useEffect(() => {
@@ -15,6 +16,39 @@ const PaymentPage: React.FC = () => {
             setDJName(paramDJName);
         }
     }, [paramDJName, setDJName]);
+
+    // Fetch display name and product link if not already set in context
+    useEffect(() => {
+        const fetchDJInfo = async () => {
+            try {
+                if (!displayName) {
+                    const displayNameResponse = await fetch(`http://${ipAddress}:5001/dj/displayName/${djName}`);
+                    if (displayNameResponse.ok) {
+                        const displayNameData = await displayNameResponse.json();
+                        setDisplayName(displayNameData.displayName);
+                    } else {
+                        console.error('Failed to fetch display name');
+                    }
+                }
+
+                if (!productLink) {
+                    const productLinkResponse = await fetch(`http://${ipAddress}:5001/dj/productLink/${djName}`);
+                    if (productLinkResponse.ok) {
+                        const productLinkData = await productLinkResponse.json();
+                        setProductLink(productLinkData.productLink);
+                    } else {
+                        console.error('Failed to fetch product link');
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching DJ information:', error);
+            }
+        };
+
+        if (djName) {
+            fetchDJInfo();
+        }
+    }, [djName, displayName, setDisplayName, productLink, setProductLink]);
 
     const handlePayment = () => {
         if (productLink) {
