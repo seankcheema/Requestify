@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 //import './MobileMessage.css';
 
-const socket = io("http://localhost:5000"); // Connect to your socket.io server
+const socket = io("http://192.168.4.34:5000"); // Connect to your socket.io server
 
 const MobileMessage: React.FC = () => {
   const navigate = useNavigate();

@@ -3,7 +3,7 @@ import { io } from 'socket.io-client';
 import MessagePopup from './MessagePopup';
 import './Dashboard.css';
 
-const socket = io("http://localhost:5000"); // Connect to your Socket.IO server
+const socket = io("http://192.168.4.34:5000"); // Connect to your Socket.IO server
 
 const SendMessage: React.FC = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
