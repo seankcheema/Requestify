@@ -33,7 +33,7 @@ mydb = mysql.connector.connect(
 mycursor = mydb.cursor()
 mycursor.execute("USE requestifyAccount")
 
-
+mycursor.execute("DROP TABLE IF EXISTS users")
 # Create users table if it doesn't exist
 mycursor.execute("""
     CREATE TABLE IF NOT EXISTS users (

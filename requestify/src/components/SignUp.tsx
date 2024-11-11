@@ -139,7 +139,7 @@ const SignUp: React.FC = () => {
                         />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="djName">DJ Name</label>
+                        <label htmlFor="djName">Username</label>
                         <input
                             type="text"
                             id="djName"
