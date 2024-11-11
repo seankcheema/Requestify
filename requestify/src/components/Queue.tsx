@@ -7,7 +7,7 @@ interface QueueProps {
   djName: string;
 }
 
-// Define a type for the track data
+// Define a type for the track data, for reference only
 interface Track {
   trackName: string;
   artist: string;
@@ -81,8 +81,12 @@ const Queue: React.FC<QueueProps> = ({ djName }) => {
                   <p>{track[0]}</p> {/* Track name */}
                   <p className="artist">{track[1]}</p> {/* Artist name */}
                 </div>
+                <div className="song-upvotes">
+                  {track[5]}
+                </div>
                 <img src="/assets/Remove icon.svg" alt="Remove button" className="remove-btn" onClick={() => removeTrack(track[0], track[1])}/>
               </div>
+              
             ))
           ) : (
             <p>No tracks in the queue.</p>

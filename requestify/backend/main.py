@@ -273,7 +273,7 @@ def get_user_profile(email):
 @app.route('/tracks/<djName>', methods=['GET'])
 def get_tracks(djName):
     try:
-        query = "SELECT trackName, artist, album, external_url, album_cover_url FROM tracks WHERE djName = %s ORDER BY upvotes DESC"
+        query = "SELECT trackName, artist, album, external_url, album_cover_url, upvotes FROM tracks WHERE djName = %s ORDER BY upvotes DESC"
         mycursor.execute(query, (djName,))
         tracks = mycursor.fetchall()
         #add something to remove tracks once we have this working
@@ -336,6 +336,32 @@ def upvote():
     mydb.commit()
 
     return jsonify({"message": "Track upvoted successfully"}), 200
+
+#Route to downvote a track
+@app.route('/tracks/downvote', methods=['POST'])
+def downvote():
+    data = request.get_json()
+    djName = data.get('djName')
+    if not djName:
+        return jsonify({"message": "DJ name is required"}), 400
+    trackName = data.get('trackName')
+    if not trackName:
+        return jsonify({"message": "Track name is required"}), 400
+    artist = data.get('artist')
+    if not artist:
+        return jsonify({"message": "Artist name is required"}), 400
+    
+    sql = """
+    UPDATE tracks
+    SET upvotes = upvotes - 1
+    WHERE djName = %s AND trackName = %s AND artist = %s
+    """
+
+    val = (djName, trackName, artist)
+    mycursor.execute(sql, val)
+    mydb.commit()
+
+    return jsonify({"message": "Track downvoted successfully"}), 200
 
 
 if __name__ == '__main__':
