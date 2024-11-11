@@ -13,7 +13,7 @@ import axios from 'axios';
 const Dashboard: React.FC = () => {
     const [profileData, setProfileData] = useState<any>(null);
     const navigate = useNavigate();
-    const { djName: paramDJName } = useParams<{ djName: string }>(); // Get djName from URL params
+    const { djName: paramDJName } = useParams<{ djName: string }>();
     const auth = getAuth();
 
     useEffect(() => {
@@ -24,7 +24,6 @@ const Dashboard: React.FC = () => {
                 const response = await axios.get(`http://localhost:5001/user/${user.email}`);
                 setProfileData(response.data);
 
-                // Redirect to /dashboard/:djName if URL's djName doesn't match
                 if (response.data.djName && response.data.djName !== paramDJName) {
                     navigate(`/dashboard/${response.data.djName}`, { replace: true });
                 }
@@ -55,6 +54,11 @@ const Dashboard: React.FC = () => {
             });
     };
 
+    // Function to update profileData with new values from the Profile component
+    const updateProfileData = (updatedData: any) => {
+        setProfileData((prevData: any) => ({ ...prevData, ...updatedData }));
+    };
+
    return (
     <div className="container">
         <div className="logout-container">
@@ -62,7 +66,7 @@ const Dashboard: React.FC = () => {
         </div>
         <Header />
         <div className="main-content">
-            {profileData && <Queue djName={profileData.djName} />} {/* Pass the djName prop */}
+            {profileData && <Queue djName={profileData.djName} />}
             <Notifications />
             <div className="mini-tiles">
                 {profileData && (
@@ -73,8 +77,9 @@ const Dashboard: React.FC = () => {
                             displayName={profileData.displayName}
                             location={profileData.location}
                             socialMedia={profileData.socialMedia}
+                            productLink={profileData.productLink}
+                            updateProfileData={updateProfileData} // Pass the callback here
                         />
-                        {/* Render QR Code Component if Available */}
                         {profileData.qrCode && (
                             <QRCode qrCodeData={profileData.qrCode} djName={profileData.djName} />
                         )}
@@ -84,8 +89,7 @@ const Dashboard: React.FC = () => {
             </div>
         </div>
     </div>
-);
-
+   );
 };
 
 export default Dashboard;

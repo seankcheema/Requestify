@@ -278,6 +278,30 @@ def get_tracks(djName):
         print(f"Error retrieving tracks: {e}")
         return jsonify({"message": "Error retrieving tracks"}), 500
     
+@app.route('/update-profile', methods=['PUT'])
+def update_profile():
+    data = request.get_json()
+    current_email = data.get('email')  # Use email as the identifier
+    display_name = data.get('displayName')
+    location = data.get('location')
+    social_media = data.get('socialMedia')
+    product_link = data.get('productLink')
+
+    try:
+        # Update the user's profile in the MySQL database
+        query = """
+            UPDATE users 
+            SET displayName = %s, location = %s, socialMedia = %s, productLink = %s 
+            WHERE email = %s
+        """
+        values = (display_name, location, social_media, product_link, current_email)
+        mycursor.execute(query, values)
+        mydb.commit()
+        
+        return jsonify({"message": "Profile updated successfully"}), 200
+    except Exception as e:
+        print(f"Error updating profile: {e}")
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == '__main__':
