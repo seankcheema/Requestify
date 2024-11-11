@@ -1,16 +1,16 @@
-// MobileActivity.tsx
 import React, { useState, useEffect } from 'react';
 import { FaHome, FaChartLine, FaDollarSign, FaBell, FaArrowUp, FaArrowDown } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useDJ } from './DJContext'; // Import DJContext
+import { useDJ } from './DJContext';
 import './MobileActivity.css';
 
 const RequestifyLayout: React.FC = () => {
   const [upvotes, setUpvotes] = useState(16);
   const [hasUpvoted, setHasUpvoted] = useState(false);
   const [hasDownvoted, setHasDownvoted] = useState(false);
+  const [displayName, setDisplayName] = useState(''); // State for display name
   const navigate = useNavigate();
-  const { djName: paramDJName } = useParams<{ djName: string }>(); // Get djName from URL parameters
+  const { djName: paramDJName } = useParams<{ djName: string }>();
   const { djName, setDJName } = useDJ();
 
   // Set djName in context whenever paramDJName changes
@@ -19,6 +19,27 @@ const RequestifyLayout: React.FC = () => {
       setDJName(paramDJName);
     }
   }, [paramDJName, setDJName]);
+
+  // Fetch display name whenever djName changes
+  useEffect(() => {
+    const fetchDisplayName = async () => {
+      try {
+        const response = await fetch(`http://localhost:5001/dj/displayName/${djName}`);
+        if (response.ok) {
+          const data = await response.json();
+          setDisplayName(data.displayName); // Assuming response has { displayName: "Actual Display Name" }
+        } else {
+          console.error('Failed to fetch display name');
+        }
+      } catch (error) {
+        console.error('Error fetching display name:', error);
+      }
+    };
+
+    if (djName) {
+      fetchDisplayName();
+    }
+  }, [djName]);
 
   const handleUpvote = () => {
     if (hasUpvoted) {
@@ -68,7 +89,7 @@ const RequestifyLayout: React.FC = () => {
       <main className="mobile-content">
         <section className="mobile-queue">
           <h2>
-            Current Queue for <a href="#">{djName}</a> {/* Use djName from context */}
+            Current Queue for <a href="#">{displayName || djName}</a> {/* Use displayName or fallback to djName */}
           </h2>
           <div className="mobile-song-container">
             <div className="mobile-song-list">

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { FaHome, FaChartLine, FaDollarSign, FaBell, FaExternalLinkAlt } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useDJ } from './DJContext'; // Import DJContext
+import { useDJ } from './DJContext';
 import './MobilePayment.css';
 
 const PaymentPage: React.FC = () => {
     const [productLink, setProductLink] = useState(''); // State for dynamic product link
+    const [displayName, setDisplayName] = useState(''); // State for display name
     const navigate = useNavigate();
     const { djName: paramDJName } = useParams<{ djName: string }>(); // Get djName from URL parameters
     const { djName, setDJName } = useDJ();
@@ -17,24 +18,34 @@ const PaymentPage: React.FC = () => {
         }
     }, [paramDJName, setDJName]);
 
-    // Fetch the product link whenever djName changes
+    // Fetch both the product link and display name whenever djName changes
     useEffect(() => {
-        const fetchProductLink = async () => {
+        const fetchDJInfo = async () => {
             try {
-                const response = await fetch(`http://localhost:5001/dj/productLink/${djName}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    setProductLink(data.productLink); // Assuming response has { productLink: "URL" }
+                // Fetch product link
+                const productLinkResponse = await fetch(`http://localhost:5001/dj/productLink/${djName}`);
+                if (productLinkResponse.ok) {
+                    const productLinkData = await productLinkResponse.json();
+                    setProductLink(productLinkData.productLink); // Assuming response has { productLink: "URL" }
                 } else {
                     console.error('Failed to fetch product link');
                 }
+
+                // Fetch display name
+                const displayNameResponse = await fetch(`http://localhost:5001/dj/displayName/${djName}`);
+                if (displayNameResponse.ok) {
+                    const displayNameData = await displayNameResponse.json();
+                    setDisplayName(displayNameData.displayName); // Assuming response has { displayName: "Name" }
+                } else {
+                    console.error('Failed to fetch display name');
+                }
             } catch (error) {
-                console.error('Error fetching product link:', error);
+                console.error('Error fetching DJ information:', error);
             }
         };
 
         if (djName) {
-            fetchProductLink();
+            fetchDJInfo();
         }
     }, [djName]);
 
@@ -64,7 +75,7 @@ const PaymentPage: React.FC = () => {
             <FaBell className="bell-icon" />
             <main className="mobile-content">
                 <div className="listening-section">
-                    <p>You are listening to <a href="#">{djName}</a></p> {/* Use djName from context */}
+                    <p>You are listening to <a href="#">{displayName || djName}</a></p> {/* Use displayName or fallback to djName */}
                 </div>
                 <div className="payment-section">
                     <div className="payment-tile">

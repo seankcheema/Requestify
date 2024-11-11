@@ -314,6 +314,17 @@ def get_product_link(djName):
     else:
         return jsonify({"message": "Product link not found"}), 404
 
+@app.route('/dj/displayName/<djName>', methods=['GET'])
+def get_display_name(djName):
+    query = "SELECT displayName FROM users WHERE djName = %s"
+    mycursor.execute(query, (djName,))
+    result = mycursor.fetchone()
+    
+    if result:
+        return jsonify({"displayName": result[0]}), 200
+    else:
+        return jsonify({"message": "Display name not found"}), 404
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)
