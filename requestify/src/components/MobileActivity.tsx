@@ -12,6 +12,9 @@ const RequestifyLayout: React.FC = () => {
   const [tracks, setTracks] = useState<{ track: string[]; hasUpvoted: boolean; hasDownvoted: boolean }[]>([]);
   const ipAddress = process.env.REACT_APP_API_IP;
 
+  const goToMessage = () => {
+    navigate(`/dj/${paramDJName}/message`);
+}
   useEffect(() => {
     if (paramDJName && djName !== paramDJName) {
       console.log("Setting djName from paramDJName:", paramDJName);
@@ -149,7 +152,7 @@ const RequestifyLayout: React.FC = () => {
         </div>
       </header>
 
-      <FaBell className="bell-icon" />
+      <FaBell className="bell-icon" onClick={goToMessage} />
 
       <main className="mobile-content">
         <section className="mobile-queue">

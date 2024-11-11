@@ -51,6 +51,9 @@ const PaymentPage: React.FC = () => {
         navigate(`/dj/${paramDJName}/activity`);
     };
 
+    const goToMessage = () => {
+        navigate(`/dj/${paramDJName}/message`);
+    }
     return (
         <div className="mobile-container">
             <header className="mobile-header">
@@ -58,7 +61,7 @@ const PaymentPage: React.FC = () => {
                     <img src="/assets/requestify-logo.svg" alt="Requestify Logo" className="mobile-header-logo" onClick={goToHome} />
                 </div>
             </header>
-            <FaBell className="bell-icon" />
+            <FaBell className="bell-icon" onClick={goToMessage} />
             <main className="mobile-content">
                 <div className="listening-section">
                     <p>You are listening to <a href="#">{displayName || djName}</a></p> {/* Use displayName or fallback to djName */}
