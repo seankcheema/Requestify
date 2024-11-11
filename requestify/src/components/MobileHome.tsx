@@ -1,4 +1,3 @@
-// MobileHome.tsx
 import React, { useState, useEffect } from 'react';
 import { FaHome, FaChartLine, FaDollarSign, FaBell } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -8,6 +7,7 @@ import './MobileHome.css';
 const RequestifyLayout: React.FC = () => {
     const [query, setQuery] = useState('');
     const [searchResult, setSearchResult] = useState(null);
+    const [displayName, setDisplayName] = useState(''); // New state for display name
     const navigate = useNavigate();
     const { djName: paramDJName } = useParams<{ djName: string }>(); // Get djName from URL params
     const { djName, setDJName } = useDJ();
@@ -18,6 +18,27 @@ const RequestifyLayout: React.FC = () => {
             setDJName(paramDJName);
         }
     }, [paramDJName, setDJName]);
+
+    // Fetch the display name whenever djName changes
+    useEffect(() => {
+        const fetchDisplayName = async () => {
+            try {
+                const response = await fetch(`http://localhost:5001/dj/displayName/${djName}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setDisplayName(data.displayName); // Assuming response has { displayName: "Actual Display Name" }
+                } else {
+                    console.error('Failed to fetch display name');
+                }
+            } catch (error) {
+                console.error('Error fetching display name:', error);
+            }
+        };
+
+        if (djName) {
+            fetchDisplayName();
+        }
+    }, [djName]);
 
     const handleSearch = async () => {
         if (!query) {
@@ -65,9 +86,9 @@ const RequestifyLayout: React.FC = () => {
             <FaBell className="bell-icon" onClick={goToMessage} />
 
             <main className="mobile-content">
-                {/* Listening Section with dynamic DJ name */}
+                {/* Listening Section with dynamic DJ display name */}
                 <div className="listening-section">
-                    <p>You are listening to <a href="#">{djName}</a></p>
+                    <p>You are listening to <a href="#">{displayName || djName}</a></p>
                 </div>
 
                 <div className="activity-button" onClick={goToActivity}>
