@@ -71,6 +71,10 @@ const RequestifyLayout: React.FC = () => {
         navigate(`/dj/${paramDJName}/activity`);
     };
 
+    const goToMessage = () => {
+        navigate(`/dj/${paramDJName}/message`);
+    }
+
     return (
         <div className="mobile-container">
             <header className="mobile-header">
@@ -79,7 +83,7 @@ const RequestifyLayout: React.FC = () => {
                 </div>
             </header>
 
-            <FaBell className="bell-icon" />
+            <FaBell className="bell-icon" onClick={goToMessage} />
 
             <main className="mobile-content">
                 {/* Listening Section with dynamic DJ display name */}
