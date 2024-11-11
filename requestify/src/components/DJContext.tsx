@@ -5,16 +5,13 @@ interface DJContextProps {
     setDJName: (name: string) => void;
     displayName: string;
     setDisplayName: (name: string) => void;
-    productLink: string;
-    setProductLink: (link: string) => void;
 }
 
 const DJContext = createContext<DJContextProps | undefined>(undefined);
 
 export const DJProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [djName, setDJName] = useState(() => localStorage.getItem('djName') || 'DJ Grant');
-    const [displayName, setDisplayName] = useState(() => localStorage.getItem('displayName') || 'DJ Grant');
-    const [productLink, setProductLink] = useState(() => localStorage.getItem('productLink') || ''); // Default to empty if not set
+    const [displayName, setDisplayName] = useState(() => localStorage.getItem('displayName') || 'DJ Grant'); // Default to "DJ Grant"
 
     // Update localStorage whenever djName changes
     useEffect(() => {
@@ -26,13 +23,8 @@ export const DJProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         localStorage.setItem('displayName', displayName);
     }, [displayName]);
 
-    // Update localStorage whenever productLink changes
-    useEffect(() => {
-        localStorage.setItem('productLink', productLink);
-    }, [productLink]);
-
     return (
-        <DJContext.Provider value={{ djName, setDJName, displayName, setDisplayName, productLink, setProductLink }}>
+        <DJContext.Provider value={{ djName, setDJName, displayName, setDisplayName }}>
             {children}
         </DJContext.Provider>
     );

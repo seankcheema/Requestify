@@ -1,13 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaHome, FaChartLine, FaDollarSign, FaBell, FaExternalLinkAlt } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDJ } from './DJContext';
 import './MobilePayment.css';
 
 const PaymentPage: React.FC = () => {
+    const [productLink, setProductLink] = useState(''); // State for dynamic product link
     const navigate = useNavigate();
     const { djName: paramDJName } = useParams<{ djName: string }>();
-    const { djName, setDJName, displayName, setDisplayName, productLink, setProductLink } = useDJ(); // Access productLink and displayName from DJContext
+    const { djName, setDJName, displayName, setDisplayName } = useDJ();
     const ipAddress = process.env.REACT_APP_API_IP;
 
     // Set djName in context whenever paramDJName changes
@@ -17,38 +18,47 @@ const PaymentPage: React.FC = () => {
         }
     }, [paramDJName, setDJName]);
 
-    // Fetch display name and product link if not already set in context
+    // Fetch the display name whenever djName changes
     useEffect(() => {
-        const fetchDJInfo = async () => {
+        const fetchDisplayName = async () => {
             try {
-                if (!displayName) {
-                    const displayNameResponse = await fetch(`http://${ipAddress}:5001/dj/displayName/${djName}`);
-                    if (displayNameResponse.ok) {
-                        const displayNameData = await displayNameResponse.json();
-                        setDisplayName(displayNameData.displayName);
-                    } else {
-                        console.error('Failed to fetch display name');
-                    }
-                }
-
-                if (!productLink) {
-                    const productLinkResponse = await fetch(`http://${ipAddress}:5001/dj/productLink/${djName}`);
-                    if (productLinkResponse.ok) {
-                        const productLinkData = await productLinkResponse.json();
-                        setProductLink(productLinkData.productLink);
-                    } else {
-                        console.error('Failed to fetch product link');
-                    }
+                const displayNameResponse = await fetch(`http://${ipAddress}:5001/dj/displayName/${djName}`);
+                if (displayNameResponse.ok) {
+                    const displayNameData = await displayNameResponse.json();
+                    setDisplayName(displayNameData.displayName); 
+                } else {
+                    console.error('Failed to fetch display name');
                 }
             } catch (error) {
-                console.error('Error fetching DJ information:', error);
+                console.error('Error fetching display name:', error);
             }
         };
 
         if (djName) {
-            fetchDJInfo();
+            fetchDisplayName();
         }
-    }, [djName, displayName, setDisplayName, productLink, setProductLink]);
+    }, [djName, setDisplayName]);
+
+    // Fetch the product link whenever djName changes
+    useEffect(() => {
+        const fetchProductLink = async () => {
+            try {
+                const productLinkResponse = await fetch(`http://${ipAddress}:5001/dj/productLink/${djName}`);
+                if (productLinkResponse.ok) {
+                    const productLinkData = await productLinkResponse.json();
+                    setProductLink(productLinkData.productLink);
+                } else {
+                    console.error('Failed to fetch product link');
+                }
+            } catch (error) {
+                console.error('Error fetching product link:', error);
+            }
+        };
+
+        if (djName) {
+            fetchProductLink();
+        }
+    }, [djName]);
 
     const handlePayment = () => {
         if (productLink) {
@@ -76,7 +86,7 @@ const PaymentPage: React.FC = () => {
             <FaBell className="bell-icon" />
             <main className="mobile-content">
                 <div className="listening-section">
-                    <p>You are listening to <a href="#">{displayName || djName}</a></p> {/* Use displayName or fallback to djName */}
+                    <p>You are listening to <a href="#">{displayName || djName}</a></p>
                 </div>
                 <div className="payment-section">
                     <div className="payment-tile">

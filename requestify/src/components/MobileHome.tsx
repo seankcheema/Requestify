@@ -7,10 +7,10 @@ import './MobileHome.css';
 const RequestifyLayout: React.FC = () => {
     const [query, setQuery] = useState('');
     const [searchResult, setSearchResult] = useState(null);
+    const [displayName, setDisplayName] = useState(''); // New state for display name
     const navigate = useNavigate();
-    const { djName: paramDJName } = useParams<{ djName: string }>();
-    const { djName, setDJName, displayName, setDisplayName, productLink, setProductLink } = useDJ();
-    const ipAddress = process.env.REACT_APP_API_IP;
+    const { djName: paramDJName } = useParams<{ djName: string }>(); // Get djName from URL params
+    const { djName, setDJName } = useDJ();
 
     // Set djName in context whenever paramDJName changes
     useEffect(() => {
@@ -19,44 +19,34 @@ const RequestifyLayout: React.FC = () => {
         }
     }, [paramDJName, setDJName]);
 
-    // Fetch displayName and productLink if not already set in context
+    // Fetch the display name whenever djName changes
     useEffect(() => {
-        const fetchDJInfo = async () => {
+        const fetchDisplayName = async () => {
             try {
-                if (!displayName) {
-                    const response = await fetch(`http://${ipAddress}:5001/dj/displayName/${djName}`);
-                    if (response.ok) {
-                        const data = await response.json();
-                        setDisplayName(data.displayName);
-                    } else {
-                        console.error('Failed to fetch display name');
-                    }
-                }
-
-                if (!productLink) {
-                    const response = await fetch(`http://${ipAddress}:5001/dj/productLink/${djName}`);
-                    if (response.ok) {
-                        const data = await response.json();
-                        setProductLink(data.productLink);
-                    } else {
-                        console.error('Failed to fetch product link');
-                    }
+                const response = await fetch(`http://localhost:5001/dj/displayName/${djName}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setDisplayName(data.displayName); // Assuming response has { displayName: "Actual Display Name" }
+                } else {
+                    console.error('Failed to fetch display name');
                 }
             } catch (error) {
-                console.error('Error fetching DJ information:', error);
+                console.error('Error fetching display name:', error);
             }
         };
 
         if (djName) {
-            fetchDJInfo();
+            fetchDisplayName();
         }
-    }, [djName, displayName, setDisplayName, productLink, setProductLink]);
+    }, [djName]);
 
     const handleSearch = async () => {
         if (!query) {
             alert('Please enter a song name or Spotify link');
             return;
         }
+
+        const ipAddress = process.env.REACT_APP_API_IP;
 
         try {
             const response = await fetch(`http://${ipAddress}:5001/search?query=${encodeURIComponent(query)}`);
@@ -92,8 +82,9 @@ const RequestifyLayout: React.FC = () => {
             <FaBell className="bell-icon" />
 
             <main className="mobile-content">
+                {/* Listening Section with dynamic DJ display name */}
                 <div className="listening-section">
-                    <p>You are listening to <a href="#">{displayName || djName}</a></p> {/* Use displayName or fallback to djName */}
+                    <p>You are listening to <a href="#">{displayName || djName}</a></p>
                 </div>
 
                 <div className="activity-button" onClick={goToActivity}>
