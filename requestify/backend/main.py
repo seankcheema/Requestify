@@ -57,7 +57,10 @@ mycursor.execute("""
         artist VARCHAR(100),
         album VARCHAR(100),
         external_url VARCHAR(100),
+        album_cover_url VARCHAR(255),
+        upvotes INT DEFAULT 0,
         UNIQUE KEY (djName, trackName, artist, album)
+        
     )
 """)
 
@@ -183,6 +186,7 @@ def login():
     else:
         return jsonify({"message": "User not found"}), 404
 
+#Route to get search for a song and add it to the queue
 @app.route('/search', methods=['GET'])
 def search():
     djName = get_dj()
@@ -200,21 +204,23 @@ def search():
         artist = track['artist']
         album = track['album']
         external_url = track['external_url']
+        album_cover_url = track['album_cover_url']
 
         sql = """
-        INSERT INTO tracks (djName, trackName, artist, album, external_url)
-        VALUES (%s, %s, %s, %s, %s)
+        INSERT INTO tracks (djName, trackName, artist, album, external_url, album_cover_url)
+        VALUES (%s, %s, %s, %s, %s, %s)
             ON DUPLICATE KEY UPDATE
-            external_url = VALUES(external_url);
+            external_url = %s,
+            album_cover_url = %s;
         """
 
-        val = (djName, track_name, artist, album, external_url)
+        val = (djName, track_name, artist, album, external_url, album_cover_url, external_url, album_cover_url)
         mycursor.execute(sql, val)
         mydb.commit()
 
     return jsonify(tracks)
 
-
+#
 @app.route('/stripe/create-tip-payment', methods=['POST'])
 def create_payment_intent():
     data = request.get_json()
@@ -230,6 +236,7 @@ def create_payment_intent():
     except Exception as e:
         return jsonify({"message": str(e)}), 500
 
+#Route to create a payment link
 @app.route('/create-payment-link', methods=['POST'])
 def create_payment_link_route():
     data = request.get_json()
@@ -262,10 +269,11 @@ def get_user_profile(email):
     else:
         return jsonify({"message": "User not found"}), 404
 
+#Route to select all tracks for a given DJ
 @app.route('/tracks/<djName>', methods=['GET'])
 def get_tracks(djName):
     try:
-        query = "SELECT trackName, artist, album, external_url FROM tracks WHERE djName = %s"
+        query = "SELECT trackName, artist, album, external_url, album_cover_url, upvotes FROM tracks WHERE djName = %s ORDER BY upvotes DESC"
         mycursor.execute(query, (djName,))
         tracks = mycursor.fetchall()
         #add something to remove tracks once we have this working
@@ -277,7 +285,94 @@ def get_tracks(djName):
     except Exception as e:
         print(f"Error retrieving tracks: {e}")
         return jsonify({"message": "Error retrieving tracks"}), 500
+
+#Route to remove track from queue
+@app.route('/tracks/delete', methods=['DELETE'])
+def delete_track():
+    djName = request.json.get('djName')
+    if not djName:
+        return jsonify({"message": "DJ name is required"}), 400
     
+    trackName = request.json.get('trackName')
+    if not trackName:
+        return jsonify({"message": "Track name is required"}), 400
+    
+    artist = request.json.get('artist')
+    if not artist:
+        return jsonify({"message": "Artist name is required"}),
+    
+    sql = "DELETE FROM tracks WHERE djName = %s AND trackName = %s AND artist = %s"
+    val = (djName, trackName, artist)
+    mycursor.execute(sql, val)
+    mydb.commit()
+
+    if mycursor.rowcount == 0:
+        return jsonify({"message": "Track not found"}), 404
+    
+    return jsonify({"message": "Track deleted successfully"}), 200
+
+#Route to upvote a track
+@app.route('/tracks/upvote', methods=['POST'])
+def upvote():
+    data = request.get_json()
+    djName = data.get('djName')
+    if not djName:
+        return jsonify({"message": "DJ name is required"}), 400
+    trackName = data.get('trackName')
+    if not trackName:
+        return jsonify({"message": "Track name is required"}), 400
+    artist = data.get('artist')
+    if not artist:
+        return jsonify({"message": "Artist name is required"}), 400
+    
+    sql = """
+    UPDATE tracks
+    SET upvotes = upvotes + 1
+    WHERE djName = %s AND trackName = %s AND artist = %s
+    """
+
+    val = (djName, trackName, artist)
+    mycursor.execute(sql, val)
+    mydb.commit()
+
+    return jsonify({"message": "Track upvoted successfully"}), 200
+
+#Route to downvote a track
+@app.route('/tracks/downvote', methods=['POST'])
+def downvote():
+    data = request.get_json()
+    djName = data.get('djName')
+    if not djName:
+        return jsonify({"message": "DJ name is required"}), 400
+    trackName = data.get('trackName')
+    if not trackName:
+        return jsonify({"message": "Track name is required"}), 400
+    artist = data.get('artist')
+    if not artist:
+        return jsonify({"message": "Artist name is required"}), 400
+    
+    sql = """
+    UPDATE tracks
+    SET upvotes = upvotes - 1
+    WHERE djName = %s AND trackName = %s AND artist = %s
+    """
+
+    val = (djName, trackName, artist)
+    mycursor.execute(sql, val)
+    mydb.commit()
+
+    return jsonify({"message": "Track downvoted successfully"}), 200
+
+@app.route('/dj/displayName/<djName>', methods=['GET'])
+def get_display_name(djName):
+    query = "SELECT displayName FROM users WHERE djName = %s"
+    mycursor.execute(query, (djName,))
+    result = mycursor.fetchone()
+    
+    if result:
+        return jsonify({"displayName": result[0]}), 200
+    else:
+        return jsonify({"message": "DJ not found"}), 404
 
 
 if __name__ == '__main__':

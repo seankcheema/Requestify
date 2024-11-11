@@ -15,13 +15,14 @@ const Dashboard: React.FC = () => {
     const navigate = useNavigate();
     const { djName: paramDJName } = useParams<{ djName: string }>(); // Get djName from URL params
     const auth = getAuth();
+    const ipAddress = process.env.REACT_APP_API_IP;
 
     useEffect(() => {
         const fetchProfileData = async (user: User | null) => {
             if (!user) return;
 
             try {
-                const response = await axios.get(`http://localhost:5001/user/${user.email}`);
+                const response = await axios.get(`http://${ipAddress}:5001/user/${user.email}`);
                 setProfileData(response.data);
 
                 // Redirect to /dashboard/:djName if URL's djName doesn't match

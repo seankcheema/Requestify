@@ -11,6 +11,7 @@ const Search: React.FC = () => {
     const navigate = useNavigate();
     const [tracks, setTracks] = useState<any[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const ipAddress = process.env.REACT_APP_API_IP;
 
     useEffect(() => {
         if (djName) {
@@ -21,7 +22,7 @@ const Search: React.FC = () => {
 
         const fetchSearchResults = async () => {
             try {
-                const response = await axios.get(`http://localhost:5001/search`, {
+                const response = await axios.get(`http://${ipAddress}:5001/search`, {
                     params: { query: djName },
                 });
                 setTracks(response.data);
