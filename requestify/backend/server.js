@@ -7,7 +7,7 @@ const port = 5000;
 
 // Enable CORS for all origins (or you can specify specific origins if you prefer)
 app.use(cors({
-  origin: '',  // Allow all origins, or you can specify a specific domain like 'http://192.168.x.x:3000/'
+  origin: '*',  // Allow all origins, or you can specify a specific domain like 'http://192.168.x.x:3000/'
   methods: ["GET", "POST"]
 }));
 
@@ -19,7 +19,7 @@ const server = http.createServer(app);
 // Setup Socket.IO with CORS configuration
 const io = new Server(server, {
   cors: {
-    origin: "", // This allows any origin, you can specify a more restrictive origin like 'http://192.168.x.x:3000/'
+    origin: "*", // This allows any origin, you can specify a more restrictive origin like 'http://192.168.x.x:3000/'
     methods: ["GET", "POST"]
   }
 });

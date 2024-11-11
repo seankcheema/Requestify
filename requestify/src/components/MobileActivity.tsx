@@ -10,6 +10,7 @@ const RequestifyLayout: React.FC = () => {
   const { djName: paramDJName } = useParams<{ djName: string }>();
   const { djName, setDJName } = useDJ();
   const [tracks, setTracks] = useState<{ track: string[]; hasUpvoted: boolean; hasDownvoted: boolean }[]>([]);
+  const ipAddress = process.env.REACT_APP_API_IP;
 
   useEffect(() => {
     if (paramDJName && djName !== paramDJName) {
@@ -22,7 +23,7 @@ const RequestifyLayout: React.FC = () => {
 
   const fetchTracks = async () => {
     try {
-      const response = await fetch(`http://localhost:5001/tracks/${djName}`);
+      const response = await fetch(`http://${ipAddress}:5001/tracks/${djName}`);
 
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
@@ -46,7 +47,7 @@ const RequestifyLayout: React.FC = () => {
       const updatedTracks = [...tracks];
 
       if (updatedTracks[index].hasUpvoted) {
-        await fetch('http://localhost:5001/tracks/downvote', {
+        await fetch(`http://${ipAddress}:5001/tracks/downvote`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ djName, trackName, artist })
@@ -55,19 +56,19 @@ const RequestifyLayout: React.FC = () => {
         updatedTracks[index].hasUpvoted = false;
       } else {
         if (updatedTracks[index].hasDownvoted) {
-          await fetch('http://localhost:5001/tracks/upvote', {
+          await fetch(`http://${ipAddress}:5001/tracks/upvote`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ djName, trackName, artist })
           });
-          await fetch('http://localhost:5001/tracks/upvote', {
+          await fetch(`http://${ipAddress}:5001/tracks/upvote`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ djName, trackName, artist })
           });
           updatedTracks[index].track[5] = (parseInt(updatedTracks[index].track[5]) + 2).toString();
         } else {
-          await fetch('http://localhost:5001/tracks/upvote', {
+          await fetch(`http://${ipAddress}:5001/tracks/upvote`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ djName, trackName, artist })
@@ -89,7 +90,7 @@ const RequestifyLayout: React.FC = () => {
       const updatedTracks = [...tracks];
 
       if (updatedTracks[index].hasDownvoted) {
-        await fetch('http://localhost:5001/tracks/upvote', {
+        await fetch(`http://${ipAddress}:5001/tracks/upvote`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ djName, trackName, artist })
@@ -98,19 +99,19 @@ const RequestifyLayout: React.FC = () => {
         updatedTracks[index].hasDownvoted = false;
       } else {
         if (updatedTracks[index].hasUpvoted) {
-          await fetch('http://localhost:5001/tracks/downvote', {
+          await fetch(`http://${ipAddress}:5001/tracks/downvote`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ djName, trackName, artist })
           });
-          await fetch('http://localhost:5001/tracks/downvote', {
+          await fetch(`http://${ipAddress}:5001/tracks/downvote`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ djName, trackName, artist })
           });
           updatedTracks[index].track[5] = (parseInt(updatedTracks[index].track[5]) - 2).toString();
         } else {
-          await fetch('http://localhost:5001/tracks/downvote', {
+          await fetch(`http://${ipAddress}:5001/tracks/downvote`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ djName, trackName, artist })

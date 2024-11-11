@@ -19,10 +19,11 @@ interface Track {
 
 const Queue: React.FC<QueueProps> = ({ djName }) => {
   const [tracks, setTracks] = useState<string[][]>([]);
+  const ipAddress = process.env.REACT_APP_API_IP;
 
   const fetchTracks = async () => {
     try {
-      const response = await fetch(`http://localhost:5001/tracks/${djName}`);
+      const response = await fetch(`http://${ipAddress}:5001/tracks/${djName}`);
       
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
@@ -37,7 +38,7 @@ const Queue: React.FC<QueueProps> = ({ djName }) => {
 
   const removeTrack = async (trackName: string, artist: string) => {
     try {
-      const response = await fetch(`http://localhost:5001/tracks/delete`, {
+      const response = await fetch(`http://${ipAddress}:5001/tracks/delete`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
