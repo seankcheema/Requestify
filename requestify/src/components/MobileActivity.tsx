@@ -11,12 +11,14 @@ const RequestifyLayout: React.FC = () => {
   const { djName, setDJName } = useDJ();
   const [tracks, setTracks] = useState<{ track: string[]; hasUpvoted: boolean; hasDownvoted: boolean }[]>([]);
 
-  // Set djName in context whenever paramDJName changes
   useEffect(() => {
-    if (paramDJName) {
+    if (paramDJName && djName !== paramDJName) {
+      console.log("Setting djName from paramDJName:", paramDJName);
       setDJName(paramDJName);
     }
-  }, [paramDJName, setDJName]);
+    console.log("Current djName:", djName);
+  }, [paramDJName, djName, setDJName]);
+  
 
   const fetchTracks = async () => {
     try {
@@ -37,14 +39,13 @@ const RequestifyLayout: React.FC = () => {
     if (djName) {
       fetchTracks();
     }
-  }, [paramDJName]);
+  }, [djName]);
 
   const handleUpvote = async (trackName: string, artist: string, index: number) => {
     try {
       const updatedTracks = [...tracks];
 
       if (updatedTracks[index].hasUpvoted) {
-        // Remove upvote by calling downvote once
         await fetch('http://localhost:5001/tracks/downvote', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -54,7 +55,6 @@ const RequestifyLayout: React.FC = () => {
         updatedTracks[index].hasUpvoted = false;
       } else {
         if (updatedTracks[index].hasDownvoted) {
-          // Remove downvote and add upvote
           await fetch('http://localhost:5001/tracks/upvote', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -67,7 +67,6 @@ const RequestifyLayout: React.FC = () => {
           });
           updatedTracks[index].track[5] = (parseInt(updatedTracks[index].track[5]) + 2).toString();
         } else {
-          // Normal upvote
           await fetch('http://localhost:5001/tracks/upvote', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -78,19 +77,18 @@ const RequestifyLayout: React.FC = () => {
         updatedTracks[index].hasUpvoted = true;
         updatedTracks[index].hasDownvoted = false;
       }
-      
+
       setTracks(updatedTracks);
     } catch (error) {
       console.error("Error upvoting:", error);
     }
   };
-  
+
   const handleDownvote = async (trackName: string, artist: string, index: number) => {
     try {
       const updatedTracks = [...tracks];
 
       if (updatedTracks[index].hasDownvoted) {
-        // Remove downvote by calling upvote once
         await fetch('http://localhost:5001/tracks/upvote', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -100,7 +98,6 @@ const RequestifyLayout: React.FC = () => {
         updatedTracks[index].hasDownvoted = false;
       } else {
         if (updatedTracks[index].hasUpvoted) {
-          // Remove upvote and add downvote
           await fetch('http://localhost:5001/tracks/downvote', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -113,7 +110,6 @@ const RequestifyLayout: React.FC = () => {
           });
           updatedTracks[index].track[5] = (parseInt(updatedTracks[index].track[5]) - 2).toString();
         } else {
-          // Normal downvote
           await fetch('http://localhost:5001/tracks/downvote', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -124,7 +120,7 @@ const RequestifyLayout: React.FC = () => {
         updatedTracks[index].hasDownvoted = true;
         updatedTracks[index].hasUpvoted = false;
       }
-      
+
       setTracks(updatedTracks);
     } catch (error) {
       console.error("Error downvoting:", error);

@@ -1,5 +1,5 @@
 // DJContext.tsx
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 interface DJContextProps {
     djName: string;
@@ -9,7 +9,11 @@ interface DJContextProps {
 const DJContext = createContext<DJContextProps | undefined>(undefined);
 
 export const DJProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [djName, setDJName] = useState('DJ Grant');
+    const [djName, setDJName] = useState(() => localStorage.getItem('djName') || 'DJ Grant');
+
+    useEffect(() => {
+        localStorage.setItem('djName', djName);
+    }, [djName]);
 
     return (
         <DJContext.Provider value={{ djName, setDJName }}>
