@@ -302,6 +302,17 @@ def update_profile():
     except Exception as e:
         print(f"Error updating profile: {e}")
         return jsonify({"error": str(e)}), 500
+    
+@app.route('/dj/productLink/<djName>', methods=['GET'])
+def get_product_link(djName):
+    query = "SELECT productLink FROM users WHERE djName = %s"
+    mycursor.execute(query, (djName,))
+    result = mycursor.fetchone()
+    
+    if result:
+        return jsonify({"productLink": result[0]}), 200
+    else:
+        return jsonify({"message": "Product link not found"}), 404
 
 
 if __name__ == '__main__':
