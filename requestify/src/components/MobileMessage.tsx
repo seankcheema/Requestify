@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { FaHome, FaChartLine, FaDollarSign, FaBell } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
-import { io } from 'socket.io-client';
-//import './MobileMessage.css';
+import { io, Socket } from 'socket.io-client';
 
-const socket = io("http://192.168.4.34:5000"); // Connect to your socket.io server
+const ipAddress = process.env.REACT_APP_API_IP; // Use the environment variable
 
 const MobileMessage: React.FC = () => {
   const navigate = useNavigate();
@@ -12,6 +11,9 @@ const MobileMessage: React.FC = () => {
   const [messages, setMessages] = useState<{ text: string; sent: boolean }[]>([]);
 
   useEffect(() => {
+    // Connect to the socket server using dynamic IP
+    const socket: Socket = io(`http://${ipAddress}:5000`);
+
     // Listen for messages from the server
     socket.on("receive_message", (message) => {
       setMessages((prevMessages) => [...prevMessages, message]);
@@ -20,6 +22,7 @@ const MobileMessage: React.FC = () => {
     // Cleanup when component unmounts
     return () => {
       socket.off("receive_message");
+      socket.disconnect();
     };
   }, []);
 

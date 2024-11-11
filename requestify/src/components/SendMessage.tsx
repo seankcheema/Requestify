@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { io } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 import MessagePopup from './MessagePopup';
 import './Dashboard.css';
 
-const socket = io("http://192.168.4.34:5000"); // Connect to your Socket.IO server
+const ipAddress = process.env.REACT_APP_API_IP; // Use the environment variable
+
+const socket: Socket = io(`http://${ipAddress}:5000`); // Connect to the dynamic IP
 
 const SendMessage: React.FC = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
