@@ -1,11 +1,11 @@
-// MobilePayment.tsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaHome, FaChartLine, FaDollarSign, FaBell, FaExternalLinkAlt } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDJ } from './DJContext'; // Import DJContext
 import './MobilePayment.css';
 
 const PaymentPage: React.FC = () => {
+    const [displayName, setDisplayName] = useState(''); // New state for display name
     const navigate = useNavigate();
     const { djName: paramDJName } = useParams<{ djName: string }>(); // Get djName from URL parameters
     const { djName, setDJName } = useDJ();
@@ -16,6 +16,27 @@ const PaymentPage: React.FC = () => {
             setDJName(paramDJName);
         }
     }, [paramDJName, setDJName]);
+
+    // Fetch display name whenever djName changes
+    useEffect(() => {
+        const fetchDisplayName = async () => {
+            try {
+                const response = await fetch(`http://localhost:5001/dj/displayName/${djName}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setDisplayName(data.displayName); // Assuming response has { displayName: "Actual Display Name" }
+                } else {
+                    console.error('Failed to fetch display name');
+                }
+            } catch (error) {
+                console.error('Error fetching display name:', error);
+            }
+        };
+
+        if (djName) {
+            fetchDisplayName();
+        }
+    }, [djName]);
 
     const handlePayment = () => {
         const paymentLink = 'https://buy.stripe.com/test_3csfYZ4QjeNicCs7ss';
@@ -40,7 +61,7 @@ const PaymentPage: React.FC = () => {
             <FaBell className="bell-icon" />
             <main className="mobile-content">
                 <div className="listening-section">
-                    <p>You are listening to <a href="#">{djName}</a></p> {/* Use djName from context */}
+                    <p>You are listening to <a href="#">{displayName || djName}</a></p> {/* Use displayName or fallback to djName */}
                 </div>
                 <div className="payment-section">
                     <div className="payment-tile">
