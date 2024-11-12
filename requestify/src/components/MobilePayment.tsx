@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { FaHome, FaChartLine, FaDollarSign, FaBell, FaExternalLinkAlt } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useDJ } from './DJContext'; // Import DJContext
+import { useDJ } from './DJContext';
 import './MobilePayment.css';
 
 const PaymentPage: React.FC = () => {
-    const [displayName, setDisplayName] = useState(''); // New state for display name
+    const [productLink, setProductLink] = useState(''); // State for dynamic product link
     const navigate = useNavigate();
-    const { djName: paramDJName } = useParams<{ djName: string }>(); // Get djName from URL parameters
-    const { djName, setDJName } = useDJ();
+    const { djName: paramDJName } = useParams<{ djName: string }>();
+    const { djName, setDJName, displayName, setDisplayName } = useDJ();
+    const ipAddress = process.env.REACT_APP_API_IP;
 
     // Set djName in context whenever paramDJName changes
     useEffect(() => {
@@ -17,14 +18,14 @@ const PaymentPage: React.FC = () => {
         }
     }, [paramDJName, setDJName]);
 
-    // Fetch display name whenever djName changes
+    // Fetch the display name whenever djName changes
     useEffect(() => {
         const fetchDisplayName = async () => {
             try {
-                const response = await fetch(`http://localhost:5001/dj/displayName/${djName}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    setDisplayName(data.displayName); // Assuming response has { displayName: "Actual Display Name" }
+                const displayNameResponse = await fetch(`http://${ipAddress}:5001/dj/displayName/${djName}`);
+                if (displayNameResponse.ok) {
+                    const displayNameData = await displayNameResponse.json();
+                    setDisplayName(displayNameData.displayName); 
                 } else {
                     console.error('Failed to fetch display name');
                 }
@@ -36,11 +37,35 @@ const PaymentPage: React.FC = () => {
         if (djName) {
             fetchDisplayName();
         }
+    }, [djName, setDisplayName]);
+
+    // Fetch the product link whenever djName changes
+    useEffect(() => {
+        const fetchProductLink = async () => {
+            try {
+                const productLinkResponse = await fetch(`http://${ipAddress}:5001/dj/productLink/${djName}`);
+                if (productLinkResponse.ok) {
+                    const productLinkData = await productLinkResponse.json();
+                    setProductLink(productLinkData.productLink);
+                } else {
+                    console.error('Failed to fetch product link');
+                }
+            } catch (error) {
+                console.error('Error fetching product link:', error);
+            }
+        };
+
+        if (djName) {
+            fetchProductLink();
+        }
     }, [djName]);
 
     const handlePayment = () => {
-        const paymentLink = 'https://buy.stripe.com/test_3csfYZ4QjeNicCs7ss';
-        window.open(paymentLink, '_blank'); // Redirects to Stripe Payment Page
+        if (productLink) {
+            window.open(productLink, '_blank'); // Redirects to DJ's specific payment page
+        } else {
+            alert('Payment link is not available for this DJ.');
+        }
     };
 
     const goToHome = () => {
@@ -64,7 +89,7 @@ const PaymentPage: React.FC = () => {
             <FaBell className="bell-icon" onClick={goToMessage} />
             <main className="mobile-content">
                 <div className="listening-section">
-                    <p>You are listening to <a href="#">{displayName || djName}</a></p> {/* Use displayName or fallback to djName */}
+                    <p>You are listening to <a href="#">{displayName || djName}</a></p>
                 </div>
                 <div className="payment-section">
                     <div className="payment-tile">

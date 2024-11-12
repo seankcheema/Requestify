@@ -1,4 +1,3 @@
-// MobileActivity.tsx
 import React, { useState, useEffect } from 'react';
 import { FaHome, FaChartLine, FaDollarSign, FaBell, FaArrowUp, FaArrowDown } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -10,6 +9,7 @@ const RequestifyLayout: React.FC = () => {
   const { djName: paramDJName } = useParams<{ djName: string }>();
   const { djName, setDJName } = useDJ();
   const [tracks, setTracks] = useState<{ track: string[]; hasUpvoted: boolean; hasDownvoted: boolean }[]>([]);
+  const [displayName, setDisplayName] = useState(''); // State for display name
   const ipAddress = process.env.REACT_APP_API_IP;
 
   const goToMessage = () => {
@@ -20,9 +20,28 @@ const RequestifyLayout: React.FC = () => {
       console.log("Setting djName from paramDJName:", paramDJName);
       setDJName(paramDJName);
     }
-    console.log("Current djName:", djName);
   }, [paramDJName, djName, setDJName]);
-  
+
+  // Fetch display name whenever djName changes
+  useEffect(() => {
+    const fetchDisplayName = async () => {
+      try {
+        const response = await fetch(`http://${ipAddress}:5001/dj/displayName/${djName}`);
+        if (response.ok) {
+          const data = await response.json();
+          setDisplayName(data.displayName); // Assuming response has { displayName: "Actual Display Name" }
+        } else {
+          console.error('Failed to fetch display name');
+        }
+      } catch (error) {
+        console.error('Error fetching display name:', error);
+      }
+    };
+
+    if (djName) {
+      fetchDisplayName();
+    }
+  }, [djName]);
 
   const fetchTracks = async () => {
     try {
@@ -156,7 +175,7 @@ const RequestifyLayout: React.FC = () => {
 
       <main className="mobile-content">
         <section className="mobile-queue">
-          <h2>Current Queue</h2>
+          <h2>Current Queue for {displayName || djName}</h2> {/* Use displayName or fallback to djName */}
           <div className="song-container">
             <div className="song-list">
               {tracks.length > 0 ? (
