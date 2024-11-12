@@ -2,13 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { FaHome, FaChartLine, FaDollarSign, FaBell, FaArrowUp, FaArrowDown } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDJ } from './DJContext';
+import io from 'socket.io-client';
 import './MobileActivity.css';
+
+const ipAddress = process.env.REACT_APP_API_IP;
+const socket = io(`http://${ipAddress}:5001`);
 
 const RequestifyLayout: React.FC = () => {
   const navigate = useNavigate();
   const { djName: paramDJName } = useParams<{ djName: string }>();
   const { djName, setDJName } = useDJ();
   const [tracks, setTracks] = useState<{ track: string[]; hasUpvoted: boolean; hasDownvoted: boolean }[]>([]);
+
   const [displayName, setDisplayName] = useState(''); // State for display name
   const ipAddress = process.env.REACT_APP_API_IP;
 
@@ -62,6 +67,56 @@ const RequestifyLayout: React.FC = () => {
     if (djName) {
       fetchTracks();
     }
+
+    // Listen for 'song_removed' events
+    socket.on('song_removed', (removedSong) => {
+      // Only update if the removed song belongs to the current DJ
+      if (removedSong.djName === djName) {
+        setTracks((prevTracks) =>
+          prevTracks.filter((trackObj) =>
+            !(trackObj.track[0] === removedSong.trackName && trackObj.track[1] === removedSong.artist)
+          )
+        );
+      }
+    });
+
+    // Listen for 'song_added' events
+    socket.on('song_added', (newSong) => {
+      if (newSong.djName === djName) {
+        setTracks((prevTracks) => [
+          ...prevTracks,
+          { track: [newSong.trackName, newSong.artist, newSong.album, newSong.external_url, newSong.album_cover_url, (newSong.upvotes || 0).toString()], hasUpvoted: false, hasDownvoted: false }
+        ]);
+      }
+    });
+
+    // Listening for upvote updates from the server
+    socket.on('upvote_updated', (updatedSong) => {
+      setTracks((prevTracks) =>
+        prevTracks.map((track) =>
+          track.track[0] === updatedSong.trackName && track.track[1] === updatedSong.artist
+            ? { ...track, upvotes: updatedSong.upvotes }
+            : track
+        )
+      );
+    });
+
+    // Listen for all_songs_removed event
+    socket.on('all_songs_removed', (djName) => {
+      if (djName === djName) {
+        setTracks([]);
+      }
+    });
+
+
+    // Cleanup listener on component unmount
+    return () => {
+      socket.off('song_removed');
+      socket.off('song_added');
+      socket.off('upvote_updated');
+      socket.off('all_songs_removed');
+    };
+
   }, [djName]);
 
   const handleUpvote = async (trackName: string, artist: string, index: number) => {
