@@ -6,7 +6,7 @@ import { auth } from './firebaseConfig'; // Firebase config
 import './SignUp.css';
 
 const SignUp: React.FC = () => {
-    const [email, setEmail] = useState<string>(''); // Changed from setUsername to setEmail
+    const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [confirmPassword, setConfirmPassword] = useState<string>('');
     const [djName, setDjName] = useState<string>('');
@@ -14,7 +14,6 @@ const SignUp: React.FC = () => {
     const [location, setLocation] = useState<string>('');
     const [socialMedia, setSocialMedia] = useState<string>('');
     const [message, setMessage] = useState<string>('');
-    const [djNameError, setDjNameError] = useState<string>(''); // Error state for DJ Name
     const navigate = useNavigate();
     const ipAddress = process.env.REACT_APP_API_IP;
 
@@ -25,7 +24,6 @@ const SignUp: React.FC = () => {
     const handleSignUp = async (event: React.FormEvent) => {
         event.preventDefault();
 
-        // Basic email validation
         if (!email.includes('@')) {
             setMessage('Please enter a valid email.');
             return;
@@ -36,25 +34,20 @@ const SignUp: React.FC = () => {
             return;
         }
 
-        // DJ Name validation
         if (djName.includes('/')) {
-            setDjNameError('DJ Name cannot contain slashes.');
+            setMessage('DJ Name cannot contain slashes.');
             return;
         }
 
         try {
-            // Register the user with Firebase
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
-
-            // Get the Firebase ID token to send to the backend
             const idToken = await user.getIdToken();
 
-            // Send additional user data along with the ID token to the Flask backend
-            await axios.post(
+            const response = await axios.post(
                 `http://${ipAddress}:5001/register`,
                 {
-                    email: email,
+                    email,
                     djName,
                     displayName,
                     location,
@@ -62,7 +55,7 @@ const SignUp: React.FC = () => {
                 },
                 {
                     headers: {
-                        Authorization: `Bearer ${idToken}`, // Send the ID token in the header
+                        Authorization: `Bearer ${idToken}`,
                         'Content-Type': 'application/json',
                     },
                 }
@@ -71,7 +64,16 @@ const SignUp: React.FC = () => {
             setMessage('Account created successfully!');
             goToLogin();
         } catch (error: any) {
-            if (error.code === 'auth/email-already-in-use') {
+            if (error.response) {
+                const errorMessage = error.response.data.message;
+                if (errorMessage.includes("email")) {
+                    setMessage('Email is already registered.');
+                } else if (errorMessage.includes("DJ name")) {
+                    setMessage('DJ Name is already taken.');
+                } else {
+                    setMessage(errorMessage || 'An error occurred during registration.');
+                }
+            } else if (error.code === 'auth/email-already-in-use') {
                 setMessage('Email is already registered.');
             } else if (error.code === 'auth/invalid-email') {
                 setMessage('Invalid email format.');
@@ -81,16 +83,6 @@ const SignUp: React.FC = () => {
                 setMessage('An error occurred: ' + error.message);
             }
         }
-    };
-
-    const handleDjNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        if (value.includes('/')) {
-            setDjNameError('DJ Name cannot contain slashes.');
-        } else {
-            setDjNameError('');
-        }
-        setDjName(value);
     };
 
     return (
@@ -144,11 +136,10 @@ const SignUp: React.FC = () => {
                             type="text"
                             id="djName"
                             value={djName}
-                            onChange={handleDjNameChange}
+                            onChange={(e) => setDjName(e.target.value)}
                             required
                             className="input-field"
                         />
-                        {djNameError && <p style={{ color: 'red' }}>{djNameError}</p>}
                     </div>
                     <div className="form-group">
                         <label htmlFor="displayName">Display Name</label>

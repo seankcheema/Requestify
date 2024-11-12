@@ -10,6 +10,7 @@ import os
 import qrcode
 import base64
 from io import BytesIO
+from flask_socketio import SocketIO, emit
 
 load_dotenv(".env")
 
@@ -20,6 +21,7 @@ IP = os.getenv('REACT_APP_API_IP')
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 # MySQL Connection
 mydb = mysql.connector.connect(
@@ -131,34 +133,43 @@ def register():
     if not dj_name:
         return jsonify({"message": "DJ name is required"}), 400
 
-    # Check if the user already exists
-    query_check = "SELECT * FROM users WHERE email = %s"
-    mycursor.execute(query_check, (email,))
-    if mycursor.fetchone():
-        return jsonify({"message": "User already exists"}), 409
+    cursor = mydb.cursor()
+    try:
+        # Check if a user with the same email already exists
+        email_check_query = "SELECT * FROM users WHERE email = %s"
+        cursor.execute(email_check_query, (email,))
+        if cursor.fetchone():
+            return jsonify({"message": "A user with this email already exists"}), 409
 
-    # Generate the URL for the QR code: http://localhost:3000/search/dj_name
-    qr_url = f"http://{IP}:3000/search/{dj_name}"
+        # Check if a user with the same DJ name already exists
+        dj_name_check_query = "SELECT * FROM users WHERE djName = %s"
+        cursor.execute(dj_name_check_query, (dj_name,))
+        if cursor.fetchone():
+            return jsonify({"message": "A user with this DJ name already exists"}), 409
 
-    # Generate the QR Code with the above URL
-    qr_img = qrcode.make(qr_url)
+        # Generate the URL for the QR code
+        qr_url = f"http://{IP}:3000/search/{dj_name}"
 
-    # Convert QR Code to Base64 string
-    buffered = BytesIO()
-    qr_img.save(buffered, format="PNG")
-    qr_code_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
+        # Generate the QR Code with the above URL
+        qr_img = qrcode.make(qr_url)
 
-    # Insert the user data along with the QR code and link into the database
-    query = """
-        INSERT INTO users (email, djName, displayName, location, socialMedia, qrCode, productLink)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
-    """
+        # Convert QR Code to Base64 string
+        buffered = BytesIO()
+        qr_img.save(buffered, format="PNG")
+        qr_code_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
 
-    #Doesn't need to store the link to the DJ search page, only the generated QR code (hence None at the end)
-    mycursor.execute(query, (email, dj_name, displayName, location, social_media, qr_code_base64, None))
-    mydb.commit()
+        # Insert the user data along with the QR code and link into the database
+        insert_query = """
+            INSERT INTO users (email, djName, displayName, location, socialMedia, qrCode, productLink)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """
+        cursor.execute(insert_query, (email, dj_name, displayName, location, social_media, qr_code_base64, None))
+        mydb.commit()
 
-    return jsonify({"message": "User registered successfully", "qrCode": qr_code_base64}), 201
+        return jsonify({"message": "User registered successfully", "qrCode": qr_code_base64}), 201
+
+    finally:
+        cursor.close()
 
 
 @app.route('/login', methods=['POST'])
@@ -218,6 +229,16 @@ def search():
         mycursor.execute(sql, val)
         mydb.commit()
 
+        # Emit a 'song_added' event after the song is added to the queue
+        socketio.emit('song_added', {
+            "djName": djName,
+            "trackName": track_name,
+            "artist": artist,
+            "album": album,
+            "external_url": external_url,
+            "album_cover_url": album_cover_url
+        })
+
     return jsonify(tracks)
 
 #
@@ -249,10 +270,10 @@ def create_payment_link_route():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-#Used to get information about the DJ
+# Used to get information about the DJ
 @app.route('/user/<email>', methods=['GET'])
 def get_user_profile(email):
-    query = "SELECT email, djName, displayName, location, socialMedia, qrCode FROM users WHERE email = %s"
+    query = "SELECT email, djName, displayName, location, socialMedia, qrCode, productLink FROM users WHERE email = %s"
     mycursor.execute(query, (email,))
     user = mycursor.fetchone()
 
@@ -263,11 +284,13 @@ def get_user_profile(email):
             "displayName": user[2],
             "location": user[3],
             "socialMedia": user[4],
-            "qrCode": user[5]  # Base64 QR code
+            "qrCode": user[5],  # Base64 QR code
+            "productLink": user[6]  # Add productLink to the response
         }
         return jsonify(user_data), 200
     else:
         return jsonify({"message": "User not found"}), 404
+
 
 #Route to select all tracks for a given DJ
 @app.route('/tracks/<djName>', methods=['GET'])
@@ -347,7 +370,30 @@ def delete_track():
     if mycursor.rowcount == 0:
         return jsonify({"message": "Track not found"}), 404
     
+    # Emit 'song_removed' event to all connected clients with the song details
+    socketio.emit('song_removed', {"djName": djName, "trackName": trackName, "artist": artist})
+    
     return jsonify({"message": "Track deleted successfully"}), 200
+
+#Route to remove all tracks from the queue for a specific DJ
+@app.route('/tracks/delete-all', methods=['DELETE'])
+def delete_all_tracks():
+    djName = request.json.get('djName')
+    if not djName:
+        return jsonify({"message": "DJ name is required"}), 400
+    
+    sql = "DELETE FROM tracks WHERE djName = %s"
+    val = (djName,)
+    mycursor.execute(sql, val)
+    mydb.commit()
+
+    if mycursor.rowcount == 0:
+        return jsonify({"message": "No tracks found"}), 404
+    
+    # Emit 'all_songs_removed' event to all connected clients
+    socketio.emit('all_songs_removed', {"djName": djName})
+    
+    return jsonify({"message": "All tracks deleted successfully"}), 200
 
 #Route to upvote a track
 @app.route('/tracks/upvote', methods=['POST'])
@@ -372,8 +418,20 @@ def upvote():
     val = (djName, trackName, artist)
     mycursor.execute(sql, val)
     mydb.commit()
+    
+    # Fetch the updated upvote count to send to clients
+    mycursor.execute("SELECT upvotes FROM tracks WHERE djName = %s AND trackName = %s AND artist = %s", val)
+    updated_upvotes = mycursor.fetchone()[0]
 
-    return jsonify({"message": "Track upvoted successfully"}), 200
+     # Emit the updated song with the new upvote count
+    socketio.emit('upvote_updated', {
+        'djName': djName,
+        'trackName': trackName,
+        'artist': artist,
+        'upvotes': updated_upvotes
+    })
+
+    return jsonify({"message": "Track upvoted successfully", "upvotes": updated_upvotes}), 200
 
 #Route to downvote a track
 @app.route('/tracks/downvote', methods=['POST'])
@@ -399,7 +457,19 @@ def downvote():
     mycursor.execute(sql, val)
     mydb.commit()
 
-    return jsonify({"message": "Track downvoted successfully"}), 200
+    # Fetch the updated upvote count to send to clients
+    mycursor.execute("SELECT upvotes FROM tracks WHERE djName = %s AND trackName = %s AND artist = %s", val)
+    updated_upvotes = mycursor.fetchone()[0]
+
+     # Emit the updated song with the new upvote count
+    socketio.emit('upvote_updated', {
+        'djName': djName,
+        'trackName': trackName,
+        'artist': artist,
+        'upvotes': updated_upvotes
+    })
+
+    return jsonify({"message": "Track downvoted successfully", "upvotes": updated_upvotes}), 200
 
 @app.route('/dj/displayName/<djName>', methods=['GET'])
 def get_display_name(djName):
