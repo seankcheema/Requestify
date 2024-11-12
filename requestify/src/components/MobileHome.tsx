@@ -6,8 +6,8 @@ import './MobileHome.css';
 
 const RequestifyLayout: React.FC = () => {
     const [query, setQuery] = useState('');
-    const [searchResult, setSearchResult] = useState(null);
-    const [displayName, setDisplayName] = useState(''); // New state for display name
+    const [showConfirmation, setShowConfirmation] = useState(false); // New state for confirmation message
+    const [displayName, setDisplayName] = useState(''); // State for display name
     const navigate = useNavigate();
     const { djName: paramDJName } = useParams<{ djName: string }>(); // Get djName from URL params
     const { djName, setDJName } = useDJ();
@@ -26,7 +26,7 @@ const RequestifyLayout: React.FC = () => {
                 const response = await fetch(`http://localhost:5001/dj/displayName/${djName}`);
                 if (response.ok) {
                     const data = await response.json();
-                    setDisplayName(data.displayName); // Assuming response has { displayName: "Actual Display Name" }
+                    setDisplayName(data.displayName);
                 } else {
                     console.error('Failed to fetch display name');
                 }
@@ -53,7 +53,8 @@ const RequestifyLayout: React.FC = () => {
             const data = await response.json();
 
             if (response.ok) {
-                setSearchResult(data);
+                setShowConfirmation(true); // Show confirmation message
+                setTimeout(() => setShowConfirmation(false), 3000); // Hide after 3 seconds
             } else {
                 alert(data.message || 'Error fetching data');
             }
@@ -63,18 +64,6 @@ const RequestifyLayout: React.FC = () => {
         }
     };
 
-    const goToPayment = () => {
-        navigate(`/dj/${paramDJName}/payment`);
-    };
-
-    const goToActivity = () => {
-        navigate(`/dj/${paramDJName}/activity`);
-    };
-
-    const goToMessage = () => {
-        navigate(`/dj/${paramDJName}/message`);
-    }
-
     return (
         <div className="mobile-container">
             <header className="mobile-header">
@@ -83,7 +72,7 @@ const RequestifyLayout: React.FC = () => {
                 </div>
             </header>
 
-            <FaBell className="bell-icon" onClick={goToMessage} />
+            <FaBell className="bell-icon" onClick={() => navigate(`/dj/${paramDJName}/message`)} />
 
             <main className="mobile-content">
                 {/* Listening Section with dynamic DJ display name */}
@@ -91,7 +80,7 @@ const RequestifyLayout: React.FC = () => {
                     <p>You are listening to <a href="#">{displayName || djName}</a></p>
                 </div>
 
-                <div className="activity-button" onClick={goToActivity}>
+                <div className="activity-button" onClick={() => navigate(`/dj/${paramDJName}/activity`)}>
                     <button>View current activity</button>
                 </div>
 
@@ -106,18 +95,17 @@ const RequestifyLayout: React.FC = () => {
                                 onChange={(e) => setQuery(e.target.value)}
                             />
                         </div>
-                        {searchResult && (
-                            <div className="search-results">
-                                <h4>Search Results:</h4>
-                                <pre>{JSON.stringify(searchResult, null, 2)}</pre>
-                            </div>
-                        )}
                         <button onClick={handleSearch}>Submit</button>
+                        
+                        {/* Display confirmation message */}
+                        {showConfirmation && (
+                            <p className="confirmation-message">Request submitted</p>
+                        )}
                     </div>
                 </div>
 
                 <div className="payment-section">
-                    <div className="payment-tile" onClick={goToPayment}>
+                    <div className="payment-tile" onClick={() => navigate(`/dj/${paramDJName}/payment`)}>
                         <h3>Send a tip</h3>
                         <div className="payment-options">
                             <img src="/assets/stripe.png" alt="Stripe" />
@@ -131,11 +119,11 @@ const RequestifyLayout: React.FC = () => {
                             <FaHome />
                             <span>Home</span>
                         </div>
-                        <div className="nav-item" onClick={goToActivity}>
+                        <div className="nav-item" onClick={() => navigate(`/dj/${paramDJName}/activity`)}>
                             <FaChartLine />
                             <span>Activity</span>
                         </div>
-                        <div className="nav-item" onClick={goToPayment}>
+                        <div className="nav-item" onClick={() => navigate(`/dj/${paramDJName}/payment`)}>
                             <FaDollarSign />
                             <span>Payment</span>
                         </div>

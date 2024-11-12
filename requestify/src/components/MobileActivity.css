@@ -4,6 +4,7 @@
     border-radius: 5px;
     margin-bottom: 10px;
     position: relative;
+    height: 75%;
   }
   
   .mobile-queue h2 {
@@ -21,7 +22,23 @@
     padding: 1px;
     border-radius: 5px;
     overflow-y: auto;
+    height: 90%;
   }
+
+  .confirmation-message {
+    color: #00bf33;
+    font-style: italic;
+    margin-top: 10px;
+    text-align: left;
+}
+
+
+  /* Fade-in and fade-out animation */
+  @keyframes fadeInOut {
+      0%, 100% { opacity: 0; }
+      10%, 90% { opacity: 1; }
+  }
+
   
   /* Style the scrollbar track (background) */
   .mobile-song-container::-webkit-scrollbar {
@@ -91,4 +108,32 @@
   .active-downvote {
     color: #ff3333; /* Red color for downvoted */
   }
+
+
+/* Container that limits the visible window of the text */
+.scrolling-window {
+  width: 150px; /* Adjust this width to control the visible area */
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+}
+
+/* Scrolling effect for text that exceeds the character limit */
+.scrolling-text {
+  display: inline-block;
+  animation: scrollText 10s linear infinite; /* Adjust total duration */
+}
+
+/* Keyframes to add a pause at the beginning */
+@keyframes scrollText {
+  0%, 20% {
+    transform: translateX(0); /* Stay at the starting position for 2 seconds */
+  }
+  100% {
+    transform: translateX(-100%); /* Move text completely out of view */
+  }
+}
+
+
+  
   

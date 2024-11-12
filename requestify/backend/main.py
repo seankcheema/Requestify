@@ -24,8 +24,8 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 # MySQL Connection
 mydb = mysql.connector.connect(
     host="localhost",
-    user="kylemcclelland",
-    password="password1",
+    user="root",
+    password="root",
     database="requestifyAccount",
     charset='utf8mb4',
     collation='utf8mb4_general_ci'
