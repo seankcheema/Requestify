@@ -58,7 +58,7 @@ const Queue: React.FC<QueueProps> = ({ djName }) => {
 
   const removeAllTracks = async () => {
     try {
-      const response = await fetch(`http://${ipAddress}:5001/tracks/deleteAll`, {
+      const response = await fetch(`http://${ipAddress}:5001/tracks/delete-all`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -114,7 +114,7 @@ const Queue: React.FC<QueueProps> = ({ djName }) => {
           )}
         </div>
       </div>
-      <button className="clear-queue">Clear Queue</button>
+      <button className="clear-queue" onClick={() => removeAllTracks()}>Clear Queue</button>
     </section>
   );
 };
