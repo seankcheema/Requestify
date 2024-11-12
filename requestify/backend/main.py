@@ -298,13 +298,51 @@ def get_tracks(djName):
         print(f"Error retrieving tracks: {e}")
         return jsonify({"message": "Error retrieving tracks"}), 500
 
+
+    
+@app.route('/update-profile', methods=['PUT'])
+def update_profile():
+    data = request.get_json()
+    current_email = data.get('email')  # Use email as the identifier
+    display_name = data.get('displayName')
+    location = data.get('location')
+    social_media = data.get('socialMedia')
+    product_link = data.get('productLink')
+
+    try:
+        # Update the user's profile in the MySQL database
+        query = """
+            UPDATE users 
+            SET displayName = %s, location = %s, socialMedia = %s, productLink = %s 
+            WHERE email = %s
+        """
+        values = (display_name, location, social_media, product_link, current_email)
+        mycursor.execute(query, values)
+        mydb.commit()
+        
+        return jsonify({"message": "Profile updated successfully"}), 200
+    except Exception as e:
+        print(f"Error updating profile: {e}")
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/dj/productLink/<djName>', methods=['GET'])
+def get_product_link(djName):
+    query = "SELECT productLink FROM users WHERE djName = %s"
+    mycursor.execute(query, (djName,))
+    result = mycursor.fetchone()
+    
+    if result:
+        return jsonify({"productLink": result[0]}), 200
+    else:
+        return jsonify({"message": "Product link not found"}), 404
+    
+
 #Route to remove track from queue
 @app.route('/tracks/delete', methods=['DELETE'])
 def delete_track():
     djName = request.json.get('djName')
     if not djName:
         return jsonify({"message": "DJ name is required"}), 400
-    
     trackName = request.json.get('trackName')
     if not trackName:
         return jsonify({"message": "Track name is required"}), 400
@@ -411,7 +449,7 @@ def get_display_name(djName):
     if result:
         return jsonify({"displayName": result[0]}), 200
     else:
-        return jsonify({"message": "DJ not found"}), 404
+        return jsonify({"message": "Display name not found"}), 404
 
 
 if __name__ == '__main__':

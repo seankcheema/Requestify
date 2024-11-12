@@ -12,7 +12,7 @@ const RequestifyLayout: React.FC = () => {
     const { djName: paramDJName } = useParams<{ djName: string }>(); // Get djName from URL params
     const { djName, setDJName } = useDJ();
 
-    // Set the djName in the context whenever paramDJName changes
+    // Set djName in context whenever paramDJName changes
     useEffect(() => {
         if (paramDJName) {
             setDJName(paramDJName);
