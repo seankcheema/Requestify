@@ -251,8 +251,8 @@
   padding: 20px;
   padding-top: 0; /* Remove padding from the top */
   border-radius: 10px;
-  width: 75%;  /* Increased width */
-  max-width: 90%; /* Allow resizing */
+  width: 30%;  /* Increased width */
+  
   flex-direction: column;
   max-height: 90%; /* Allow vertical resizing */
   text-align: right;
@@ -410,6 +410,7 @@
   margin-top: 80px;
   text-align: left;
   color: white;
+  width: 100%;
 }
 
 .popup-profile-img{
@@ -485,17 +486,6 @@
   font-size: 16px;
   border-radius: 4px;
   border: 1px solid #ccc;
-}
-
-.close-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
-  border: none;
-  color: #333;
-  font-size: 70px;
-  cursor: pointer;
 }
 
 .back-btn {
