@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FaHome, FaChartLine, FaDollarSign, FaBell } from 'react-icons/fa';
+import { FaHome, FaChartLine, FaDollarSign } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
 import { useDJ } from './DJContext';
@@ -47,13 +47,19 @@ const MobileMessage: React.FC = () => {
     // Connect to the socket server using dynamic IP
     const socket: Socket = io(`http://${ipAddress}:5000`);
 
-    // Listen for messages from the server
+    // Listen for the initial set of messages when the client connects
+    socket.on("load_messages", (loadedMessages) => {
+      setMessages(loadedMessages); // Update the messages state with the loaded messages
+    });
+
+    // Listen for new incoming messages
     socket.on("receive_message", (message) => {
       setMessages((prevMessages) => [...prevMessages, message]);
     });
 
     // Cleanup when component unmounts
     return () => {
+      socket.off("load_messages");
       socket.off("receive_message");
       socket.disconnect();
     };
@@ -78,20 +84,18 @@ const MobileMessage: React.FC = () => {
 
       <main className="mobile-content">
         <section className="mobile-queue">
-          <h2>Messsages from {displayName || djName}</h2>
+          <h2>Messages from {displayName || djName}</h2>
           <div className="mobile-song-container">
             <div className="mobile-song-list">
-            {messages.map((msg, index) => (
-            <div className="mobile-message-bubble" key={index}>
-              <div className="mobile-message-text">{msg.text}</div>
-            </div>
-          ))}
+              {messages.map((msg, index) => (
+                <div className="mobile-message-bubble" key={index}>
+                  <div className="mobile-message-text">{msg.text}</div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
       </main>
-
-
 
       <footer className="mobile-footer">
         <nav className="bottom-nav">
@@ -99,7 +103,7 @@ const MobileMessage: React.FC = () => {
             <FaHome />
             <span>Home</span>
           </div>
-          <div className="nav-item">
+          <div className="nav-item" onClick={goToActivity}>
             <FaChartLine />
             <span>Activity</span>
           </div>
