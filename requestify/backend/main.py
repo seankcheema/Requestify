@@ -10,6 +10,7 @@ import os
 import qrcode
 import base64
 from io import BytesIO
+from flask_socketio import SocketIO, emit
 
 load_dotenv(".env")
 
@@ -20,6 +21,7 @@ IP = os.getenv('REACT_APP_API_IP')
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 # MySQL Connection
 mydb = mysql.connector.connect(
@@ -218,6 +220,16 @@ def search():
         mycursor.execute(sql, val)
         mydb.commit()
 
+        # Emit a 'song_added' event after the song is added to the queue
+        socketio.emit('song_added', {
+            "djName": djName,
+            "trackName": track_name,
+            "artist": artist,
+            "album": album,
+            "external_url": external_url,
+            "album_cover_url": album_cover_url
+        })
+
     return jsonify(tracks)
 
 #
@@ -347,6 +359,9 @@ def delete_track():
     if mycursor.rowcount == 0:
         return jsonify({"message": "Track not found"}), 404
     
+    # Emit 'song_removed' event to all connected clients with the song details
+    socketio.emit('song_removed', {"djName": djName, "trackName": trackName, "artist": artist})
+    
     return jsonify({"message": "Track deleted successfully"}), 200
 
 #Route to upvote a track
@@ -372,8 +387,20 @@ def upvote():
     val = (djName, trackName, artist)
     mycursor.execute(sql, val)
     mydb.commit()
+    
+    # Fetch the updated upvote count to send to clients
+    mycursor.execute("SELECT upvotes FROM tracks WHERE djName = %s AND trackName = %s AND artist = %s", val)
+    updated_upvotes = mycursor.fetchone()[0]
 
-    return jsonify({"message": "Track upvoted successfully"}), 200
+     # Emit the updated song with the new upvote count
+    socketio.emit('upvote_updated', {
+        'djName': djName,
+        'trackName': trackName,
+        'artist': artist,
+        'upvotes': updated_upvotes
+    })
+
+    return jsonify({"message": "Track upvoted successfully", "upvotes": updated_upvotes}), 200
 
 #Route to downvote a track
 @app.route('/tracks/downvote', methods=['POST'])
@@ -399,7 +426,19 @@ def downvote():
     mycursor.execute(sql, val)
     mydb.commit()
 
-    return jsonify({"message": "Track downvoted successfully"}), 200
+    # Fetch the updated upvote count to send to clients
+    mycursor.execute("SELECT upvotes FROM tracks WHERE djName = %s AND trackName = %s AND artist = %s", val)
+    updated_upvotes = mycursor.fetchone()[0]
+
+     # Emit the updated song with the new upvote count
+    socketio.emit('upvote_updated', {
+        'djName': djName,
+        'trackName': trackName,
+        'artist': artist,
+        'upvotes': updated_upvotes
+    })
+
+    return jsonify({"message": "Track downvoted successfully", "upvotes": updated_upvotes}), 200
 
 @app.route('/dj/displayName/<djName>', methods=['GET'])
 def get_display_name(djName):
