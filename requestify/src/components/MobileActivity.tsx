@@ -101,12 +101,20 @@ const RequestifyLayout: React.FC = () => {
       );
     });
 
+    // Listen for all_songs_removed event
+    socket.on('all_songs_removed', (djName) => {
+      if (djName === djName) {
+        setTracks([]);
+      }
+    });
+
 
     // Cleanup listener on component unmount
     return () => {
       socket.off('song_removed');
       socket.off('song_added');
       socket.off('upvote_updated');
+      socket.off('all_songs_removed');
     };
 
   }, [djName]);

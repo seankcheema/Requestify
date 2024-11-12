@@ -364,6 +364,26 @@ def delete_track():
     
     return jsonify({"message": "Track deleted successfully"}), 200
 
+#Route to remove all tracks from the queue for a specific DJ
+@app.route('/tracks/delete-all', methods=['DELETE'])
+def delete_all_tracks():
+    djName = request.json.get('djName')
+    if not djName:
+        return jsonify({"message": "DJ name is required"}), 400
+    
+    sql = "DELETE FROM tracks WHERE djName = %s"
+    val = (djName,)
+    mycursor.execute(sql, val)
+    mydb.commit()
+
+    if mycursor.rowcount == 0:
+        return jsonify({"message": "No tracks found"}), 404
+    
+    # Emit 'all_songs_removed' event to all connected clients
+    socketio.emit('all_songs_removed', {"djName": djName})
+    
+    return jsonify({"message": "All tracks deleted successfully"}), 200
+
 #Route to upvote a track
 @app.route('/tracks/upvote', methods=['POST'])
 def upvote():

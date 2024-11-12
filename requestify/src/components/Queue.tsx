@@ -56,6 +56,26 @@ const Queue: React.FC<QueueProps> = ({ djName }) => {
     }
   };
 
+  const removeAllTracks = async () => {
+    try {
+      const response = await fetch(`http://${ipAddress}:5001/tracks/deleteAll`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ djName })
+    });
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+
+    setTracks([]);
+    } 
+    catch (error) {
+      console.error("Failed to remove all tracks:", error);
+    }
+  };
+
   useEffect(() => {
     // Initial fetch
     fetchTracks();
