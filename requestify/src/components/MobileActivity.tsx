@@ -229,36 +229,46 @@ const RequestifyLayout: React.FC = () => {
       <FaBell className="bell-icon" onClick={goToMessage} />
 
       <main className="mobile-content">
-        <section className="mobile-queue">
-          <h2>Current Queue for {displayName || djName}</h2> {/* Use displayName or fallback to djName */}
-          <div className="song-container">
-            <div className="song-list">
-              {tracks.length > 0 ? (
-                tracks.map((trackObj, index) => (
-                  <div key={index} className="song-item">
-                    <img src={trackObj.track[4]} alt={`${trackObj.track[2]} cover`} className="album-cover" />
-                    <div className="song-info">
-                      <p>{trackObj.track[0]}</p> {/* Track name */}
-                      <p className="artist">{trackObj.track[1]}</p> {/* Artist name */}
-                    </div>
-                    <FaArrowUp
-                      className={`mobile-upvote ${trackObj.hasUpvoted ? 'active-upvote' : ''}`}
-                      onClick={() => handleUpvote(trackObj.track[0], trackObj.track[1], index)}
-                    />
-                    <div className="mobile-song-upvotes">{trackObj.track[5]}</div>
-                    <FaArrowDown
-                      className={`mobile-downvote ${trackObj.hasDownvoted ? 'active-downvote' : ''}`}
-                      onClick={() => handleDownvote(trackObj.track[0], trackObj.track[1], index)}
-                    />
-                  </div>
-                ))
-              ) : (
-                <p>No tracks in the queue.</p>
-              )}
+  <section className="mobile-queue">
+    <h2>Current Queue for {displayName || djName}</h2>
+    <div className="mobile-song-container">
+      <div className="mobile-song-list">
+        {tracks.length > 0 ? (
+          tracks.map((trackObj, index) => (
+            <div key={index} className="mobile-song-item">
+              <img src={trackObj.track[4]} alt={`${trackObj.track[2]} cover`} className="album-cover" />
+              <div className="mobile-song-info">
+              <div className="scrolling-window">
+                <p className={`song-title ${trackObj.track[0].length > 15 ? 'scrolling-text' : ''}`}>
+                  {trackObj.track[0]}
+                </p>
+              </div>
+              <div className="scrolling-window">
+                <p className={`mobile-artist ${trackObj.track[1].length > 20 ? 'scrolling-text' : ''}`}>
+                  {trackObj.track[1]}
+                </p>
+              </div>
+              </div>
+              <FaArrowUp
+                className={`mobile-upvote ${trackObj.hasUpvoted ? 'active-upvote' : ''}`}
+                onClick={() => handleUpvote(trackObj.track[0], trackObj.track[1], index)}
+              />
+              <div className="mobile-song-upvotes">{trackObj.track[5]}</div>
+              <FaArrowDown
+                className={`mobile-downvote ${trackObj.hasDownvoted ? 'active-downvote' : ''}`}
+                onClick={() => handleDownvote(trackObj.track[0], trackObj.track[1], index)}
+              />
             </div>
-          </div>
-        </section>
-      </main>
+          ))
+        ) : (
+          <p>No tracks in the queue.</p>
+        )}
+      </div>
+    </div>
+  </section>
+</main>
+
+
 
       <footer className="mobile-footer">
         <nav className="bottom-nav">
