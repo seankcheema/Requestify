@@ -10,10 +10,11 @@ const socket: Socket = io(`http://${ipAddress}:5000`); // Connect to the dynamic
 const SendMessage: React.FC = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [messages, setMessages] = useState<{ text: string; sent: boolean }[]>([]);
+  const [newMessage, setNewMessage] = useState(''); // Local state for the message input
 
   const handleSendMessage = (message: string) => {
     // Emit the message to the server
-    socket.emit("send_message", { text: message, sent: true });
+    socket.emit('send_message', { text: message, sent: true });
 
     // Update the local messages array
     setMessages((prevMessages) => [...prevMessages, { text: message, sent: true }]);
@@ -32,7 +33,7 @@ const SendMessage: React.FC = () => {
         show={isPopupOpen}
         onClose={handleClosePopup}
         messages={messages} 
-        onSendMessage={handleSendMessage}
+        onSendMessage={handleSendMessage} // Pass the handler to MessagePopup
       />
     </>
   );

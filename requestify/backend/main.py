@@ -27,7 +27,7 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 mydb = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="root",
+    password="password",
     database="requestifyAccount",
     charset='utf8mb4',
     collation='utf8mb4_general_ci'
@@ -35,7 +35,7 @@ mydb = mysql.connector.connect(
 mycursor = mydb.cursor()
 mycursor.execute("USE requestifyAccount")
 
-mycursor.execute("DROP TABLE IF EXISTS users")
+# mycursor.execute("DROP TABLE IF EXISTS users")
 # Create users table if it doesn't exist
 mycursor.execute("""
     CREATE TABLE IF NOT EXISTS users (

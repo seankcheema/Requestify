@@ -9,7 +9,7 @@ interface MessagePopupProps {
 }
 
 const MessagePopup: React.FC<MessagePopupProps> = ({ show, onClose, messages, onSendMessage }) => {
-  const [newMessage, setNewMessage] = useState('');
+  const [newMessage, setNewMessage] = useState(''); // Local state to manage the new message input
   
   // Ref for auto-scrolling to the bottom
   const messageEndRef = useRef<HTMLDivElement>(null);
@@ -22,14 +22,14 @@ const MessagePopup: React.FC<MessagePopupProps> = ({ show, onClose, messages, on
 
   const handleSend = () => {
     if (newMessage.trim()) {
-      onSendMessage(newMessage);
-      setNewMessage('');  // Clear input after sending
+      onSendMessage(newMessage); // Call onSendMessage passed from parent
+      setNewMessage('');  // Clear the input field after sending the message
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      e.preventDefault(); // Prevent default form submission
+      e.preventDefault(); // Prevent default form submission on Enter
       handleSend();  // Send the message when Enter is pressed
     }
   };
@@ -57,8 +57,8 @@ const MessagePopup: React.FC<MessagePopupProps> = ({ show, onClose, messages, on
         <div className="message-form">
           <input
             type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
+            value={newMessage} // Control the value of the input field with newMessage state
+            onChange={(e) => setNewMessage(e.target.value)} // Update newMessage state as user types
             onKeyDown={handleKeyDown}  // Add keydown event handler
             placeholder="Write a message"
             className="message-input"
