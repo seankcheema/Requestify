@@ -30,7 +30,8 @@ pool = pooling.MySQLConnectionPool(
     host="localhost",
     user="root",
     password="root",
-    # database="Requestify",
+    database="Requestify",
+    port=3307,
     auth_plugin="mysql_native_password",
     charset='utf8mb4',
     collation='utf8mb4_general_ci'
@@ -43,6 +44,7 @@ def get_db_connection():
 # Initialize tables
 with get_db_connection() as conn:
     cursor = conn.cursor()
+
     cursor.execute("USE Requestify")
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
