@@ -10,6 +10,7 @@ import os
 import qrcode
 import base64
 from io import BytesIO
+from mysql.connector import pooling
 from flask_socketio import SocketIO, emit
 
 load_dotenv(".env")
@@ -23,48 +24,53 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# MySQL Connection
-mydb = mysql.connector.connect(
+pool = pooling.MySQLConnectionPool(
+    pool_name="requestify_pool",
+    pool_size=5,  # Adjust pool size based on expected traffic
     host="localhost",
     user="root",
-    password="password",
-    database="requestifyAccount",
+    password="root",
+    database="Requestify",
+    port=3307,
+    auth_plugin="mysql_native_password",
     charset='utf8mb4',
     collation='utf8mb4_general_ci'
 )
-mycursor = mydb.cursor()
-mycursor.execute("USE requestifyAccount")
 
-# mycursor.execute("DROP TABLE IF EXISTS users")
-# Create users table if it doesn't exist
-mycursor.execute("""
-    CREATE TABLE IF NOT EXISTS users (
-    email VARCHAR(100) UNIQUE PRIMARY KEY,
-    djName VARCHAR(100) UNIQUE,
-    displayName VARCHAR(100),
-    location VARCHAR(100),
-    socialMedia VARCHAR(100),
-    qrCode TEXT,
-    productLink TEXT
-    )
-""")
-print("Table created successfully or already exists")
+# Utility function to get a database connection from the pool
+def get_db_connection():
+    return pool.get_connection()
 
-mycursor.execute("DROP TABLE IF EXISTS tracks")
-# Create users table with additional fields
-mycursor.execute("""
-    CREATE TABLE IF NOT EXISTS tracks (
-        djName VARCHAR(100),
-        trackName VARCHAR(100),
-        artist VARCHAR(100),
-        album VARCHAR(100),
-        external_url VARCHAR(100),
-        album_cover_url VARCHAR(255),
-        upvotes INT DEFAULT 0,
-        UNIQUE KEY (djName, trackName, artist, album)
-        
-    )
-""")
+# Initialize tables
+with get_db_connection() as conn:
+    cursor = conn.cursor()
+
+    cursor.execute("USE Requestify")
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            email VARCHAR(100) UNIQUE PRIMARY KEY,
+            djName VARCHAR(100) UNIQUE,
+            displayName VARCHAR(100),
+            location VARCHAR(100),
+            socialMedia VARCHAR(100),
+            qrCode TEXT,
+            productLink TEXT
+        )
+    """)
+    cursor.execute("DROP TABLE IF EXISTS tracks")
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS tracks (
+            djName VARCHAR(100),
+            trackName VARCHAR(100),
+            artist VARCHAR(100),
+            album VARCHAR(100),
+            external_url VARCHAR(100),
+            album_cover_url VARCHAR(255),
+            upvotes INT DEFAULT 0,
+            UNIQUE KEY (djName, trackName, artist, album)
+        )
+    """)
+    print("Tables created or verified successfully")
 
 def verify_id_token(id_token):
     """Verify Firebase ID token using Firebase REST API."""
@@ -89,16 +95,6 @@ def get_dj():
     url = request.referrer
     djName = url.split('/')[-1]
     return djName
-
-#def get_dj_name(djName):
-#    query = "SELECT displayName FROM users WHERE djName = %s"
-#    mycursor.execute(query, (djName,))
-#    result = mycursor.fetchone()
-#    json_result = jsonify(result)
-#    if result:
-#        return json_result
-#    else:
-#        return None
     
 @app.route('/api/current-dj', methods=['GET'])
 def get_current_dj():
@@ -135,30 +131,32 @@ def register():
 
     # Check if the user already exists
     query_check = "SELECT * FROM users WHERE email = %s"
-    mycursor.execute(query_check, (email,))
-    if mycursor.fetchone():
-        return jsonify({"message": "User already exists"}), 409
+    with get_db_connection() as conn:
+        mycursor = conn.cursor()
+        mycursor.execute(query_check, (email,))
+        if mycursor.fetchone():
+            return jsonify({"message": "User already exists"}), 409
 
-    # Generate the URL for the QR code: http://localhost:3000/search/dj_name
-    qr_url = f"http://{IP}:3000/search/{dj_name}"
+        # Generate the URL for the QR code: http://localhost:3000/search/dj_name
+        qr_url = f"http://{IP}:3000/search/{dj_name}"
 
-    # Generate the QR Code with the above URL
-    qr_img = qrcode.make(qr_url)
+        # Generate the QR Code with the above URL
+        qr_img = qrcode.make(qr_url)
 
-    # Convert QR Code to Base64 string
-    buffered = BytesIO()
-    qr_img.save(buffered, format="PNG")
-    qr_code_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
+        # Convert QR Code to Base64 string
+        buffered = BytesIO()
+        qr_img.save(buffered, format="PNG")
+        qr_code_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
 
-    # Insert the user data along with the QR code and link into the database
-    query = """
-        INSERT INTO users (email, djName, displayName, location, socialMedia, qrCode, productLink)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
-    """
+        # Insert the user data along with the QR code and link into the database
+        query = """
+            INSERT INTO users (email, djName, displayName, location, socialMedia, qrCode, productLink)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """
 
-    #Doesn't need to store the link to the DJ search page, only the generated QR code (hence None at the end)
-    mycursor.execute(query, (email, dj_name, displayName, location, social_media, qr_code_base64, None))
-    mydb.commit()
+        #Doesn't need to store the link to the DJ search page, only the generated QR code (hence None at the end)
+        mycursor.execute(query, (email, dj_name, displayName, location, social_media, qr_code_base64, None))
+        conn.commit()
 
     return jsonify({"message": "User registered successfully", "qrCode": qr_code_base64}), 201
 
@@ -180,8 +178,10 @@ def login():
 
     # Check if the user exists in the MySQL database
     query = "SELECT djName FROM users WHERE email = %s"
-    mycursor.execute(query, (email,))
-    result = mycursor.fetchone()
+    with get_db_connection() as conn:
+        mycursor = conn.cursor()
+        mycursor.execute(query, (email,))
+        result = mycursor.fetchone()
 
     if result:
         return jsonify({"message": f"Welcome, {email}!"}), 200
@@ -217,8 +217,10 @@ def search():
         """
 
         val = (djName, track_name, artist, album, external_url, album_cover_url, external_url, album_cover_url)
-        mycursor.execute(sql, val)
-        mydb.commit()
+        with get_db_connection() as conn:
+            mycursor = conn.cursor()
+            mycursor.execute(sql, val)
+            conn.commit()
 
         # Emit a 'song_added' event after the song is added to the queue
         socketio.emit('song_added', {
@@ -265,8 +267,10 @@ def create_payment_link_route():
 @app.route('/user/<email>', methods=['GET'])
 def get_user_profile(email):
     query = "SELECT email, djName, displayName, location, socialMedia, qrCode FROM users WHERE email = %s"
-    mycursor.execute(query, (email,))
-    user = mycursor.fetchone()
+    with get_db_connection() as conn:
+        mycursor = conn.cursor()
+        mycursor.execute(query, (email,))
+        user = mycursor.fetchone()
 
     if user:
         user_data = {
@@ -286,8 +290,10 @@ def get_user_profile(email):
 def get_tracks(djName):
     try:
         query = "SELECT trackName, artist, album, external_url, album_cover_url, upvotes FROM tracks WHERE djName = %s ORDER BY upvotes DESC"
-        mycursor.execute(query, (djName,))
-        tracks = mycursor.fetchall()
+        with get_db_connection() as conn:
+            mycursor = conn.cursor()
+            mycursor.execute(query, (djName,))
+            tracks = mycursor.fetchall()
         #add something to remove tracks once we have this working
 
         if not tracks:
@@ -317,8 +323,10 @@ def update_profile():
             WHERE email = %s
         """
         values = (display_name, location, social_media, product_link, current_email)
-        mycursor.execute(query, values)
-        mydb.commit()
+        with get_db_connection() as conn:
+            mycursor = conn.cursor()
+            mycursor.execute(query, values)
+            conn.commit()
         
         return jsonify({"message": "Profile updated successfully"}), 200
     except Exception as e:
@@ -328,8 +336,10 @@ def update_profile():
 @app.route('/dj/productLink/<djName>', methods=['GET'])
 def get_product_link(djName):
     query = "SELECT productLink FROM users WHERE djName = %s"
-    mycursor.execute(query, (djName,))
-    result = mycursor.fetchone()
+    with get_db_connection() as conn:
+        mycursor = conn.cursor()
+        mycursor.execute(query, (djName,))
+        result = mycursor.fetchone()
     
     if result:
         return jsonify({"productLink": result[0]}), 200
@@ -353,11 +363,13 @@ def delete_track():
     
     sql = "DELETE FROM tracks WHERE djName = %s AND trackName = %s AND artist = %s"
     val = (djName, trackName, artist)
-    mycursor.execute(sql, val)
-    mydb.commit()
+    with get_db_connection() as conn:
+        mycursor = conn.cursor()
+        mycursor.execute(sql, val)
+        conn.commit()
 
-    if mycursor.rowcount == 0:
-        return jsonify({"message": "Track not found"}), 404
+        if mycursor.rowcount == 0:
+            return jsonify({"message": "Track not found"}), 404
     
     # Emit 'song_removed' event to all connected clients with the song details
     socketio.emit('song_removed', {"djName": djName, "trackName": trackName, "artist": artist})
@@ -373,11 +385,13 @@ def delete_all_tracks():
     
     sql = "DELETE FROM tracks WHERE djName = %s"
     val = (djName,)
-    mycursor.execute(sql, val)
-    mydb.commit()
+    with get_db_connection() as conn:
+        mycursor = conn.cursor()
+        mycursor.execute(sql, val)
+        conn.commit()
 
-    if mycursor.rowcount == 0:
-        return jsonify({"message": "No tracks found"}), 404
+        if mycursor.rowcount == 0:
+            return jsonify({"message": "No tracks found"}), 404
     
     # Emit 'all_songs_removed' event to all connected clients
     socketio.emit('all_songs_removed', {"djName": djName})
@@ -405,12 +419,14 @@ def upvote():
     """
 
     val = (djName, trackName, artist)
-    mycursor.execute(sql, val)
-    mydb.commit()
+    with get_db_connection() as conn:
+        mycursor = conn.cursor()
+        mycursor.execute(sql, val)
+        conn.commit()
     
     # Fetch the updated upvote count to send to clients
-    mycursor.execute("SELECT upvotes FROM tracks WHERE djName = %s AND trackName = %s AND artist = %s", val)
-    updated_upvotes = mycursor.fetchone()[0]
+        mycursor.execute("SELECT upvotes FROM tracks WHERE djName = %s AND trackName = %s AND artist = %s", val)
+        updated_upvotes = mycursor.fetchone()[0]
 
      # Emit the updated song with the new upvote count
     socketio.emit('upvote_updated', {
@@ -443,12 +459,14 @@ def downvote():
     """
 
     val = (djName, trackName, artist)
-    mycursor.execute(sql, val)
-    mydb.commit()
+    with get_db_connection() as conn:
+        mycursor = conn.cursor()
+        mycursor.execute(sql, val)
+        conn.commit()
 
-    # Fetch the updated upvote count to send to clients
-    mycursor.execute("SELECT upvotes FROM tracks WHERE djName = %s AND trackName = %s AND artist = %s", val)
-    updated_upvotes = mycursor.fetchone()[0]
+        # Fetch the updated upvote count to send to clients
+        mycursor.execute("SELECT upvotes FROM tracks WHERE djName = %s AND trackName = %s AND artist = %s", val)
+        updated_upvotes = mycursor.fetchone()[0]
 
      # Emit the updated song with the new upvote count
     socketio.emit('upvote_updated', {
@@ -463,8 +481,10 @@ def downvote():
 @app.route('/dj/displayName/<djName>', methods=['GET'])
 def get_display_name(djName):
     query = "SELECT displayName FROM users WHERE djName = %s"
-    mycursor.execute(query, (djName,))
-    result = mycursor.fetchone()
+    with get_db_connection() as conn:
+        mycursor = conn.cursor()
+        mycursor.execute(query, (djName,))
+        result = mycursor.fetchone()
     
     if result:
         return jsonify({"displayName": result[0]}), 200
