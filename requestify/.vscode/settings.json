@@ -8,10 +8,10 @@
             "previewLimit": 50,
             "server": "localhost",
             "port": 3307,
-            "driver": "MariaDB",
+            "driver": "MySQL",
             "name": "requestifyaccount",
             "database": "requestifyaccount",
-            "username": "kylemcclelland"
+            "username": "root"
         }
     ]
 }

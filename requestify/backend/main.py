@@ -28,9 +28,9 @@ pool = pooling.MySQLConnectionPool(
     pool_name="requestify_pool",
     pool_size=5,  # Adjust pool size based on expected traffic
     host="localhost",
-    user="kylemcclelland",
-    password="password1",
-    database="requestifyAccount",
+    user="root",
+    password="root",
+    # database="Requestify",
     auth_plugin="mysql_native_password",
     charset='utf8mb4',
     collation='utf8mb4_general_ci'
@@ -43,7 +43,7 @@ def get_db_connection():
 # Initialize tables
 with get_db_connection() as conn:
     cursor = conn.cursor()
-    cursor.execute("USE requestifyAccount")
+    cursor.execute("USE Requestify")
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             email VARCHAR(100) UNIQUE PRIMARY KEY,
