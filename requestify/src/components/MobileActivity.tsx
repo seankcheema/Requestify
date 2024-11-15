@@ -95,7 +95,7 @@ const RequestifyLayout: React.FC = () => {
       setTracks((prevTracks) =>
         prevTracks.map((track) =>
           track.track[0] === updatedSong.trackName && track.track[1] === updatedSong.artist
-            ? { ...track, upvotes: updatedSong.upvotes }
+            ? { ...track, track: [...track.track.slice(0, 5), updatedSong.upvotes] } // Update upvotes
             : track
         )
       );
