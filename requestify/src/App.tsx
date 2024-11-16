@@ -58,6 +58,7 @@ const App: React.FC = () => {
                         <Route path="dj/:djName/payment" element={<MobilePayment />} />
                         <Route path="dj/:djName/activity" element={<MobileActivity />} />
                         <Route path="dj/:djName/message" element={<MobileMessage />} />
+                        <Route path="dj/:djName/profile" element={<MobileDJProfile />} />
 
                         {/* Catch-all Route */}
                         <Route path="*" element={<Navigate to="/" />} />

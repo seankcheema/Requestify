@@ -1,86 +1,113 @@
 import React, { useEffect, useState } from 'react';
+import { getAuth, User } from 'firebase/auth';
+import { useNavigate, useParams } from 'react-router-dom';
+import { FaHome, FaChartLine, FaDollarSign, FaMap, FaUser } from 'react-icons/fa';
 import axios from 'axios';
-import './Dashboard.css';
-import { useNavigate } from 'react-router-dom';
+import './MobileDJProfile.css';
 
-interface ProfileProps {
-  email: string;
-  djName: string;
-  displayName: string;
-  location: string;
-  socialMedia: string;
-}
-
-const MobileDJProfile: React.FC<ProfileProps> = () => {
-  const [isProfilePopupOpen, setIsProfilePopupOpen] = useState(false);
+const MobileDJProfile: React.FC = () => {
+  const [profileData, setProfileData] = useState<any>(null);
   const navigate = useNavigate();
-    const [displayName, setDisplayName] = useState('');
-    const [location, setLocation] = useState('');
-    const [socialMedia, setSocialMedia] = useState('');
-    const [djName, setDJName] = useState('');
-
-  const handleOpenProfilePopup = () => setIsProfilePopupOpen(true);
-  const handleCloseProfilePopup = () => {
-    setIsProfilePopupOpen(false);
-  };
+  const { djName: paramDJName } = useParams<{ djName: string }>();
+  const auth = getAuth();
+  const ipAddress = process.env.REACT_APP_API_IP;
 
   useEffect(() => {
-    const fetchDisplayName = async () => {
-        const ipAddress = process.env.REACT_APP_API_IP;
+    window.scrollTo(0, 0);  // Scroll to top (0px, 0px)
+  }, []);
+  // Fetch profile data once the user is authenticated
+  useEffect(() => {
+    const fetchProfileData = async (user: User | null) => {
+      if (!user) return;
 
-        try {
-            const response = await fetch(`http://localhost:5001/dj/displayName/${djName}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    setDisplayName(data.displayName);
-                    setSocialMedia(data.socialMedia);
-                    
-                } else {
-                    console.error('Failed to fetch display name');
-                }
-            
-            
-        } catch (error) {
-            console.error('Error fetching profile data:', error);
-        }
-    }
-}, [navigate]);
+      try {
+        const response = await axios.get(`http://${ipAddress}:5001/user/${user.email}`);
+        setProfileData(response.data);
+      } catch (error) {
+        console.error('Error fetching profile data:', error);
+      }
+    };
+
+    // Wait for auth state change
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        fetchProfileData(user);  // Fetch profile if user is signed in
+      } else {
+        navigate('/login');  // Redirect to login if no user is signed in
+      }
+    });
+
+    // Cleanup the listener on component unmount
+    return () => unsubscribe();
+  }, [auth, navigate, ipAddress]);
+
+  // Display loading state if profile data is not yet available
+  if (!profileData) {
+    return <div><header className="mobile-header">
+    <div className="header-title">
+        <img src="/assets/requestify-logo.svg" alt="Requestify Logo" className="mobile-header-logo" />
+    </div>
+</header>
+<footer className="mobile-footer">
+        <nav className="bottom-nav">
+          <div className="nav-item" onClick={() => navigate(`/dj/${profileData.djName}`)}>
+            <FaHome />
+            <span>Home</span>
+          </div>
+          <div className="nav-item" onClick={() => navigate(`/dj/${profileData.djName}/activity`)}>
+            <FaChartLine />
+            <span>Activity</span>
+          </div>
+          <div className="nav-item" onClick={() => navigate(`/dj/${profileData.djName}/payment`)}>
+            <FaDollarSign />
+            <span>Payment</span>
+          </div>
+        </nav>
+      </footer></div>
+;
+  }
 
   return (
-    <>
-      <aside className="profile" onClick={handleOpenProfilePopup}>
-        <img src="/assets/profile.png" alt="Profile" className="profile-img" />
-        <p>{djName || "Profile"}</p>
-      </aside>
-
-      {isProfilePopupOpen && (
-        <div className="popup-overlay">
-          <div className="popup-content">
-            <button className="close-btn" onClick={handleCloseProfilePopup}>×</button>
-            <div className="profile-popup-content">
-              <img src="/assets/profile.png" alt="Profile" className="popup-profile-img" />
-                <form onSubmit={(e) => e.preventDefault()} className="edit-profile-form">
-                  {/* Back button to switch back to profile view without saving */}
-                  {/* <button type="button" onClick={handleBackClick} className="back-btn">← Back</button> */}
-                  
-                  <label>
-                    Display Name:
-                    <input name="displayName" value={displayName} placeholder="Display Name" />
-                  </label>
-                  <label>
-                    DJ Location:
-                    <input name="location" value={location}  placeholder="Location" />
-                  </label>
-                  <label>
-                    Social Media:
-                    <input name="socialMedia" value={socialMedia}  placeholder="Social Media" />
-                  </label>
-                </form>
-            </div>
-          </div>
+    <div className="mobile-profile-container">
+        <header className="mobile-header">
+                <div className="header-title">
+                    <img src="/assets/requestify-logo.svg" alt="Requestify Logo" className="mobile-header-logo" />
+                </div>
+            </header>
+          <div className="mobile-profile-content">
+            <img src="/assets/profile.png" alt="Profile" className="mobile-profile-img" />
+              {/* Back button to switch back to profile view without saving */}
+              {/* <button type="button" onClick={handleBackClick} className="back-btn">← Back</button> */}
+              
+              <h2>
+                {profileData.displayName}
+              </h2>
+              <p>
+                <FaMap /> {profileData.location}
+              </p>
+              <p>
+                <FaUser /> {profileData.socialMedia}
+              </p>
         </div>
-      )}
-    </>
+
+
+      <footer className="mobile-footer">
+        <nav className="bottom-nav">
+          <div className="nav-item" onClick={() => navigate(`/dj/${profileData.djName}`)}>
+            <FaHome />
+            <span>Home</span>
+          </div>
+          <div className="nav-item" onClick={() => navigate(`/dj/${profileData.djName}/activity`)}>
+            <FaChartLine />
+            <span>Activity</span>
+          </div>
+          <div className="nav-item" onClick={() => navigate(`/dj/${profileData.djName}/payment`)}>
+            <FaDollarSign />
+            <span>Payment</span>
+          </div>
+        </nav>
+      </footer>
+    </div>
   );
 };
 

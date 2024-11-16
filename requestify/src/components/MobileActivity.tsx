@@ -16,7 +16,9 @@ const RequestifyLayout: React.FC = () => {
 
   const [displayName, setDisplayName] = useState(''); // State for display name
   const ipAddress = process.env.REACT_APP_API_IP;
-
+  useEffect(() => {
+    window.scrollTo(0, 0);  // Scroll to top (0px, 0px)
+  }, []);
   const goToMessage = () => {
     navigate(`/dj/${paramDJName}/message`);
 }

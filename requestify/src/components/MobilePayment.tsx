@@ -10,7 +10,9 @@ const PaymentPage: React.FC = () => {
     const { djName: paramDJName } = useParams<{ djName: string }>();
     const { djName, setDJName, displayName, setDisplayName } = useDJ();
     const ipAddress = process.env.REACT_APP_API_IP;
-
+    useEffect(() => {
+        window.scrollTo(0, 0);  // Scroll to top (0px, 0px)
+      }, []);
     // Set djName in context whenever paramDJName changes
     useEffect(() => {
         if (paramDJName) {
@@ -88,7 +90,7 @@ const PaymentPage: React.FC = () => {
             </header>
             <FaBell className="bell-icon" onClick={goToMessage} />
             <main className="mobile-content">
-                <div className="listening-section">
+                <div className="listening-section" onClick={() => navigate(`/dj/${paramDJName}/profile`)}>
                     <p>You are listening to <a href="#">{displayName || djName}</a></p>
                 </div>
                 <div className="payment-section">

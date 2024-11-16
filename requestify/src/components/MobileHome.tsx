@@ -15,7 +15,9 @@ const RequestifyLayout: React.FC = () => {
     const { djName: paramDJName } = useParams<{ djName: string }>(); // Get djName from URL params
     const { djName, setDJName } = useDJ();
     
-
+    useEffect(() => {
+        window.scrollTo(0, 0);  // Scroll to top (0px, 0px)
+      }, []);
     // Set djName in context whenever paramDJName changes
     useEffect(() => {
         if (paramDJName) {
@@ -69,22 +71,7 @@ const RequestifyLayout: React.FC = () => {
     };
 
     const goToProfile = async () => {
-        const ipAddress = process.env.REACT_APP_API_IP;
-
-        try {
-            const response = await fetch(`http://localhost:5001/dj/displayName/${djName}`);
-                if (response.ok) {
-                    const data = await response.json();
-
-                    navigate
-                } else {
-                    console.error('Failed to fetch display name');
-                }
-            
-           
-        } catch (error) {
-            console.error('Error fetching profile data:', error);
-        }
+        navigate(`/dj/${paramDJName}/profile`);
     };
 
     return (
