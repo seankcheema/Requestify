@@ -12,6 +12,7 @@ import { DJProvider } from './components/DJContext';
 import { mobileOrDesktop } from './utils/DeviceTypeCheck';
 import { getAuth } from 'firebase/auth';
 import MobileMessage from './components/MobileMessage';
+import MobileDJProfile from './components/MobileDJProfile';
 
 const App: React.FC = () => {
     const isMobile = mobileOrDesktop();

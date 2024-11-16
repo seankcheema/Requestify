@@ -2,15 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { FaHome, FaChartLine, FaDollarSign, FaBell } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDJ } from './DJContext';
+import { User } from 'firebase/auth';
+import axios from 'axios';
 import './MobileHome.css';
 
 const RequestifyLayout: React.FC = () => {
+    const [profileData, setProfileData] = useState<any>(null);
     const [query, setQuery] = useState('');
     const [showConfirmation, setShowConfirmation] = useState(false); // New state for confirmation message
     const [displayName, setDisplayName] = useState(''); // State for display name
     const navigate = useNavigate();
     const { djName: paramDJName } = useParams<{ djName: string }>(); // Get djName from URL params
     const { djName, setDJName } = useDJ();
+    
 
     // Set djName in context whenever paramDJName changes
     useEffect(() => {
@@ -64,6 +68,25 @@ const RequestifyLayout: React.FC = () => {
         }
     };
 
+    const goToProfile = async () => {
+        const ipAddress = process.env.REACT_APP_API_IP;
+
+        try {
+            const response = await fetch(`http://localhost:5001/dj/displayName/${djName}`);
+                if (response.ok) {
+                    const data = await response.json();
+
+                    navigate
+                } else {
+                    console.error('Failed to fetch display name');
+                }
+            
+           
+        } catch (error) {
+            console.error('Error fetching profile data:', error);
+        }
+    };
+
     return (
         <div className="mobile-container">
             <header className="mobile-header">
@@ -76,8 +99,8 @@ const RequestifyLayout: React.FC = () => {
 
             <main className="mobile-content">
                 {/* Listening Section with dynamic DJ display name */}
-                <div className="listening-section">
-                    <p>You are listening to <a href="#">{displayName || djName}</a></p>
+                <div className="listening-section" onClick={goToProfile}>
+                    <p>You are listening to <a>{displayName || djName}</a></p>
                 </div>
 
                 <div className="activity-button" onClick={() => navigate(`/dj/${paramDJName}/activity`)}>
