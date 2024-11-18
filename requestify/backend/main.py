@@ -72,6 +72,30 @@ with get_db_connection() as conn:
     """)
     print("Tables created or verified successfully")
 
+    cursor.execute("DROP TABLE IF EXISTS track_history")
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS track_history (
+            djName VARCHAR(100),
+            trackName VARCHAR(100),
+            artist VARCHAR(100),
+            album VARCHAR(100),
+            external_url VARCHAR(100),
+            album_cover_url VARCHAR(255)
+        )
+        """)
+    print("Track history table created successfully")
+    
+    cursor.execute("""
+            CREATE TRIGGER track_history_trigger
+            AFTER DELETE ON tracks
+            FOR EACH ROW
+            BEGIN
+                INSERT INTO track_history (djName, trackName, artist, album, external_url, album_cover_url)
+                VALUES (OLD.djName, OLD.trackName, OLD.artist, OLD.album, OLD.external_url, OLD.album_cover_url);
+            END
+    """)
+    print("Track history trigger created successfully")
+
 def verify_id_token(id_token):
     """Verify Firebase ID token using Firebase REST API."""
     api_key = REACT_APP_FIREBASE_API_KEY  # Replace with your actual API key
