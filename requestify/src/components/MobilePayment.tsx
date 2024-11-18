@@ -1,31 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import { FaHome, FaChartLine, FaDollarSign, FaBell, FaExternalLinkAlt } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useDJ } from './DJContext';
+import { useUser } from './UserContext'; // Use UserContext
 import './MobilePayment.css';
 
 const PaymentPage: React.FC = () => {
     const [productLink, setProductLink] = useState(''); // State for dynamic product link
     const navigate = useNavigate();
-    const { djName: paramDJName } = useParams<{ djName: string }>();
-    const { djName, setDJName, displayName, setDisplayName } = useDJ();
+    const { djName: paramDJName } = useParams<{ djName: string }>(); // Get djName from URL params
+    const { scannedDJName, setScannedDJName, scannedDisplayName, setScannedDisplayName } = useUser(); // Use UserContext
     const ipAddress = process.env.REACT_APP_API_IP;
 
-    // Set djName in context whenever paramDJName changes
+    // Set scannedDJName in context whenever paramDJName changes
     useEffect(() => {
-        if (paramDJName) {
-            setDJName(paramDJName);
+        if (paramDJName && scannedDJName !== paramDJName) {
+            setScannedDJName(paramDJName);
         }
-    }, [paramDJName, setDJName]);
+    }, [paramDJName, scannedDJName, setScannedDJName]);
 
-    // Fetch the display name whenever djName changes
+    // Fetch the display name for the scanned DJ
     useEffect(() => {
         const fetchDisplayName = async () => {
+            if (!scannedDJName) return;
+
             try {
-                const displayNameResponse = await fetch(`http://${ipAddress}:5001/dj/displayName/${djName}`);
-                if (displayNameResponse.ok) {
-                    const displayNameData = await displayNameResponse.json();
-                    setDisplayName(displayNameData.displayName); 
+                const response = await fetch(`http://${ipAddress}:5001/dj/displayName/${scannedDJName}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setScannedDisplayName(data.displayName); // Set the display name in context
                 } else {
                     console.error('Failed to fetch display name');
                 }
@@ -34,19 +36,19 @@ const PaymentPage: React.FC = () => {
             }
         };
 
-        if (djName) {
-            fetchDisplayName();
-        }
-    }, [djName, setDisplayName]);
+        fetchDisplayName();
+    }, [scannedDJName, setScannedDisplayName]);
 
-    // Fetch the product link whenever djName changes
+    // Fetch the product link for the scanned DJ
     useEffect(() => {
         const fetchProductLink = async () => {
+            if (!scannedDJName) return;
+
             try {
-                const productLinkResponse = await fetch(`http://${ipAddress}:5001/dj/productLink/${djName}`);
-                if (productLinkResponse.ok) {
-                    const productLinkData = await productLinkResponse.json();
-                    setProductLink(productLinkData.productLink);
+                const response = await fetch(`http://${ipAddress}:5001/dj/productLink/${scannedDJName}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setProductLink(data.productLink);
                 } else {
                     console.error('Failed to fetch product link');
                 }
@@ -55,10 +57,8 @@ const PaymentPage: React.FC = () => {
             }
         };
 
-        if (djName) {
-            fetchProductLink();
-        }
-    }, [djName]);
+        fetchProductLink();
+    }, [scannedDJName]);
 
     const handlePayment = () => {
         if (productLink) {
@@ -78,7 +78,8 @@ const PaymentPage: React.FC = () => {
 
     const goToMessage = () => {
         navigate(`/dj/${paramDJName}/message`);
-    }
+    };
+
     return (
         <div className="mobile-container">
             <header className="mobile-header">
@@ -89,7 +90,7 @@ const PaymentPage: React.FC = () => {
             <FaBell className="bell-icon" onClick={goToMessage} />
             <main className="mobile-content">
                 <div className="listening-section">
-                    <p>You are listening to <a href="#">{displayName || djName}</a></p>
+                    <p>You are listening to <a href="#">{scannedDisplayName || scannedDJName}</a></p>
                 </div>
                 <div className="payment-section">
                     <div className="payment-tile">

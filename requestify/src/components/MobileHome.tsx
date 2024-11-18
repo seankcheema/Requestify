@@ -1,32 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { FaHome, FaChartLine, FaDollarSign, FaBell } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useDJ } from './DJContext';
+import { useUser } from './UserContext'; // Use UserContext
 import './MobileHome.css';
 
 const RequestifyLayout: React.FC = () => {
     const [query, setQuery] = useState('');
-    const [showConfirmation, setShowConfirmation] = useState(false); // New state for confirmation message
-    const [displayName, setDisplayName] = useState(''); // State for display name
+    const [showConfirmation, setShowConfirmation] = useState(false); // State for confirmation message
     const navigate = useNavigate();
     const { djName: paramDJName } = useParams<{ djName: string }>(); // Get djName from URL params
-    const { djName, setDJName } = useDJ();
+    const { scannedDJName, setScannedDJName, scannedDisplayName, setScannedDisplayName } = useUser(); // Use UserContext
 
-    // Set djName in context whenever paramDJName changes
+    // Set the DJ name from the URL into context
     useEffect(() => {
-        if (paramDJName) {
-            setDJName(paramDJName);
+        if (paramDJName && scannedDJName !== paramDJName) {
+            setScannedDJName(paramDJName);
         }
-    }, [paramDJName, setDJName]);
+    }, [paramDJName, scannedDJName, setScannedDJName]);
 
-    // Fetch the display name whenever djName changes
+    // Fetch the display name for the scanned DJ from the backend
     useEffect(() => {
         const fetchDisplayName = async () => {
+            if (!scannedDJName) return;
+
             try {
-                const response = await fetch(`http://localhost:5001/dj/displayName/${djName}`);
+                const response = await fetch(`http://localhost:5001/dj/displayName/${scannedDJName}`);
                 if (response.ok) {
                     const data = await response.json();
-                    setDisplayName(data.displayName);
+                    setScannedDisplayName(data.displayName); // Set the display name in context
                 } else {
                     console.error('Failed to fetch display name');
                 }
@@ -35,10 +36,8 @@ const RequestifyLayout: React.FC = () => {
             }
         };
 
-        if (djName) {
-            fetchDisplayName();
-        }
-    }, [djName]);
+        fetchDisplayName();
+    }, [scannedDJName, setScannedDisplayName]);
 
     const handleSearch = async () => {
         if (!query) {
@@ -77,7 +76,7 @@ const RequestifyLayout: React.FC = () => {
             <main className="mobile-content">
                 {/* Listening Section with dynamic DJ display name */}
                 <div className="listening-section">
-                    <p>You are listening to <a href="#">{displayName || djName}</a></p>
+                    <p>You are listening to <a href="#">{scannedDisplayName || scannedDJName}</a></p>
                 </div>
 
                 <div className="activity-button" onClick={() => navigate(`/dj/${paramDJName}/activity`)}>

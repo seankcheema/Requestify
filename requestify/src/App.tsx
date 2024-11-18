@@ -7,11 +7,12 @@ import Login from './components/Login';
 import MobileHome from './components/MobileHome';
 import MobilePayment from './components/MobilePayment';
 import MobileActivity from './components/MobileActivity';
+import MobileMessage from './components/MobileMessage';
 import ProtectedRoute from './components/ProtectedRoute';
 import { DJProvider } from './components/DJContext';
+import { UserProvider } from './components/UserContext'; // Import UserProvider
 import { mobileOrDesktop } from './utils/DeviceTypeCheck';
 import { getAuth } from 'firebase/auth';
-import MobileMessage from './components/MobileMessage';
 
 const App: React.FC = () => {
     const isMobile = mobileOrDesktop();
@@ -19,51 +20,83 @@ const App: React.FC = () => {
     const user = auth.currentUser; // Check if user is authenticated
 
     return (
-        <DJProvider>
-            <Router>
-                <div className="App">
-                    <Routes>
-                        {/* Default Route */}
-                        <Route
-                            path="/"
-                            element={
-                                isMobile ? (
-                                    <Navigate to="/dj/default" />
+        <Router>
+            <div className="App">
+                <Routes>
+                    {/* Default Route */}
+                    <Route
+                        path="/"
+                        element={
+                            isMobile ? (
+                                <Navigate to="/dj/default" />
+                            ) : (
+                                user ? (
+                                    <Navigate to={`/dashboard/${user.displayName || 'default'}`} replace />
                                 ) : (
-                                    user ? <Navigate to={`/dashboard/${user.displayName || 'default'}`} replace /> : <Navigate to="/login" />
+                                    <Navigate to="/login" />
                                 )
-                            }
-                        />
+                            )
+                        }
+                    />
 
-                        {/* Redirect /search/:djName to /dj/:djName */}
-                        <Route path="search/:djName" element={<RedirectToDJPage />} />
+                    {/* Redirect /search/:djName to /dj/:djName */}
+                    <Route path="search/:djName" element={<RedirectToDJPage />} />
 
-                        {/* Protected DJ-specific Dashboard Route */}
-                        <Route
-                            path="dashboard/:djName"
-                            element={
+                    {/* DJ-Specific Protected Routes (Wrapped in DJProvider) */}
+                    <Route
+                        path="dashboard/:djName"
+                        element={
+                            <DJProvider>
                                 <ProtectedRoute>
                                     <Dashboard />
                                 </ProtectedRoute>
-                            }
-                        />
+                            </DJProvider>
+                        }
+                    />
 
-                        {/* Public Routes */}
-                        <Route path="login" element={<Login />} />
-                        <Route path="create-account" element={<SignUp />} />
+                    {/* Public Routes */}
+                    <Route path="login" element={<Login />} />
+                    <Route path="create-account" element={<SignUp />} />
 
-                        {/* Dynamic DJ Routes */}
-                        <Route path="dj/:djName" element={<MobileHome />} />
-                        <Route path="dj/:djName/payment" element={<MobilePayment />} />
-                        <Route path="dj/:djName/activity" element={<MobileActivity />} />
-                        <Route path="dj/:djName/message" element={<MobileMessage />} />
+                    {/* End-User Routes (Wrapped in UserProvider) */}
+                    <Route
+                        path="dj/:djName"
+                        element={
+                            <UserProvider>
+                                <MobileHome />
+                            </UserProvider>
+                        }
+                    />
+                    <Route
+                        path="dj/:djName/payment"
+                        element={
+                            <UserProvider>
+                                <MobilePayment />
+                            </UserProvider>
+                        }
+                    />
+                    <Route
+                        path="dj/:djName/activity"
+                        element={
+                            <UserProvider>
+                                <MobileActivity />
+                            </UserProvider>
+                        }
+                    />
+                    <Route
+                        path="dj/:djName/message"
+                        element={
+                            <UserProvider>
+                                <MobileMessage />
+                            </UserProvider>
+                        }
+                    />
 
-                        {/* Catch-all Route */}
-                        <Route path="*" element={<Navigate to="/" />} />
-                    </Routes>
-                </div>
-            </Router>
-        </DJProvider>
+                    {/* Catch-all Route */}
+                    <Route path="*" element={<Navigate to="/" />} />
+                </Routes>
+            </div>
+        </Router>
     );
 };
 
