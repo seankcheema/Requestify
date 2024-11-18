@@ -11,6 +11,7 @@ import axios from 'axios';
 
 const Dashboard: React.FC = () => {
     const [profileData, setProfileData] = useState<any>(null); // Store profile information
+    const [loading, setLoading] = useState<boolean>(true); // Loading state for profile data
     const navigate = useNavigate();
     const { djName: paramDJName } = useParams<{ djName: string }>();
     const auth = getAuth();
@@ -30,6 +31,8 @@ const Dashboard: React.FC = () => {
             }
         } catch (error) {
             console.error('Error fetching profile data:', error);
+        } finally {
+            setLoading(false); // Set loading to false after fetching data
         }
     };
 
@@ -81,34 +84,41 @@ const Dashboard: React.FC = () => {
 
             {/* Main content */}
             <div className="main-content">
-                {/* Queue section */}
-                {profileData && <Queue djName={profileData.djName} />}
+                {/* Show loading indicator if data is being fetched */}
+                {loading ? (
+                    <div className="loading">Loading...</div>
+                ) : (
+                    <>
+                        {/* Queue section */}
+                        {profileData && <Queue djName={profileData.djName} />}
 
-                {/* Notifications section */}
-                <Notifications />
+                        {/* Notifications section */}
+                        <Notifications />
 
-                {/* Profile and QR Code section */}
-                <div className="mini-tiles">
-                    {profileData && (
-                        <>
-                            <Profile
-                                email={profileData.email}
-                                djName={profileData.djName}
-                                displayName={profileData.displayName}
-                                location={profileData.location}
-                                socialMedia={profileData.socialMedia}
-                                productLink={profileData.productLink}
-                                updateProfileData={updateProfileData} // Pass updateProfileData as a prop
-                            />
-                            {profileData.qrCode && (
-                                <QRCode qrCodeData={profileData.qrCode} djName={profileData.djName} />
+                        {/* Profile and QR Code section */}
+                        <div className="mini-tiles">
+                            {profileData && (
+                                <>
+                                    <Profile
+                                        email={profileData.email}
+                                        djName={profileData.djName}
+                                        displayName={profileData.displayName}
+                                        location={profileData.location}
+                                        socialMedia={profileData.socialMedia}
+                                        productLink={profileData.productLink}
+                                        updateProfileData={updateProfileData} // Pass updateProfileData as a prop
+                                    />
+                                    {profileData.qrCode && (
+                                        <QRCode qrCodeData={profileData.qrCode} djName={profileData.djName} />
+                                    )}
+                                </>
                             )}
-                        </>
-                    )}
 
-                    {/* SendMessage component */}
-                    <SendMessage />
-                </div>
+                            {/* SendMessage component */}
+                            {profileData?.djName && <SendMessage djName={profileData.djName} />}
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );
