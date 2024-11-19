@@ -11,15 +11,7 @@ html, body{
   padding: 0;
 }
 
-/* Ensure the main container takes full height */
-.mobile-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: calc(100vh - env(safe-area-inset-bottom)); /* Adjusts for mobile devices */
-  background-color: #0b0b0b;
-  color: white;
-}
+/
 
   
   /* Header styling */
@@ -231,14 +223,7 @@ html, body{
   }
   
   /* Main mobile container styling */
-  .mobile-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: calc(100vh - env(safe-area-inset-bottom)); /* Adjusts for mobile devices */
-    background-color: #0b0b0b;
-    color: white;
-  }
+
   
   /* Header styling */
   .mobile-header {

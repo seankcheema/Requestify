@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FaHome, FaChartLine, FaDollarSign } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
-import { useDJ } from './DJContext';
+import { useUser } from './UserContext'; // Import useUser from UserContext
 import './MobileMessage.css';
 
 const ipAddress = process.env.REACT_APP_API_IP; // Use the environment variable
@@ -12,62 +12,61 @@ const MobileMessage: React.FC = () => {
   const [messages, setMessages] = useState<{ text: string; sent: boolean }[]>([]);
   const [displayName, setDisplayName] = useState(''); // State for display name
   const { djName: paramDJName } = useParams<{ djName: string }>(); // Get djName from URL params
-  const { djName, setDJName } = useDJ();
+  const { scannedDJName, setScannedDJName, scannedDisplayName, setScannedDisplayName } = useUser(); // Use UserContext
 
-  // Set djName in context whenever paramDJName changes
+  // Set scannedDJName in context whenever paramDJName changes
   useEffect(() => {
-      if (paramDJName) {
-          setDJName(paramDJName);
-      }
-  }, [paramDJName, setDJName]);
-  
+    if (paramDJName && scannedDJName !== paramDJName) {
+      setScannedDJName(paramDJName);
+    }
+  }, [paramDJName, scannedDJName, setScannedDJName]);
 
-  // Fetch the display name whenever djName changes
+  // Fetch the display name whenever scannedDJName changes
   useEffect(() => {
-      const fetchDisplayName = async () => {
-          try {
-              const response = await fetch(`http://localhost:5001/dj/displayName/${djName}`);
-              if (response.ok) {
-                  const data = await response.json();
-                  setDisplayName(data.displayName);
-              } else {
-                  console.error('Failed to fetch display name');
-              }
-          } catch (error) {
-              console.error('Error fetching display name:', error);
-          }
-      };
+    const fetchDisplayName = async () => {
+      if (!scannedDJName) return;
 
-      if (djName) {
-          fetchDisplayName();
+      try {
+        const response = await fetch(`http://${ipAddress}:5001/dj/displayName/${scannedDJName}`);
+        if (response.ok) {
+          const data = await response.json();
+          setScannedDisplayName(data.displayName); // Set the display name in context
+        } else {
+          console.error('Failed to fetch display name');
+        }
+      } catch (error) {
+        console.error('Error fetching display name:', error);
       }
-  }, [djName]);
+    };
+
+    fetchDisplayName();
+  }, [scannedDJName, setScannedDisplayName]);
 
   useEffect(() => {
     // Connect to the socket server using dynamic IP
     const socket: Socket = io(`http://${ipAddress}:5000`);
 
     // Listen for the initial set of messages when the client connects
-    socket.on("load_messages", (loadedMessages) => {
+    socket.on('load_messages', (loadedMessages) => {
       setMessages(loadedMessages); // Update the messages state with the loaded messages
     });
 
     // Listen for new incoming messages
-    socket.on("receive_message", (message) => {
+    socket.on('receive_message', (message) => {
       setMessages((prevMessages) => [...prevMessages, message]);
     });
 
     // Cleanup when component unmounts
     return () => {
-      socket.off("load_messages");
-      socket.off("receive_message");
+      socket.off('load_messages');
+      socket.off('receive_message');
       socket.disconnect();
     };
   }, []);
 
-  const goToHome = () => navigate(`/dj/${paramDJName}`);
-  const goToActivity = () => navigate(`/dj/${paramDJName}/activity`);
-  const goToPayment = () => navigate(`/dj/${paramDJName}/payment`);
+  const goToHome = () => navigate(`/dj/${scannedDJName}`);
+  const goToActivity = () => navigate(`/dj/${scannedDJName}/activity`);
+  const goToPayment = () => navigate(`/dj/${scannedDJName}/payment`);
 
   return (
     <div className="mobile-container">
@@ -84,7 +83,7 @@ const MobileMessage: React.FC = () => {
 
       <main className="mobile-content">
         <section className="mobile-queue">
-          <h2>Messages from {displayName || djName}</h2>
+          <h2>Messages from {scannedDisplayName || scannedDJName || 'Loading...'}</h2>
           <div className="mobile-song-container">
             <div className="mobile-song-list">
               {messages.map((msg, index) => (

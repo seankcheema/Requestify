@@ -7,23 +7,11 @@ interface DJContextProps {
     setDisplayName: (name: string) => void;
 }
 
-
-
 const DJContext = createContext<DJContextProps | undefined>(undefined);
 
 export const DJProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [djName, setDJName] = useState(() => localStorage.getItem('djName') || 'DJ Grant');
-    const [displayName, setDisplayName] = useState(() => localStorage.getItem('displayName') || 'DJ Grant'); // Default to "DJ Grant"
-
-    // Update localStorage whenever djName changes
-    useEffect(() => {
-        localStorage.setItem('djName', djName);
-    }, [djName]);
-
-    // Update localStorage whenever displayName changes
-    useEffect(() => {
-        localStorage.setItem('displayName', displayName);
-    }, [displayName]);
+    const [djName, setDJName] = useState('');
+    const [displayName, setDisplayName] = useState('');
 
     return (
         <DJContext.Provider value={{ djName, setDJName, displayName, setDisplayName }}>
@@ -36,31 +24,6 @@ export const useDJ = (): DJContextProps => {
     const context = useContext(DJContext);
     if (!context) {
         throw new Error('useDJ must be used within a DJProvider');
-    }
-    return context;
-};
-
-interface DisplayNameContextProps {
-    displayName: string;
-    setDisplayName: (name: string) => void;
-}
-
-const DisplayNameContext = createContext<DisplayNameContextProps | undefined>(undefined);
-
-export const DisplayNameProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [displayName, setDisplayName] = useState('Default Display Name');
-
-    return (
-        <DisplayNameContext.Provider value={{ displayName, setDisplayName }}>
-            {children}
-        </DisplayNameContext.Provider>
-    );
-};
-
-export const useDisplayName = (): DisplayNameContextProps => {
-    const context = useContext(DisplayNameContext);
-    if (!context) {
-        throw new Error('useDisplayName must be used within a DisplayNameProvider');
     }
     return context;
 };
