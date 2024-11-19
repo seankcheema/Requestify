@@ -5,15 +5,7 @@
   box-sizing: border-box;
 }
 
-.mobile-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100vh;
-  background-color: #0b0b0b;
-  color: white;
-  font-family: 'Arial', sans-serif;
-}
+
 
 /* Header styling */
 .mobile-header {

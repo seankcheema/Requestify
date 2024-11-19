@@ -52,6 +52,7 @@ const RequestifyLayout: React.FC = () => {
             const data = await response.json();
 
             if (response.ok) {
+                setQuery(''); // Clear the input field
                 setShowConfirmation(true); // Show confirmation message
                 setTimeout(() => setShowConfirmation(false), 3000); // Hide after 3 seconds
             } else {
@@ -111,7 +112,6 @@ const RequestifyLayout: React.FC = () => {
                         </div>
                     </div>
                 </div>
-
                 <footer className="mobile-footer">
                     <nav className="bottom-nav">
                         <div className="nav-item active" onClick={() => navigate(`/dj/${paramDJName}`)}>
@@ -127,8 +127,8 @@ const RequestifyLayout: React.FC = () => {
                             <span>Payment</span>
                         </div>
                     </nav>
-                </footer>
-            </main>
+                </footer>           
+            </main> 
         </div>
     );
 };

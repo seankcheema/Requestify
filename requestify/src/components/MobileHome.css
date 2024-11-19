@@ -6,10 +6,15 @@
   }
 
 html, body{
-  height: 100%;
   margin: 0;
   padding: 0;
-  
+  background-color: #0b0b0b;
+}
+
+.mobile-root{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 /* Ensure the main container takes full height */
@@ -17,9 +22,10 @@ html, body{
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: calc(100vh - env(safe-area-inset-bottom)); /* Adjusts for mobile devices */
+  height: 90vh;
   background-color: #0b0b0b;
   color: white;
+
 }
 
   
