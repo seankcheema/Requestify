@@ -59,8 +59,39 @@ const Dashboard: React.FC = () => {
         return () => unsubscribe();
     }, [auth, navigate, paramDJName]);
 
-    // Logout function
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        const confirmed = window.confirm('Are you sure you want to logout? Your track queue and history will be cleared.');
+        if (!confirmed) return;
+
+        try {
+            // Call the "delete all tracks" endpoint
+            await axios.delete(`http://${ipAddress}:5001/tracks/delete-all`, {
+                data: { djName: profileData.djName }
+            });
+
+            // Sign out the user
+            await signOut(auth);
+            console.log('User signed out successfully');
+            navigate('/login');
+        } catch (error) {
+            console.error('Error logging out:', error);
+        }
+
+        try {
+            const response = await fetch(`http://${ipAddress}:5001/track-history/delete-all`, {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ djName })
+            });
+            if (!response.ok) {
+              throw new Error(`Error: ${response.status}`);
+            }
+          } catch (error) {
+            console.error("Error Logging Out:", error);
+          }
+
         signOut(auth)
             .then(() => {
                 console.log('User signed out successfully');

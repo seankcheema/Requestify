@@ -441,6 +441,25 @@ def delete_all_tracks():
     
     return jsonify({"message": "All tracks deleted successfully"}), 200
 
+#Deletes track history when DJ logs out
+@app.route('/track-history/delete-all', methods=['DELETE'])
+def delete_all_track_history():
+    djName = request.json.get('djName')
+    if not djName:
+        return jsonify({"message": "DJ name is required"}), 400
+    
+    sql = "DELETE FROM track_history WHERE djName = %s"
+    val = (djName,)
+    with get_db_connection() as conn:
+        mycursor = conn.cursor()
+        mycursor.execute(sql, val)
+        conn.commit()
+
+        if mycursor.rowcount == 0:
+            return jsonify({"message": "No tracks found"}), 404
+    
+    return jsonify({"message": "All tracks deleted successfully"}), 200
+
 #Route to upvote a track
 @app.route('/tracks/upvote', methods=['POST'])
 def upvote():
