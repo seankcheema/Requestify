@@ -8,6 +8,7 @@ import SendMessage from './SendMessage';
 import { getAuth, signOut, User } from 'firebase/auth';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import { useDJ } from './DJContext'; // Use DJContext to manage djName and displayName
 
 const Dashboard: React.FC = () => {
     const [profileData, setProfileData] = useState<any>(null); // Store profile information
@@ -17,6 +18,8 @@ const Dashboard: React.FC = () => {
     const auth = getAuth();
     const ipAddress = process.env.REACT_APP_API_IP; // Ensure this is set in your environment variables
 
+    const { djName, setDJName, setDisplayName } = useDJ(); // Use DJContext
+
     // Function to fetch profile data
     const fetchProfileData = async (user: User | null) => {
         if (!user) return;
@@ -24,6 +27,10 @@ const Dashboard: React.FC = () => {
         try {
             const response = await axios.get(`http://${ipAddress}:5001/user/${user.email}`);
             setProfileData(response.data);
+
+            // Set djName and displayName in context and localStorage
+            setDJName(response.data.djName);
+            setDisplayName(response.data.displayName);
 
             // Redirect to the correct DJ dashboard if necessary
             if (response.data.djName && response.data.djName !== paramDJName) {
@@ -58,8 +65,14 @@ const Dashboard: React.FC = () => {
             .then(() => {
                 console.log('User signed out successfully');
                 
+                // Clear localStorage
+                localStorage.removeItem('djName');
+                localStorage.removeItem('displayName');
+                
                 // Clear profile data and navigate to login page
                 setProfileData(null);
+                setDJName(''); // Clear the djName from context
+                setDisplayName(''); // Clear the displayName from context
                 navigate('/login');
             })
             .catch((error) => {
