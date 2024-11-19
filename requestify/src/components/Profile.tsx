@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './Dashboard.css';
 
+const ipAddress = process.env.REACT_APP_API_IP;
+
 interface ProfileProps {
   email: string;
   djName: string;
@@ -39,12 +41,30 @@ const Profile: React.FC<ProfileProps> = ({ email, djName, displayName, location,
 
   const handleSubmit = async () => {
     try {
-      await axios.put('http://localhost:5001/update-profile', { ...editData, email });
+      await axios.put(`http://${ipAddress}:5001/update-profile`, { ...editData, email });
       alert('Profile updated successfully');
       updateProfileData({ ...editData, email }); // Update the profile data in Dashboard
       handleCloseProfilePopup();
     } catch (error) {
       console.error('Error updating profile:', error);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm('Are you sure you want to delete your account?');
+    if (!confirmed) return;
+
+    try {
+      const response = await axios.delete(`http://${ipAddress}:5001/delete-account`, { data: { email } });
+      if (response.status === 200) {
+        alert('Account deleted successfully');
+        window.location.href = '/login';
+      } else {
+        alert('Failed to delete account');
+      }
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      alert('Failed to delete account');
     }
   };
 
@@ -93,6 +113,7 @@ const Profile: React.FC<ProfileProps> = ({ email, djName, displayName, location,
                   <p>Social Media: {socialMedia}</p>
                   <p>Product Link: <a href={productLink} target="_blank" rel="noopener noreferrer">{productLink}</a></p>
                   <button onClick={handleEditClick} className="edit-profile-button">Edit Profile</button>
+                  <button onClick={handleDeleteAccount} className="delete-account-button">Delete Account</button>
                 </>
               )}
             </div>
