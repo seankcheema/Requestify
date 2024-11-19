@@ -604,6 +604,13 @@ def delete_account():
             mycursor.execute(query, (email,))
             conn.commit()
 
+        # Delete from track_history table
+        query = "DELETE FROM track_history WHERE djName = %s"
+        with get_db_connection() as conn:
+            mycursor = conn.cursor()
+            mycursor.execute(query, (email,))
+            conn.commit()
+
         return jsonify({"message": "User deleted successfully from Firebase and database"}), 200
 
     except mysql.connector.Error as e:
