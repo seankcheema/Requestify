@@ -32,3 +32,5 @@ myenv/
 
 firebasekey.json
 firebase_deleteall.py
+
+Firebase-Service-Key.json

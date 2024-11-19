@@ -12,11 +12,16 @@ import base64
 from io import BytesIO
 from mysql.connector import pooling
 from flask_socketio import SocketIO, emit
+import firebase_admin
+from firebase_admin import auth, credentials
 
 load_dotenv(".env")
 
 #Sets up the stripe api key from the env var
 REACT_APP_FIREBASE_API_KEY = os.getenv('REACT_APP_FIREBASE_API_KEY')
+
+cred = credentials.Certificate("../Firebase-Service-Key.json")
+firebase_admin.initialize_app(cred)
 
 IP = os.getenv('REACT_APP_API_IP')
 
@@ -490,6 +495,59 @@ def get_display_name(djName):
         return jsonify({"displayName": result[0]}), 200
     else:
         return jsonify({"message": "Display name not found"}), 404
+
+def delete_user(uid: str):
+    try:
+        auth.delete_user(uid)
+        print(f"Successfully deleted user with UID: {uid}")
+        return {"message": f"User with UID {uid} deleted successfully"}
+    except auth.AuthError as e:
+        print(f"Error deleting user: {e}")
+        return {"error": f"Error deleting user: {e}"}  
+    
+#Delete Account
+@app.route('/delete-account', methods=['DELETE'])
+def delete_account():
+    data = request.get_json()
+    email = data.get('email')
+    if not email:
+        return jsonify({"message": "Email is required"}), 400
+
+    # Firebase: Delete user from Firebase Authentication
+    try:
+        user = auth.get_user_by_email(email)
+        auth.delete_user(user.uid)
+        print(f"Successfully deleted user with UID: {user.uid}")
+    except firebase_admin._auth_utils.UserNotFoundError:
+        print("User not found in Firebase. Proceeding with database cleanup.")
+    except Exception as e:
+        print(f"Error deleting user from Firebase: {e}")
+        return jsonify({"message": f"Error deleting user from Firebase: {str(e)}"}), 500
+
+    # Delete from users table
+    try:
+        query = "DELETE FROM users WHERE email = %s"
+        with get_db_connection() as conn:
+            mycursor = conn.cursor()
+            mycursor.execute(query, (email,))
+            conn.commit()
+
+            if mycursor.rowcount == 0:
+                return jsonify({"message": "User not found in database"}), 404
+
+        # Delete from tracks table
+        query = "DELETE FROM tracks WHERE djName = %s"
+        with get_db_connection() as conn:
+            mycursor = conn.cursor()
+            mycursor.execute(query, (email,))
+            conn.commit()
+
+        return jsonify({"message": "User deleted successfully from Firebase and database"}), 200
+
+    except mysql.connector.Error as e:
+        print(f"Database error: {e}")
+        return jsonify({"message": f"Database error: {str(e)}"}), 500
+
 
 
 if __name__ == '__main__':
