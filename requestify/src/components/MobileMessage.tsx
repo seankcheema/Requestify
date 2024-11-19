@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { FaHome, FaChartLine, FaDollarSign } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
-import { useUser } from './UserContext';
+import { useUser } from './UserContext'; // Import useUser from UserContext
 import './MobileMessage.css';
 
 const ipAddress = process.env.REACT_APP_API_IP; // Use the environment variable
@@ -10,16 +10,27 @@ const ipAddress = process.env.REACT_APP_API_IP; // Use the environment variable
 const MobileMessage: React.FC = () => {
   const navigate = useNavigate();
   const [messages, setMessages] = useState<{ text: string; sent: boolean }[]>([]);
-  const { scannedDJName, setScannedDJName, scannedDisplayName, setScannedDisplayName } = useUser();
+  const [displayName, setDisplayName] = useState(''); // State for display name
+  const { djName: paramDJName } = useParams<{ djName: string }>(); // Get djName from URL params
+  const { scannedDJName, setScannedDJName, scannedDisplayName, setScannedDisplayName } = useUser(); // Use UserContext
 
-  // Fetch display name whenever scannedDJName changes
+  // Set scannedDJName in context whenever paramDJName changes
+  useEffect(() => {
+    if (paramDJName && scannedDJName !== paramDJName) {
+      setScannedDJName(paramDJName);
+    }
+  }, [paramDJName, scannedDJName, setScannedDJName]);
+
+  // Fetch the display name whenever scannedDJName changes
   useEffect(() => {
     const fetchDisplayName = async () => {
+      if (!scannedDJName) return;
+
       try {
         const response = await fetch(`http://${ipAddress}:5001/dj/displayName/${scannedDJName}`);
         if (response.ok) {
           const data = await response.json();
-          setScannedDisplayName(data.displayName || 'Unknown DJ');
+          setScannedDisplayName(data.displayName); // Set the display name in context
         } else {
           console.error('Failed to fetch display name');
         }
@@ -28,9 +39,7 @@ const MobileMessage: React.FC = () => {
       }
     };
 
-    if (scannedDJName) {
-      fetchDisplayName();
-    }
+    fetchDisplayName();
   }, [scannedDJName, setScannedDisplayName]);
 
   useEffect(() => {
