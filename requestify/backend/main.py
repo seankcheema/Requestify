@@ -327,6 +327,25 @@ def get_tracks(djName):
     except Exception as e:
         print(f"Error retrieving tracks: {e}")
         return jsonify({"message": "Error retrieving tracks"}), 500
+    
+#Route to select all tracks for a given DJ
+@app.route('/track-history/<djName>', methods=['GET'])
+def get_track_history(djName):
+    try:
+        query = "SELECT trackName, artist, album, external_url, album_cover_url FROM track_history WHERE djName = %s"
+        with get_db_connection() as conn:
+            mycursor = conn.cursor()
+            mycursor.execute(query, (djName,))
+            tracks = mycursor.fetchall()
+        #add something to remove tracks once we have this working
+
+        if not tracks:
+            return jsonify({"message": "No tracks found"}), 404
+        
+        return jsonify(tracks), 200
+    except Exception as e:
+        print(f"Error retrieving tracks: {e}")
+        return jsonify({"message": "Error retrieving tracks"}), 500
 
 
     

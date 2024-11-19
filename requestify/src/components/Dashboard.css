@@ -110,6 +110,7 @@
 .song-info {
   flex: 1;
   font-size: 18px;
+  max-width: 75%;
 }
 
 .song-info p {
@@ -147,6 +148,51 @@
   font-weight: bold;
   font-size: 20px;
   cursor: pointer;
+}
+
+.track-history {
+  position: absolute;
+  top: 22px;
+  right: 30px;
+  cursor: pointer;  /* Optional: to change the cursor to a pointer when hovering */
+  font-size: 32px;   /* Optional: adjust the size of the icon */
+  color: #00bf33;       /* Optional: adjust the color of the icon */
+}
+
+.queue-popup-content{
+  background-color: #1E1E1E; /* Dark background to match your app theme */
+  padding: 20px;
+  border-radius: 10px;
+  width: 30%;  /* Increased width */
+  
+  flex-direction: column;
+  max-height: 90%; /* Allow vertical resizing */
+  color: white;
+  position: relative;
+}
+
+/* Container that limits the visible window of the text */
+.desktop-scrolling-window {
+  width: 97%; /* Adjust this width to control the visible area */
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+}
+
+/* Scrolling effect for text that exceeds the character limit */
+.desktop-scrolling-text {
+  display: inline-block;
+  animation: scrollText 15s linear infinite; /* Adjust total duration */
+}
+
+/* Keyframes to add a pause at the beginning */
+@keyframes scrollText {
+  0%, 20% {
+    transform: translateX(0); /* Stay at the starting position for 2 seconds */
+  }
+  100% {
+    transform: translateX(-100%); /* Move text completely out of view */
+  }
 }
 
 .notification-container {
