@@ -10,8 +10,17 @@ interface DJContextProps {
 const DJContext = createContext<DJContextProps | undefined>(undefined);
 
 export const DJProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [djName, setDJName] = useState('');
-    const [displayName, setDisplayName] = useState('');
+    const [djName, setDJName] = useState(localStorage.getItem('djName') || ''); // Initialize with localStorage
+    const [displayName, setDisplayName] = useState(localStorage.getItem('displayName') || ''); // Initialize with localStorage
+
+    useEffect(() => {
+        if (djName) {
+            localStorage.setItem('djName', djName); // Save to localStorage
+        }
+        if (displayName) {
+            localStorage.setItem('displayName', displayName); // Save to localStorage
+        }
+    }, [djName, displayName]);
 
     return (
         <DJContext.Provider value={{ djName, setDJName, displayName, setDisplayName }}>
