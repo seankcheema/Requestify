@@ -81,7 +81,7 @@ const RequestifyLayout: React.FC = () => {
                 </div>
 
                 <div className="activity-button" onClick={() => navigate(`/dj/${paramDJName}/activity`)}>
-                    <button>View current activity</button>
+                    <button style={{ color: '#00bf33' }}>View current activity</button>
                 </div>
 
                 <div className="request-section">
