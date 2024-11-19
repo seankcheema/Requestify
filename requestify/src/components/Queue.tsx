@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import './Dashboard.css';
 import io from 'socket.io-client';
+import { FaHistory } from 'react-icons/fa';
+import HistoricalSongsPopup from './HistoricalSongsPopup';
 
 const ipAddress = process.env.REACT_APP_API_IP;
 const socket = io(`http://${ipAddress}:5001`);
@@ -20,6 +22,7 @@ interface Track {
 
 const Queue: React.FC<QueueProps> = ({ djName }) => {
   const [tracks, setTracks] = useState<{ track: string[]; hasUpvoted: boolean; hasDownvoted: boolean }[]>([]);
+  const [showPopup, setShowPopup] = useState(false);  // State to control popup visibility
   
   
   const fetchTracks = async () => {
@@ -136,6 +139,13 @@ const Queue: React.FC<QueueProps> = ({ djName }) => {
 
   }, [djName]);
 
+  // Toggle popup visibility when FaHistory icon is clicked
+  const handleHistoryClick = () => {
+    setShowPopup(true);
+  };
+
+  const handleClosePopup = () => setShowPopup(false);
+
   return (
     <section className="queue">
       <h2>Current Queue</h2>
@@ -146,7 +156,12 @@ const Queue: React.FC<QueueProps> = ({ djName }) => {
               <div key={index} className="song-item">
                 <img src={track.track[4]} alt={`${track.track[2]} cover`} className="album-cover" />
                 <div className="song-info">
-                  <p>{track.track[0]}</p>
+                  <div className="desktop-scrolling-window">
+                    <p className={`song-title ${track.track[0].length > 50 ? 'desktop-scrolling-text' : ''}`}>
+                      {track.track[0]}
+                    </p>
+                  </div>
+                  {/* <p>{track.track[0]}</p> */}
                   <p className="artist">{track.track[1]}</p>
                 </div>
                 <div className="song-upvotes">
@@ -161,6 +176,12 @@ const Queue: React.FC<QueueProps> = ({ djName }) => {
         </div>
       </div>
       <button className="clear-queue" onClick={removeAllTracks}>Clear Queue</button>
+      <FaHistory className="track-history" onClick={handleHistoryClick}/>
+      <HistoricalSongsPopup
+        show={showPopup}
+        onClose={handleClosePopup} // Pass the function reference here
+        djName={djName}
+      />
     </section>
   );
 };
