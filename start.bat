@@ -2,10 +2,11 @@
 @echo off
 :: Navigate to the requestify directory to start the react app 
 cd requestify
-call npm run build
+start "" cmd /k "npm start"
 
-:: Navigate to backend
+:: Navigate to backend to run main.py
 cd backend
+start "" cmd /k "python main.py"
 
 :: Run server.js
 start "" cmd /k "node server.js"
