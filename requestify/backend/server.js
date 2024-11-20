@@ -2,19 +2,58 @@ const express = require('express');
 const cors = require('cors');
 const http = require('http');
 const { Server } = require('socket.io');
+const { spawn } = require('child_process'); // For Python integration
+const path = require('path'); // To serve React static files
+
 const app = express();
 const port = 5000;
 
 // In-memory storage for messages
 let messages = []; // Array to store messages
 
-// Enable CORS for all origins (or you can specify specific origins if you prefer)
+// Enable CORS for all origins
 app.use(cors({
-  origin: '*',  // Allow all origins, or you can specify a specific domain like 'http://192.168.x.x:3000/'
+  origin: '*', // Allow all origins
   methods: ["GET", "POST"]
 }));
 
 app.use(express.json());
+
+// Serve static files from the React app build folder
+app.use(express.static(path.join(__dirname, '../build')));
+
+// API to trigger the Python script
+app.post('/run-python', (req, res) => {
+  // Spawn the Python process
+  const pythonProcess = spawn('python', ['main.py']);
+
+  let output = '';
+  let errorOutput = '';
+
+  // Collect output data
+  pythonProcess.stdout.on('data', (data) => {
+    output += data.toString();
+  });
+
+  // Collect error data
+  pythonProcess.stderr.on('data', (data) => {
+    errorOutput += data.toString();
+  });
+
+  // Handle process close
+  pythonProcess.on('close', (code) => {
+    if (code === 0) {
+      res.send({ success: true, output });
+    } else {
+      res.status(500).send({ success: false, error: errorOutput || 'Unknown error occurred' });
+    }
+  });
+});
+
+// Fallback to serve React frontend
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../build', 'index.html'));
+});
 
 // Create an HTTP server for both Express and Socket.IO
 const server = http.createServer(app);
@@ -22,7 +61,7 @@ const server = http.createServer(app);
 // Setup Socket.IO with CORS configuration
 const io = new Server(server, {
   cors: {
-    origin: "*", // This allows any origin, you can specify a more restrictive origin like 'http://192.168.x.x:3000/'
+    origin: "*",
     methods: ["GET", "POST"]
   }
 });
@@ -37,7 +76,7 @@ io.on("connection", (socket) => {
   // Handle receiving a message from the client
   socket.on("send_message", (message) => {
     // Store the message in memory
-    messages.push(message); 
+    messages.push(message);
     // Broadcast the message to all other connected clients
     socket.broadcast.emit("receive_message", message);
   });
