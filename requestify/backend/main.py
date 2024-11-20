@@ -138,6 +138,7 @@ def get_current_dj():
 #Registers the DJ to the the database and checks for all requried information
 @app.route('/register', methods=['POST'])
 def register():
+    print("Registering user")
     auth_header = request.headers.get('Authorization')
 
     if not auth_header or not auth_header.startswith("Bearer "):
@@ -160,7 +161,8 @@ def register():
     if not dj_name:
         return jsonify({"message": "DJ name is required"}), 400
 
-    #Check if users email exists already
+    # Check if the user already exists
+  
     query_check = "SELECT * FROM users WHERE email = %s"
     with get_db_connection() as conn:
         mycursor = conn.cursor()
@@ -168,7 +170,8 @@ def register():
         if mycursor.fetchone():
             return jsonify({"message": "User already exists"}), 409
 
-        qr_url = f"http://{IP}:3000/search/{dj_name}"
+        # Generate the URL for the QR code: http://localhost:5000/search/dj_name
+        qr_url = f"http://localhost:5000/search/{dj_name}"
 
         #Generates the users QR Code using the URL above
         qr_img = qrcode.make(qr_url)
