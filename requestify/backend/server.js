@@ -22,11 +22,9 @@ app.use(express.json());
 // Serve static files from the React app build folder
 app.use(express.static(path.join(__dirname, '../build')));
 
-// API to trigger the Python script
-app.post('/run-python', (req, res) => {
-  // Spawn the Python process
+const runPythonScriptOnStart = () => {
   const pythonProcess = spawn('python', ['main.py']);
-
+  
   let output = '';
   let errorOutput = '';
 
@@ -43,12 +41,12 @@ app.post('/run-python', (req, res) => {
   // Handle process close
   pythonProcess.on('close', (code) => {
     if (code === 0) {
-      res.send({ success: true, output });
+      console.log('Python script output:', output);
     } else {
-      res.status(500).send({ success: false, error: errorOutput || 'Unknown error occurred' });
+      console.error('Error running Python script:', errorOutput || 'Unknown error occurred');
     }
   });
-});
+};
 
 // Fallback to serve React frontend
 app.get('*', (req, res) => {
@@ -86,6 +84,9 @@ io.on("connection", (socket) => {
     console.log("A user disconnected:", socket.id);
   });
 });
+
+// Run Python script when the server starts
+runPythonScriptOnStart();
 
 // Start the server
 server.listen(port, '0.0.0.0', () => {
