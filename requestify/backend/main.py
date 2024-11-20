@@ -165,16 +165,16 @@ def stripe_webhook():
 
         # Save payment in the database
         try:
-            conn = mysql.connection
-            cursor = conn.cursor()
-            
-            query = """
-                INSERT INTO payments (dj_name, amount, currency, timestamp)
-                VALUES (%s, %s, %s, FROM_UNIXTIME(%s))
-            """
-            cursor.execute(query, (dj_name, amount, currency, timestamp))
-            conn.commit()
-            print(f"Payment for DJ '{dj_name}' recorded successfully.")
+            with get_db_connection() as conn:
+                cursor = conn.cursor()
+                
+                query = """
+                    INSERT INTO payments (dj_name, amount, currency, timestamp)
+                    VALUES (%s, %s, %s, FROM_UNIXTIME(%s))
+                """
+                cursor.execute(query, (dj_name, amount, currency, timestamp))
+                conn.commit()
+                print(f"Payment for DJ '{dj_name}' recorded successfully.")
         except Exception as e:
             print(f"Error saving payment to MySQL: {e}")
             return "Database error", 500
@@ -185,12 +185,13 @@ def stripe_webhook():
 @app.route('/api/payments/<dj_name>', methods=['GET'])
 def get_payments(dj_name):
     try:
-        conn = mysql.connection
-        cursor = conn.cursor(dictionary=True)
-        query = "SELECT * FROM payments WHERE dj_name = %s"
-        cursor.execute(query, (dj_name,))
-        payments = cursor.fetchall()
-        return jsonify(payments)
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor = conn.cursor(dictionary=True)
+            query = "SELECT * FROM payments WHERE dj_name = %s"
+            cursor.execute(query, (dj_name,))
+            payments = cursor.fetchall()
+            return jsonify(payments)
     except Exception as e:
         print(f"Error fetching payments: {e}")
         return "Database error", 500
