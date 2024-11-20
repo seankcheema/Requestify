@@ -170,8 +170,8 @@ def register():
         if mycursor.fetchone():
             return jsonify({"message": "User already exists"}), 409
 
-        # Generate the URL for the QR code: http://localhost:5000/search/dj_name
-        qr_url = f"http://localhost:5000/search/{dj_name}"
+        # Generate the URL for the QR code: http://localhost:3000/search/dj_name
+        qr_url = f"http://{IP}:3000/search/{dj_name}"
 
         #Generates the users QR Code using the URL above
         qr_img = qrcode.make(qr_url)

@@ -2,15 +2,18 @@ const express = require('express');
 const cors = require('cors');
 const http = require('http');
 const { Server } = require('socket.io');
+const { spawn } = require('child_process'); // For Python integration
+const path = require('path'); // To serve React static files
+
 const app = express();
 const port = 5000;
 
 //Stores messages in an array (Still need to update to double array)
 let messages = [];
 
-//Allows server to handle requests from all Origins
+// Enable CORS for all origins
 app.use(cors({
-  origin: '*',
+  origin: '*', // Allow all origins
   methods: ["GET", "POST"]
 }));
 
