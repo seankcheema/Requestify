@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './Dashboard.css';
 
+//Prop for the popup of the song history
 interface HistoricalSongsPopupProps {
     show: boolean;
     onClose: () => void;
@@ -11,6 +12,7 @@ const HistoricalSongsPopup: React.FC<HistoricalSongsPopupProps> = ({ show, onClo
   const [tracks, setTracks] = useState<{ track: string[]; hasUpvoted: boolean; hasDownvoted: boolean }[]>([]);
   const ipAddress = process.env.REACT_APP_API_IP;
   
+  //Function that fetches tracks from the history
   const fetchTracks = async () => {
     try {
       const response = await fetch(`http://${ipAddress}:5001/track-history/${djName}`);
@@ -24,7 +26,6 @@ const HistoricalSongsPopup: React.FC<HistoricalSongsPopupProps> = ({ show, onClo
     }
   };
 
-  // Ref for auto-scrolling to the bottom
   const messageEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -35,10 +36,11 @@ const HistoricalSongsPopup: React.FC<HistoricalSongsPopupProps> = ({ show, onClo
     fetchTracks();
   }, [show]);
 
+  //Displays the tracks
   return show ? (
     <div className="popup-overlay">
       <div className="queue-popup-content">
-        {/* Close button */}
+        {/*Close button*/}
         <button className="close-btn" onClick={onClose}>×</button>
             <h2>Track history</h2>
             <div className="song-container">
@@ -53,7 +55,7 @@ const HistoricalSongsPopup: React.FC<HistoricalSongsPopupProps> = ({ show, onClo
                             {track.track[0]}
                             </p>
                         </div>
-                        {/* <p>{track.track[0]}</p> */}
+                        {/*<p>{track.track[0]}</p>*/}
                         <p className="artist">{track.track[1]}</p>
                         </div>
                     </div>
