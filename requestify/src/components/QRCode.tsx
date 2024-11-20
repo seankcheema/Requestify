@@ -12,7 +12,7 @@ const QRCodePopup: React.FC<{ show: boolean; onClose: () => void; qrCodeData: st
   if (!show) return null;
 
   // Use REACT_APP_API_IP environment variable for constructing the full URL
-  const qrCodeUrl = `http://${process.env.REACT_APP_API_IP}:3000/dj/${djName}`;
+  const qrCodeUrl = `http://${process.env.REACT_APP_API_IP}:5000/dj/${djName}`;
 
   const handleDownload = () => {
     const link = document.createElement("a");
