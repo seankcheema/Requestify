@@ -20,7 +20,13 @@ load_dotenv(".env")
 
 #Sets up the Firebase API key and the 
 REACT_APP_FIREBASE_API_KEY = os.getenv('REACT_APP_FIREBASE_API_KEY')
+
+stripe = os.getenv("STRIPE_SECRET_KEY")
+endpoint_secret = os.getenv("STRIPE_ENDPOINT_SECRET")
+
+
 IP = os.getenv('REACT_APP_API_IP')
+
 
 #Sets up connection to Firebase using the Firebase Admin SDK and required credentials
 cred = credentials.Certificate("../Firebase-Service-Key.json")
@@ -77,6 +83,14 @@ with get_db_connection() as conn:
             UNIQUE KEY (djName, trackName, artist, album)
         )
     """)
+    cursor.execute("""
+                CREATE TABLE IF NOT EXISTS payments (
+                    dj_name VARCHAR(100) PRIMARY KEY,
+                    amount DECIMAL(10, 2),
+                    currency VARCHAR(3),
+                    timestamp DATETIME
+                )
+            """)
     print("Tables created or verified successfully")
 
     cursor.execute("DROP TABLE IF EXISTS track_history")
@@ -125,6 +139,62 @@ def get_dj():
     url = request.referrer
     djName = url.split('/')[-1]
     return djName
+
+# Webhook endpoint
+@app.route('/webhooks/stripe', methods=['POST'])
+def stripe_webhook():
+    payload = request.data
+    sig_header = request.headers.get('Stripe-Signature')
+    event = None
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, endpoint_secret
+        )
+    except stripe.error.SignatureVerificationError as e:
+        print(f"Webhook signature verification failed: {e}")
+        return "Webhook error", 400
+
+    # Handle the event
+    if event['type'] == 'payment_intent.succeeded':
+        payment_intent = event['data']['object']
+        dj_name = payment_intent['metadata'].get('djName', 'Unknown DJ')
+        amount = payment_intent['amount'] / 100  # Convert cents to dollars
+        currency = payment_intent['currency']
+        timestamp = payment_intent['created']
+
+        # Save payment in the database
+        try:
+            conn = mysql.connection
+            cursor = conn.cursor()
+            
+            query = """
+                INSERT INTO payments (dj_name, amount, currency, timestamp)
+                VALUES (%s, %s, %s, FROM_UNIXTIME(%s))
+            """
+            cursor.execute(query, (dj_name, amount, currency, timestamp))
+            conn.commit()
+            print(f"Payment for DJ '{dj_name}' recorded successfully.")
+        except Exception as e:
+            print(f"Error saving payment to MySQL: {e}")
+            return "Database error", 500
+
+    return jsonify({'status': 'success'}), 200
+
+# Endpoint to fetch payments for a specific DJ
+@app.route('/api/payments/<dj_name>', methods=['GET'])
+def get_payments(dj_name):
+    try:
+        conn = mysql.connection
+        cursor = conn.cursor(dictionary=True)
+        query = "SELECT * FROM payments WHERE dj_name = %s"
+        cursor.execute(query, (dj_name,))
+        payments = cursor.fetchall()
+        return jsonify(payments)
+    except Exception as e:
+        print(f"Error fetching payments: {e}")
+        return "Database error", 500
+    
 
 #Returns information abouit the current DJ if they exist
 @app.route('/api/current-dj', methods=['GET'])
