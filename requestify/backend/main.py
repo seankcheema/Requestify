@@ -14,6 +14,7 @@ from mysql.connector import pooling
 from flask_socketio import SocketIO, emit
 import firebase_admin
 from firebase_admin import auth, credentials
+import stripe
 #Sets up the required imports for main.py to run
 
 load_dotenv(".env")
@@ -21,8 +22,8 @@ load_dotenv(".env")
 #Sets up the Firebase API key and the 
 REACT_APP_FIREBASE_API_KEY = os.getenv('REACT_APP_FIREBASE_API_KEY')
 
-stripe = os.getenv("STRIPE_SECRET_KEY")
-endpoint_secret = os.getenv("STRIPE_ENDPOINT_SECRET")
+stripe_secret = os.getenv("REACT_APP_STRIPE_SECRET_KEY")
+endpoint_secret = os.getenv("REACT_APP_STRIPE_SIGNING_KEY")
 
 
 IP = os.getenv('REACT_APP_API_IP')
@@ -85,7 +86,8 @@ with get_db_connection() as conn:
     """)
     cursor.execute("""
                 CREATE TABLE IF NOT EXISTS payments (
-                    dj_name VARCHAR(100) PRIMARY KEY,
+                    id VARCHAR(100) PRIMARY KEY,
+                    dj_name VARCHAR(100),
                     amount DECIMAL(10, 2),
                     currency VARCHAR(3),
                     timestamp DATETIME
@@ -151,33 +153,39 @@ def stripe_webhook():
         event = stripe.Webhook.construct_event(
             payload, sig_header, endpoint_secret
         )
+
+        print(f"Webhook received: {event}")
     except stripe.error.SignatureVerificationError as e:
         print(f"Webhook signature verification failed: {e}")
         return "Webhook error", 400
 
     # Handle the event
-    if event['type'] == 'payment_intent.succeeded':
-        payment_intent = event['data']['object']
-        dj_name = payment_intent['metadata'].get('djName', 'Unknown DJ')
-        amount = payment_intent['amount'] / 100  # Convert cents to dollars
-        currency = payment_intent['currency']
-        timestamp = payment_intent['created']
+    # if event['type'] == 'payment_intent.succeeded':
+    payment_intent = event['data']['object']
+    payment_id = payment_intent['id']
+    dj_name = payment_intent['metadata'].get('djName')
+    amount = payment_intent['amount'] / 100  # Convert cents to dollars
+    currency = payment_intent['currency']
+    timestamp = payment_intent['created']
 
-        # Save payment in the database
-        try:
-            with get_db_connection() as conn:
-                cursor = conn.cursor()
-                
-                query = """
-                    INSERT INTO payments (dj_name, amount, currency, timestamp)
-                    VALUES (%s, %s, %s, FROM_UNIXTIME(%s))
-                """
-                cursor.execute(query, (dj_name, amount, currency, timestamp))
-                conn.commit()
-                print(f"Payment for DJ '{dj_name}' recorded successfully.")
-        except Exception as e:
-            print(f"Error saving payment to MySQL: {e}")
-            return "Database error", 500
+    print(f"Payment for DJ '{dj_name}' received: ${amount} {currency}")
+
+    # Save payment in the database
+    try:
+        with get_db_connection() as conn:
+            print("Connected to database")
+            cursor = conn.cursor()
+            
+            query = """
+                INSERT INTO payments (id, dj_name, amount, currency, timestamp)
+                VALUES (%s, %s, %s, %s, FROM_UNIXTIME(%s))
+            """
+            cursor.execute(query, (payment_id, dj_name, amount, currency, timestamp))
+            conn.commit()
+            print(f"Payment for DJ '{dj_name}' recorded successfully.")
+    except Exception as e:
+        print(f"Error saving payment to MySQL: {e}")
+        return "Database error", 500
 
     return jsonify({'status': 'success'}), 200
 

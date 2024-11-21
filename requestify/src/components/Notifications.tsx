@@ -14,12 +14,15 @@ const Notifications: React.FC<{ djName: string }> = ({ djName }) => {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const ipAddress = process.env.REACT_APP_API_IP;
 
   const fetchPayments = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get(`/api/payments/${djName}`);
+      const response = await axios.get(`http://${ipAddress}:5001/api/payments/${djName}`);
+
+      console.log('payments:', response);
       
       // If the response contains data as an array, update the state
       if (Array.isArray(response.data)) {
@@ -50,14 +53,14 @@ const Notifications: React.FC<{ djName: string }> = ({ djName }) => {
             <div>No payments found</div>
           )}
           {payments.map((payment) => (
-            <li key={payment.id}>
+            <ul key={payment.id}>
               <div className="notification-item">
-                ${payment.amount} tip received
-                <span className="time">
-                  {new Date(payment.timestamp).toLocaleDateString()}
-                </span>
+                {payment.amount} tip received
+                {/* <span className="time">
+                  {new Date(payment.timestamp).toLocaleTimeString()}
+                </span> */}
               </div>
-            </li>
+            </ul>
           ))}
         </div>
       </div>
