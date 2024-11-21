@@ -66,6 +66,21 @@ const Profile: React.FC<ProfileProps> = ({ email, djName, displayName, location,
       console.error('Error deleting account:', error);
       alert('Failed to delete account');
     }
+
+    try {
+      const response = await fetch(`http://${ipAddress}:5001/api/payments/delete`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ djName })
+      });
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+    } catch (error) {
+        console.error("Error deleting tip notifications:", error);
+    }
   };
 
   return (

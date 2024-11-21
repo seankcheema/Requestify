@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import io from 'socket.io-client';
 import './Dashboard.css';
 
 interface Payment {
@@ -15,6 +16,7 @@ const Notifications: React.FC<{ djName: string }> = ({ djName }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const ipAddress = process.env.REACT_APP_API_IP;
+  const socket = io(`http://${ipAddress}:5001`);
 
   const fetchPayments = async () => {
     setLoading(true);
@@ -40,6 +42,35 @@ const Notifications: React.FC<{ djName: string }> = ({ djName }) => {
 
   useEffect(() => {
     fetchPayments();
+
+    socket.on('tip_sent', (newTip) => {
+      if (newTip.dj_name === djName) {
+        setPayments((prevPayments) => [
+          ...prevPayments,
+          {
+            id: newTip.paymentid,
+            dj_name: newTip.dj_name,
+            amount: newTip.amount,
+            currency: newTip.currency,
+            timestamp: new Date(newTip.timestamp).toLocaleTimeString(),
+          },
+        ]);
+      }
+    });
+
+    // Listen for all_songs_removed event
+    socket.on('all_tips_removed', (djName) => {
+      if (djName === djName) {
+        setPayments([]);
+      }
+    });
+
+    return () => {
+      socket.off('tip_sent');
+      socket.off('all_tips_removed');
+    };
+
+
   }, [djName]);
 
   return (
@@ -55,7 +86,7 @@ const Notifications: React.FC<{ djName: string }> = ({ djName }) => {
           {payments.map((payment) => (
             <ul key={payment.id}>
               <div className="notification-item">
-                {payment.amount} tip received
+                ${payment.amount} tip received
                 {/* <span className="time">
                   {new Date(payment.timestamp).toLocaleTimeString()}
                 </span> */}

@@ -85,7 +85,7 @@ io.on("connection", (socket) => {
 
 
 // Run Python script when the server starts
-// runPythonScriptOnStart();
+runPythonScriptOnStart();
 
 // Start the server
 server.listen(port, '0.0.0.0', () => {
