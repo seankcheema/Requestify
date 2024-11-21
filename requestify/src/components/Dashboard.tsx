@@ -137,7 +137,7 @@ const Dashboard: React.FC = () => {
                         {/*Queue*/}
                         {profileData && <Queue djName={profileData.djName} />}
 
-                        {/* Notifications section */}
+                        {/*Notifications*/}
                         <Notifications 
                             djName={profileData.djName} 
                         />

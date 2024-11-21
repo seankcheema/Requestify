@@ -1,35 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { FaHome, FaChartLine, FaDollarSign, FaBell, FaArrowUp, FaArrowDown } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useUser } from './UserContext'; // Import UserContext
+import { useUser } from './UserContext';
 import io from 'socket.io-client';
 import './MobileActivity.css';
+//Sets up imports for MobileActivity and utilizes UserContext rather than DJ
 
+//Sets up IP and socketIO
 const ipAddress = process.env.REACT_APP_API_IP;
 const socket = io(`http://${ipAddress}:5001`);
 
+//Sets up RequestifyLayout component and sets up variables and hooks
 const RequestifyLayout: React.FC = () => {
     const navigate = useNavigate();
     const { djName: paramDJName } = useParams<{ djName: string }>();
-    const { scannedDJName, setScannedDJName, scannedDisplayName, setScannedDisplayName } = useUser(); // Use UserContext
+    const { scannedDJName, setScannedDJName, scannedDisplayName, setScannedDisplayName } = useUser();
     const [tracks, setTracks] = useState<{ track: string[]; hasUpvoted: boolean; hasDownvoted: boolean }[]>([]);
 
-    // Update scannedDJName based on the paramDJName (from QR code)
+    //Sets the scanned DJName if it is different from the URL's DJ Name
     useEffect(() => {
         if (paramDJName && scannedDJName !== paramDJName) {
-            console.log("Setting scannedDJName from paramDJName:", paramDJName);
+            //console.log("Setting scannedDJName from paramDJName:", paramDJName);
             setScannedDJName(paramDJName);
         }
     }, [paramDJName, scannedDJName, setScannedDJName]);
 
-    // Fetch display name whenever scannedDJName changes
+    //Fetches the displayname of the DJ
     useEffect(() => {
         const fetchDisplayName = async () => {
             try {
                 const response = await fetch(`http://${ipAddress}:5001/dj/displayName/${scannedDJName}`);
                 if (response.ok) {
                     const data = await response.json();
-                    setScannedDisplayName(data.displayName); // Assuming response has { displayName: "Actual Display Name" }
+                    setScannedDisplayName(data.displayName);
                 } else {
                     console.error('Failed to fetch display name');
                 }
@@ -43,7 +46,7 @@ const RequestifyLayout: React.FC = () => {
         }
     }, [scannedDJName, setScannedDisplayName]);
 
-    // Fetch the track queue for the scanned DJ
+    //Fetches the track queue of the dj
     const fetchTracks = async () => {
         try {
             const response = await fetch(`http://${ipAddress}:5001/tracks/${scannedDJName}`);
@@ -64,7 +67,7 @@ const RequestifyLayout: React.FC = () => {
             fetchTracks();
         }
 
-        // Listen for 'song_removed' events
+        //Listens for SocketIO event of song being removed and removes the track to state
         socket.on('song_removed', (removedSong) => {
             if (removedSong.djName === scannedDJName) {
                 setTracks((prevTracks) =>
@@ -75,7 +78,7 @@ const RequestifyLayout: React.FC = () => {
             }
         });
 
-        // Listen for 'song_added' events
+        //Listens for SocketIO event of song being added and adds the track to state
         socket.on('song_added', (newSong) => {
             if (newSong.djName === scannedDJName) {
                 setTracks((prevTracks) => [
@@ -85,7 +88,7 @@ const RequestifyLayout: React.FC = () => {
             }
         });
 
-        // Listen for upvote updates
+        //Listens for SocketIO event of upvote count being updated
         socket.on('upvote_updated', (updatedSong) => {
             setTracks((prevTracks) =>
                 prevTracks.map((track) =>
@@ -96,14 +99,14 @@ const RequestifyLayout: React.FC = () => {
             );
         });
 
-        // Listen for 'all_songs_removed' events
+        //Listens for SocketIO event of all songs being removed and sets the tracks state to being empty
         socket.on('all_songs_removed', (djName) => {
             if (djName === scannedDJName) {
                 setTracks([]);
             }
         });
 
-        // Cleanup listeners on unmount
+        //Makes sure that event listeners are removed when unmounted
         return () => {
             socket.off('song_removed');
             socket.off('song_added');
@@ -112,7 +115,7 @@ const RequestifyLayout: React.FC = () => {
         };
     }, [scannedDJName]);
 
-    // Handle upvote logic
+    //Handles the upvoting status in the tracks state and in backend
     const handleUpvote = async (trackName: string, artist: string, index: number) => {
         try {
             const updatedTracks = [...tracks];
@@ -142,7 +145,7 @@ const RequestifyLayout: React.FC = () => {
         }
     };
 
-    // Handle downvote logic
+    //Handles the downvoting status in the tracks state and in backend
     const handleDownvote = async (trackName: string, artist: string, index: number) => {
         try {
             const updatedTracks = [...tracks];
@@ -172,14 +175,18 @@ const RequestifyLayout: React.FC = () => {
         }
     };
 
+    //Navigation to DJ homepage
     const goToHome = () => {
         navigate(`/dj/${paramDJName}`);
     };
 
+    //Navigation to payment/tip page
     const goToPayment = () => {
         navigate(`/dj/${paramDJName}/payment`);
     };
 
+    //Displays the mobile activity page, notifications, buttons, icons, song queue, and other
+    //stuff associated with it
     return (
         <div className="mobile-container">
             <header className="mobile-header">

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './Dashboard.css';
 
+//Props for controlling message popup
 interface MessagePopupProps {
   show: boolean;
   onClose: () => void;
@@ -8,39 +9,43 @@ interface MessagePopupProps {
   onSendMessage: (message: string) => void;
 }
 
+//Defines MessagePopup component
 const MessagePopup: React.FC<MessagePopupProps> = ({ show, onClose, messages, onSendMessage }) => {
-  const [newMessage, setNewMessage] = useState(''); // Local state to manage the new message input
+  const [newMessage, setNewMessage] = useState('');
   
-  // Ref for auto-scrolling to the bottom
   const messageEndRef = useRef<HTMLDivElement>(null);
 
+  //Sets up auto scrolling
   useEffect(() => {
     if (messageEndRef.current) {
       messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [show, messages]);
 
+  //Logic for sending a message to end-users
   const handleSend = () => {
     if (newMessage.trim()) {
-      onSendMessage(newMessage); // Call onSendMessage passed from parent
-      setNewMessage('');  // Clear the input field after sending the message
+      onSendMessage(newMessage);
+      setNewMessage('');
     }
   };
 
+  //Lets DJ send a message by pressing enter key
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      e.preventDefault(); // Prevent default form submission on Enter
-      handleSend();  // Send the message when Enter is pressed
+      e.preventDefault();
+      handleSend();
     }
   };
 
+  //Displays the popup
   return show ? (
     <div className="popup-overlay">
       <div className="message-popup-content">
-        {/* Close button */}
+        {/*Close button*/}
         <button className="close-btn" onClick={onClose}>×</button>
         
-        {/* Message container with scroll */}
+        {/*Message container with scroll*/}
         <div className="message-container">
           <ul className="message-list">
             {messages.map((message, index) => (
@@ -48,18 +53,18 @@ const MessagePopup: React.FC<MessagePopupProps> = ({ show, onClose, messages, on
                 {message.text}
               </li>
             ))}
-            {/* Auto-scroll element */}
+            {/*Auto-scroll*/}
             <div ref={messageEndRef} />
           </ul>
         </div>
 
-        {/* Message input and send button */}
+        {/*Message input and send button*/}
         <div className="message-form">
           <input
             type="text"
-            value={newMessage} // Control the value of the input field with newMessage state
-            onChange={(e) => setNewMessage(e.target.value)} // Update newMessage state as user types
-            onKeyDown={handleKeyDown}  // Add keydown event handler
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder="Write a message"
             className="message-input"
           />
