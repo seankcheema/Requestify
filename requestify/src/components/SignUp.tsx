@@ -18,6 +18,11 @@ const SignUp: React.FC = () => {
     const navigate = useNavigate();
     const ipAddress = process.env.REACT_APP_API_IP;
 
+    const [profilePicture, setProfilePicture] = useState<File | null>(null);
+    const [profilePictureError, setProfilePictureError] = useState<string>('');
+    const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+
     const goToLogin = () => {
         navigate('/login');
     };
@@ -92,6 +97,30 @@ const SignUp: React.FC = () => {
         }
         setDjName(value);
     };
+    const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files ? e.target.files[0] : null;
+    
+        if (file) {
+            // Validate file type (check for image file)
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            if (!allowedTypes.includes(file.type)) {
+                setProfilePictureError('Please upload a valid image (JPG, PNG, or GIF).');
+                setProfilePicture(null);
+                setPreviewImage(null);
+                return;
+            }
+    
+            // Set the profile picture and preview image
+            setProfilePicture(file);
+            setProfilePictureError('');
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreviewImage(reader.result as string); // Generate the preview URL
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+    
 
     return (
         <div
@@ -183,6 +212,24 @@ const SignUp: React.FC = () => {
                             className="input-field"
                         />
                     </div>
+                    <div className="form-group">
+                    <label htmlFor="profilePicture">Profile Picture</label>
+    <input
+        type="file"
+        id="profilePicture"
+        onChange={handleProfilePictureChange}
+        accept="image/*"
+        className="input-field"
+    />
+    {profilePictureError && <p style={{ color: 'red' }}>{profilePictureError}</p>}
+</div>
+
+{previewImage && (
+    <div className="image-preview-container">
+        <img src={previewImage} alt="Profile Preview" className="image-preview" />
+    </div>
+)}
+
                     <button type="submit" className="sign-up-button">
                         Sign Up
                     </button>
