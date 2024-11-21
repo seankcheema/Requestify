@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './Dashboard.css';
 
+//Defines the interface of the payment object
 interface Payment {
   id: number;
   dj_name: string;
@@ -10,18 +11,19 @@ interface Payment {
   timestamp: string;
 }
 
+//Defines the Notifications component, variables, states, etc.
 const Notifications: React.FC<{ djName: string }> = ({ djName }) => {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  //Function to fetch payment data from API
   const fetchPayments = async () => {
     setLoading(true);
     setError(null);
     try {
       const response = await axios.get(`/api/payments/${djName}`);
       
-      // If the response contains data as an array, update the state
       if (Array.isArray(response.data)) {
         setPayments(response.data);
       } else {
@@ -39,6 +41,7 @@ const Notifications: React.FC<{ djName: string }> = ({ djName }) => {
     fetchPayments();
   }, [djName]);
 
+  //Used to display the notification page for the DJ
   return (
     <section className="notifications">
       <h2>Notifications</h2>

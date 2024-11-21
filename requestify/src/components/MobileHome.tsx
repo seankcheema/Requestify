@@ -1,24 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { FaHome, FaChartLine, FaDollarSign, FaBell } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useUser } from './UserContext'; // Use UserContext
+import { useUser } from './UserContext';
 import './MobileHome.css';
+//Uses the correct context (user for mobile) and imports
 
+//Sets up RequestifyLayout component and sets up navigation, variables, context, etc.
 const RequestifyLayout: React.FC = () => {
     const [query, setQuery] = useState('');
-    const [showConfirmation, setShowConfirmation] = useState(false); // State for confirmation message
+    const [showConfirmation, setShowConfirmation] = useState(false);
     const navigate = useNavigate();
-    const { djName: paramDJName } = useParams<{ djName: string }>(); // Get djName from URL params
-    const { scannedDJName, setScannedDJName, scannedDisplayName, setScannedDisplayName } = useUser(); // Use UserContext
+    const { djName: paramDJName } = useParams<{ djName: string }>();
+    const { scannedDJName, setScannedDJName, scannedDisplayName, setScannedDisplayName } = useUser();
 
-    // Set the DJ name from the URL into context
+    //Sets the scanned DJName if it is different from the URL's DJ Name
     useEffect(() => {
         if (paramDJName && scannedDJName !== paramDJName) {
             setScannedDJName(paramDJName);
         }
     }, [paramDJName, scannedDJName, setScannedDJName]);
 
-    // Fetch the display name for the scanned DJ from the backend
+    //Fetches the DJs display name using the DJ username from the URL
     useEffect(() => {
         const fetchDisplayName = async () => {
             if (!scannedDJName) return;
@@ -27,7 +29,7 @@ const RequestifyLayout: React.FC = () => {
                 const response = await fetch(`http://localhost:5001/dj/displayName/${scannedDJName}`);
                 if (response.ok) {
                     const data = await response.json();
-                    setScannedDisplayName(data.displayName); // Set the display name in context
+                    setScannedDisplayName(data.displayName);
                 } else {
                     console.error('Failed to fetch display name');
                 }
@@ -39,6 +41,7 @@ const RequestifyLayout: React.FC = () => {
         fetchDisplayName();
     }, [scannedDJName, setScannedDisplayName]);
 
+    //Sends song search query to backend and alerts the user if the input box is empty
     const handleSearch = async () => {
         if (!query) {
             alert('Please enter a song name or Spotify link');
@@ -52,9 +55,9 @@ const RequestifyLayout: React.FC = () => {
             const data = await response.json();
 
             if (response.ok) {
-                setQuery(''); // Clear the input field
-                setShowConfirmation(true); // Show confirmation message
-                setTimeout(() => setShowConfirmation(false), 3000); // Hide after 3 seconds
+                setQuery('');
+                setShowConfirmation(true);
+                setTimeout(() => setShowConfirmation(false), 3000);
             } else {
                 alert(data.message || 'Error fetching data');
             }
@@ -64,6 +67,7 @@ const RequestifyLayout: React.FC = () => {
         }
     };
 
+    //Sets up the display of the mobile home page, search, dj display name, etc.
     return (
         <div className="mobile-container">
             <header className="mobile-header">
@@ -75,7 +79,7 @@ const RequestifyLayout: React.FC = () => {
             <FaBell className="bell-icon" onClick={() => navigate(`/dj/${paramDJName}/message`)} />
 
             <main className="mobile-content">
-                {/* Listening Section with dynamic DJ display name */}
+                {/*DJ Display name and activity*/}
                 <div className="listening-section">
                     <p>You are listening to <a href="#">{scannedDisplayName || scannedDJName}</a></p>
                 </div>
@@ -97,7 +101,7 @@ const RequestifyLayout: React.FC = () => {
                         </div>
                         <button onClick={handleSearch}>Submit</button>
                         
-                        {/* Display confirmation message */}
+                        {/*Display confirmation message of song request*/}
                         {showConfirmation && (
                             <p className="confirmation-message">Request submitted</p>
                         )}

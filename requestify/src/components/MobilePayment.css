@@ -1,13 +1,9 @@
-/* General container styling */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-
-
-/* Header styling */
 .mobile-header {
   background-color: #0b0b0b;
   padding: 10px;
@@ -29,7 +25,6 @@
   top: 15px;
 }
 
-/* Main content styling */
 .mobile-content {
   overflow: hidden;
   height: 100vh;
@@ -38,7 +33,6 @@
   flex: 1;
 }
 
-/* Listening section styling */
 .listening-section {
   background-color: #1e1e1e;
   height: 75px;
@@ -55,7 +49,6 @@
   text-decoration: none;
 }
 
-/* Payment tile styling */
 .payment-tile {
   background-color: #1e1e1e;
   border-radius: 8px;
@@ -93,7 +86,6 @@
   color: #d3d3d3;
 }
 
-/* Payment button styling */
 .payment-button {
   background-color: #00bf33;
   color: white;
@@ -112,7 +104,6 @@
   box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* Payment help link styling */
 .payment-help-link {
   display: flex;
   align-items: center;
@@ -125,7 +116,6 @@
   margin-left: 5px;
 }
 
-/* Footer styling */
 .mobile-footer {
   background-color: #0b0b0b;
   padding: 10px 0;
@@ -161,7 +151,6 @@
   font-size: 0.7em;
 }
 
-/* Active item styles */
 .nav-item.active {
   color: #00bf33;
 }

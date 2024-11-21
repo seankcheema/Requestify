@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './Dashboard.css';
 
+//Sets up the IP address using the environment variable
 const ipAddress = process.env.REACT_APP_API_IP;
 
+//Sets up the prop interface for the profile
 interface ProfileProps {
   email: string;
   djName: string;
@@ -14,6 +16,7 @@ interface ProfileProps {
   updateProfileData: (updatedData: any) => void;
 }
 
+//Sets up the component, states, and variables
 const Profile: React.FC<ProfileProps> = ({ email, djName, displayName, location, socialMedia, productLink, updateProfileData }) => {
   const [isProfilePopupOpen, setIsProfilePopupOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -24,12 +27,14 @@ const Profile: React.FC<ProfileProps> = ({ email, djName, displayName, location,
     productLink,
   });
 
+  //Handles opening and closing profile page
   const handleOpenProfilePopup = () => setIsProfilePopupOpen(true);
   const handleCloseProfilePopup = () => {
     setIsProfilePopupOpen(false);
     setIsEditing(false);
   };
 
+  //Handles editing the profile
   const handleEditClick = () => setIsEditing(true);
 
   const handleBackClick = () => setIsEditing(false); // Go back to view mode without saving
@@ -39,6 +44,7 @@ const Profile: React.FC<ProfileProps> = ({ email, djName, displayName, location,
     setEditData((prev) => ({ ...prev, [name]: value }));
   };
 
+  //Handles saving the profile updates
   const handleSubmit = async () => {
     try {
       await axios.put(`http://${ipAddress}:5001/update-profile`, { ...editData, email });
@@ -50,6 +56,7 @@ const Profile: React.FC<ProfileProps> = ({ email, djName, displayName, location,
     }
   };
 
+  //Handles deleting the DJ accounts
   const handleDeleteAccount = async () => {
     const confirmed = window.confirm('Are you sure you want to delete your account?');
     if (!confirmed) return;
@@ -68,6 +75,7 @@ const Profile: React.FC<ProfileProps> = ({ email, djName, displayName, location,
     }
   };
 
+  //Displays the profile page to the DJ
   return (
     <>
       <aside className="profile" onClick={handleOpenProfilePopup}>
@@ -83,7 +91,7 @@ const Profile: React.FC<ProfileProps> = ({ email, djName, displayName, location,
               <img src="/assets/profile.png" alt="Profile" className="popup-profile-img" />
               {isEditing ? (
                 <form onSubmit={(e) => e.preventDefault()} className="edit-profile-form">
-                  {/* Back button to switch back to profile view without saving */}
+                  {/*Back button to switch back to profile view without saving*/}
                   <button type="button" onClick={handleBackClick} className="back-btn">← Back</button>
                   
                   <label>
