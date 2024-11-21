@@ -137,8 +137,10 @@ const Dashboard: React.FC = () => {
                         {/*Queue*/}
                         {profileData && <Queue djName={profileData.djName} />}
 
-                        {/*Notifications*/}
-                        <Notifications />
+                        {/* Notifications section */}
+                        <Notifications 
+                            djName={profileData.djName} 
+                        />
 
                         {/*Profile and QR Code, updating profile data feature*/}
                         <div className="mini-tiles">
