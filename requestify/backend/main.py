@@ -186,6 +186,15 @@ def stripe_webhook():
     except Exception as e:
         print(f"Error saving payment to MySQL: {e}")
         return "Database error", 500
+    
+    #SocketIO event for realtime upvotes
+    socketio.emit('tip_sent', {
+        'payment_id': payment_id,
+        'dj_name': dj_name,
+        'amount': f"{amount:.2f}",
+        'currency': currency,
+        'timestamp': timestamp
+    })
 
     return jsonify({'status': 'success'}), 200
 
@@ -203,6 +212,29 @@ def get_payments(dj_name):
     except Exception as e:
         print(f"Error fetching payments: {e}")
         return "Database error", 500
+    
+# Endpoint to remove payments upon logout/account deletion
+@app.route('/api/payments/delete', methods=['DELETE'])
+def delete_payments():
+    dj_name = request.json.get('djName')
+    if not dj_name:
+        return jsonify({"message": "DJ name is required"}), 400
+
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            query = "DELETE FROM payments WHERE dj_name = %s"
+            cursor.execute(query, (dj_name,))
+            conn.commit()
+            
+    except Exception as e:
+        print(f"Error deleting payments: {e}")
+        return "Database error", 500
+    
+    #SocketIO event for realtime updates
+    socketio.emit('all_tips_removed', {"djName": dj_name})
+
+    return jsonify({"message": "Payments deleted successfully"}), 200
     
 
 #Returns information abouit the current DJ if they exist

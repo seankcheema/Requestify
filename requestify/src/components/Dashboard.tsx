@@ -63,7 +63,7 @@ const Dashboard: React.FC = () => {
 
     //Handles the DJ logout
     const handleLogout = async () => {
-        const confirmed = window.confirm('Are you sure you want to logout? Your track queue and history will be cleared.');
+        const confirmed = window.confirm('Are you sure you want to logout? Your track queue, track history, and tip notifcations will be cleared.');
         if (!confirmed) return;
 
         //Try function to sign out the user and delete their current tracks
@@ -78,7 +78,7 @@ const Dashboard: React.FC = () => {
             console.log('User signed out successfully');
             navigate('/login');
         } catch (error) {
-            console.error('Error logging out:', error);
+            console.error('Error deleting tracks:', error);
         }
 
         //Try function to delete the users track history
@@ -93,9 +93,26 @@ const Dashboard: React.FC = () => {
             if (!response.ok) {
               throw new Error(`Error: ${response.status}`);
             }
-          } catch (error) {
-            console.error("Error Logging Out:", error);
-          }
+        } catch (error) {
+            console.error("Error deleting track history:", error);
+        }
+
+        try {
+            const response = await fetch(`http://${ipAddress}:5001/api/payments/delete`, {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ djName })
+            });
+            if (!response.ok) {
+              throw new Error(`Error: ${response.status}`);
+            }
+        } catch (error) {
+            console.error("Error deleting tip notifications:", error);
+        }
+
+          
 
         signOut(auth)
             .then(() => {
