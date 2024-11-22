@@ -64,14 +64,15 @@
   overflow-y: auto;
 }
 
+/* Style the scrollbar track (background) */
 .song-container::-webkit-scrollbar {
-  width: 10px;
+  width: 10px; /* Width of the vertical scrollbar */
 }
 
-
+/* Style the scrollbar itself */
 .song-container::-webkit-scrollbar-thumb {
-  background-color: #00bf33;
-  border-radius: 5px;
+  background-color: #00bf33; /* Scrollbar color */
+  border-radius: 5px; /* Rounded corners */
 }
 
 .song-list {
@@ -109,7 +110,6 @@
 .song-info {
   flex: 1;
   font-size: 18px;
-  max-width: 75%;
 }
 
 .song-info p {
@@ -149,51 +149,6 @@
   cursor: pointer;
 }
 
-.track-history {
-  position: absolute;
-  top: 22px;
-  right: 30px;
-  cursor: pointer;
-  font-size: 32px;
-  color: #00bf33;
-}
-
-.queue-popup-content{
-  background-color: #1E1E1E;
-  padding: 20px;
-  border-radius: 10px;
-  width: 30%;
-  
-  flex-direction: column;
-  max-height: 90%;
-  color: white;
-  position: relative;
-}
-
-
-.desktop-scrolling-window {
-  width: 97%;
-  overflow: hidden;
-  white-space: nowrap;
-  position: relative;
-}
-
-
-.desktop-scrolling-text {
-  display: inline-block;
-  animation: scrollText 15s linear infinite;
-}
-
-
-@keyframes scrollText {
-  0%, 20% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-100%);
-  }
-}
-
 .notification-container {
   background-color: #121212;
   padding: 1px;
@@ -203,15 +158,15 @@
   overflow-y: auto;
 }
 
-
+/* Style the scrollbar track (background) */
 .notification-container::-webkit-scrollbar {
-  width: 10px;
+  width: 10px; /* Width of the vertical scrollbar */
 }
 
-
+/* Style the scrollbar itself */
 .notification-container::-webkit-scrollbar-thumb {
-  background-color: #00bf33;
-  border-radius: 5px;
+  background-color: #00bf33; /* Scrollbar color */
+  border-radius: 5px; /* Rounded corners */
 }
 
 .notification-list {
@@ -250,9 +205,9 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  flex-grow: 1;
-  width: 100%;
-  aspect-ratio: 1;
+  flex-grow: 1; /* Ensure they take the available space */
+  width: 100%; /* Take up full width of the parent */
+  aspect-ratio: 1; /* Make sure they are square */
   margin: 7px;
   position: relative;
 }
@@ -282,7 +237,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -290,20 +245,22 @@
   cursor: default;
 }
 
+/* Popup content box - increase size */
 .message-popup-content {
-  background-color: #1E1E1E;
+  background-color: #1E1E1E; /* Dark background to match your app theme */
   padding: 20px;
-  padding-top: 0;
+  padding-top: 0; /* Remove padding from the top */
   border-radius: 10px;
-  width: 30%;
+  width: 30%;  /* Increased width */
   
   flex-direction: column;
-  max-height: 90%;
+  max-height: 90%; /* Allow vertical resizing */
   text-align: right;
   color: white;
   position: relative;
 }
 
+/* Message container that scrolls */
 .message-container {
   background-color: #0b0b0b;
   padding: 10px;
@@ -313,15 +270,18 @@
   overflow-y: auto;
 }
 
+/* Style the scrollbar track (background) */
 .message-container::-webkit-scrollbar {
-  width: 10px;
+  width: 10px; /* Width of the vertical scrollbar */
 }
 
+/* Style the scrollbar itself */
 .message-container::-webkit-scrollbar-thumb {
   background-color: #00bf33; 
   border-radius: 5px; 
 }
 
+/* Message bubble styling */
 .message-list {
   list-style: none;
   padding: 0;
@@ -341,11 +301,13 @@
   word-wrap: break-word;
 }
 
+/* Align last message to the right (sent message) */
 .message-bubble.sent {
   background-color: #0062cc;
   align-self: flex-end;
 }
 
+/* Input and button form for sending messages */
 .message-form {
   display: flex;
   margin-top: 10px;
@@ -375,6 +337,7 @@
   background-color: #218838;
 }
 
+/* Close button styling */
 .close-btn {
   background-color: transparent;
   border: none;
@@ -386,14 +349,15 @@
   right: 20px;
 }
 
+/* Popup content box - increase size */
 .qr-popup-content {
-  background-color: #1E1E1E;
+  background-color: #1E1E1E; /* Dark background to match your app theme */
   padding: 20px;
-  padding-top: 0;
+  padding-top: 0; /* Remove padding from the top */
   border-radius: 10px;
-  width: 600px;
-  max-width: 90%;
-  max-height: 90%;
+  width: 600px;  /* Increased width */
+  max-width: 90%; /* Allow resizing */
+  max-height: 90%; /* Allow vertical resizing */
   color: white;
   text-align: center;
   position: relative;
@@ -447,9 +411,6 @@
   text-align: left;
   color: white;
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: left;
 }
 
 .popup-profile-img{
@@ -458,6 +419,31 @@
   border-radius: 50%;
   margin-top: -75px;
   margin-bottom: 10px;
+}
+.profile-img-container {
+  position: relative;
+  display: inline-block;
+}
+
+.edit-icon {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 5px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  transition: transform 0.2s ease;
+}
+
+.edit-icon:hover {
+  transform: scale(1.1);
+}
+
+.popup-profile .edit-icon input {
+  display: none;
 }
 
 .profile-popup-content h2 {
@@ -501,21 +487,6 @@
   font-size: 14px;
   border-radius: 4px;
   transition: background-color 0.2s ease;
-  width: 50%;
-  margin-bottom: 20px;
-}
-
-.delete-account-button {
-  background-color: #b32525;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  cursor: pointer;
-  font-size: 14px;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
-  width: 50%;
-  margin-bottom: 20px;
 }
 
 .edit-profile-button:hover {
@@ -564,18 +535,21 @@
   margin-top: 20px;
 }
 
+/* Ensure container fills the screen */
 .container {
   position: relative;
   width: 100%;
   height: 100vh;
 }
 
+/* Position logout button in top-right corner */
 .logout-container {
   position: absolute;
   top: 20px;
   right: 20px;
 }
 
+/* Style for the logout button */
 .logout-container button {
   padding: 10px 20px;
   background-color: #ff4d4f;

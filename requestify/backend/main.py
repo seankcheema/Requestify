@@ -60,6 +60,7 @@ with get_db_connection() as conn:
     cursor = conn.cursor()
 
     cursor.execute("USE Requestify")
+    cursor.execute("DROP TABLE IF EXISTS users")
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             email VARCHAR(100) UNIQUE PRIMARY KEY,
@@ -68,7 +69,8 @@ with get_db_connection() as conn:
             location VARCHAR(100),
             socialMedia VARCHAR(100),
             qrCode TEXT,
-            productLink TEXT
+            productLink TEXT,
+            profilePictureURL TEXT
         )
     """)
     cursor.execute("DROP TABLE IF EXISTS tracks")
@@ -267,13 +269,13 @@ def register():
     displayName = data.get('displayName')
     location = data.get('location')
     social_media = data.get('socialMedia')
+    profile_picture_url = data.get('profilePictureURL')  # Added to accept profile picture URL
 
-    #Check for DJ Name
+    # Check for DJ Name
     if not dj_name:
         return jsonify({"message": "DJ name is required"}), 400
 
     # Check if the user already exists
-  
     query_check = "SELECT * FROM users WHERE email = %s"
     with get_db_connection() as conn:
         mycursor = conn.cursor()
@@ -281,27 +283,30 @@ def register():
         if mycursor.fetchone():
             return jsonify({"message": "User already exists"}), 409
 
-        # Generate the URL for the QR code: http://localhost:3000/search/dj_name
+        # Generate the URL for the QR code
         qr_url = f"http://{IP}:5000/search/{dj_name}"
 
-        #Generates the users QR Code using the URL above
+        # Generate the user's QR Code
         qr_img = qrcode.make(qr_url)
 
-        #Puts QR Code in appropriate format for storage
+        # Convert QR Code to base64
         buffered = BytesIO()
         qr_img.save(buffered, format="PNG")
         qr_code_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
 
-        #Registers new user into the database
+        # Insert user into the database
         query = """
-            INSERT INTO users (email, djName, displayName, location, socialMedia, qrCode, productLink)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO users (email, djName, displayName, location, socialMedia, qrCode, productLink, profilePictureURL)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """
-
-        mycursor.execute(query, (email, dj_name, displayName, location, social_media, qr_code_base64, None))
+        mycursor.execute(query, (
+            email, dj_name, displayName, location, social_media, 
+            qr_code_base64, None, profile_picture_url  # Save profilePictureURL here
+        ))
         conn.commit()
 
     return jsonify({"message": "User registered successfully", "qrCode": qr_code_base64}), 201
+
 
 #Route for user logging into Requestify
 @app.route('/login', methods=['POST'])
