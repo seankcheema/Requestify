@@ -13,11 +13,21 @@ interface ProfileProps {
   location: string;
   socialMedia: string;
   productLink: string;
+  profileImageUrl?: string; // Add the profile image URL prop
   updateProfileData: (updatedData: any) => void;
 }
 
 //Sets up the component, states, and variables
-const Profile: React.FC<ProfileProps> = ({ email, djName, displayName, location, socialMedia, productLink, updateProfileData }) => {
+const Profile: React.FC<ProfileProps> = ({
+  email,
+  djName,
+  displayName,
+  location,
+  socialMedia,
+  productLink,
+  profileImageUrl, // Use the profile image URL prop
+  updateProfileData,
+}) => {
   const [isProfilePopupOpen, setIsProfilePopupOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
@@ -80,13 +90,13 @@ const Profile: React.FC<ProfileProps> = ({ email, djName, displayName, location,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ djName })
+        body: JSON.stringify({ djName }),
       });
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
     } catch (error) {
-        console.error("Error deleting tip notifications:", error);
+      console.error('Error deleting tip notifications:', error);
     }
   };
 
@@ -94,21 +104,27 @@ const Profile: React.FC<ProfileProps> = ({ email, djName, displayName, location,
   return (
     <>
       <aside className="profile" onClick={handleOpenProfilePopup}>
-        <img src="/assets/profile.png" alt="Profile" className="profile-img" />
-        <p>{djName || "Profile"}</p>
+        {/* Dynamically display the profile image */}
+        <img src={profileImageUrl || '/assets/profile.png'} alt="Profile" className="profile-img" />
+        <p>{djName || 'Profile'}</p>
       </aside>
 
       {isProfilePopupOpen && (
         <div className="popup-overlay">
           <div className="popup-content">
-            <button className="close-btn" onClick={handleCloseProfilePopup}>×</button>
+            <button className="close-btn" onClick={handleCloseProfilePopup}>
+              ×
+            </button>
             <div className="profile-popup-content">
-              <img src="/assets/profile.png" alt="Profile" className="popup-profile-img" />
+              {/* Dynamically display the profile image */}
+              <img src={profileImageUrl || '/assets/profile.png'} alt="Profile" className="popup-profile-img" />
               {isEditing ? (
                 <form onSubmit={(e) => e.preventDefault()} className="edit-profile-form">
                   {/*Back button to switch back to profile view without saving*/}
-                  <button type="button" onClick={handleBackClick} className="back-btn">← Back</button>
-                  
+                  <button type="button" onClick={handleBackClick} className="back-btn">
+                    ← Back
+                  </button>
+
                   <label>
                     Display Name:
                     <input name="displayName" value={editData.displayName} onChange={handleChange} placeholder="Display Name" />
@@ -125,7 +141,9 @@ const Profile: React.FC<ProfileProps> = ({ email, djName, displayName, location,
                     Product Link:
                     <input name="productLink" value={editData.productLink} onChange={handleChange} placeholder="Product Link" />
                   </label>
-                  <button type="button" onClick={handleSubmit} className="edit-profile-button">Save</button>
+                  <button type="button" onClick={handleSubmit} className="edit-profile-button">
+                    Save
+                  </button>
                 </form>
               ) : (
                 <>
@@ -134,9 +152,18 @@ const Profile: React.FC<ProfileProps> = ({ email, djName, displayName, location,
                   <p>Email: {email}</p>
                   <p>DJ Location: {location}</p>
                   <p>Social Media: {socialMedia}</p>
-                  <p>Product Link: <a href={productLink} target="_blank" rel="noopener noreferrer">{productLink}</a></p>
-                  <button onClick={handleEditClick} className="edit-profile-button">Edit Profile</button>
-                  <button onClick={handleDeleteAccount} className="delete-account-button">Delete Account</button>
+                  <p>
+                    Product Link:{' '}
+                    <a href={productLink} target="_blank" rel="noopener noreferrer">
+                      {productLink}
+                    </a>
+                  </p>
+                  <button onClick={handleEditClick} className="edit-profile-button">
+                    Edit Profile
+                  </button>
+                  <button onClick={handleDeleteAccount} className="delete-account-button">
+                    Delete Account
+                  </button>
                 </>
               )}
             </div>

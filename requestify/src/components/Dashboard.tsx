@@ -9,6 +9,8 @@ import { getAuth, signOut, User } from 'firebase/auth';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { useDJ } from './DJContext';
+import { getStorage, ref, getDownloadURL } from 'firebase/storage'; // Add Firebase Storage imports
+
 //Imports required for the dashboard
 
 //Stores the fetched profile information for usage
@@ -20,24 +22,46 @@ const Dashboard: React.FC = () => {
     const auth = getAuth();
     const ipAddress = process.env.REACT_APP_API_IP;
 
-    //Uses the DJ context to mange the DJs data
+    //Uses the DJ context to manage the DJs data
     const { djName, setDJName, setDisplayName } = useDJ();
 
-    //Function that actually fetches the profile data
+// Function to fetch the image URL from Firebase Storage
+const fetchImageURL = async (email: string | null) => {
+    if (!email) {
+        console.error('Email is null or undefined');
+        return null; // Return null if email is not valid
+    }
+
+    try {
+        const storage = getStorage(); // Initialize Firebase Storage
+        const imageRef = ref(storage, `profile_images/${email}.jpg`); // Path to the image in Firebase Storage
+        const url = await getDownloadURL(imageRef); // Fetch the public URL
+        return url;
+    } catch (error) {
+        console.error('Error fetching image URL from Firebase Storage:', error);
+        return null; // Return null if the image doesn't exist
+    }
+};
+
+    // Modified fetchProfileData
     const fetchProfileData = async (user: User | null) => {
         if (!user) return;
 
         try {
             const response = await axios.get(`http://${ipAddress}:5001/user/${user.email}`);
-            setProfileData(response.data);
+            const profile = response.data;
+
+            // Use user.email (string | null) and pass it safely
+            const imageUrl = await fetchImageURL(user.email ?? '');
+            setProfileData({ ...profile, imageUrl });
 
             //Set djName and displayName in the local storage
-            setDJName(response.data.djName);
-            setDisplayName(response.data.displayName);
+            setDJName(profile.djName);
+            setDisplayName(profile.displayName);
 
             //Redirect to the correct DJ dashboard if necessary
-            if (response.data.djName && response.data.djName !== paramDJName) {
-                navigate(`/dashboard/${response.data.djName}`, { replace: true });
+            if (profile.djName && profile.djName !== paramDJName) {
+                navigate(`/dashboard/${profile.djName}`, { replace: true });
             }
         } catch (error) {
             console.error('Error fetching profile data:', error);
