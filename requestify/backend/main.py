@@ -14,13 +14,20 @@ from mysql.connector import pooling
 from flask_socketio import SocketIO, emit
 import firebase_admin
 from firebase_admin import auth, credentials
+import stripe
 #Sets up the required imports for main.py to run
 
 load_dotenv(".env")
 
-#Sets up the Firebase API key and the 
+#Sets up the Firebase API key and the Stripe Keys
 REACT_APP_FIREBASE_API_KEY = os.getenv('REACT_APP_FIREBASE_API_KEY')
+
+stripe_secret = os.getenv("REACT_APP_STRIPE_SECRET_KEY")
+endpoint_secret = os.getenv("REACT_APP_STRIPE_SIGNING_KEY")
+
+
 IP = os.getenv('REACT_APP_API_IP')
+
 
 #Sets up connection to Firebase using the Firebase Admin SDK and required credentials
 cred = credentials.Certificate("../Firebase-Service-Key.json")
@@ -77,6 +84,15 @@ with get_db_connection() as conn:
             UNIQUE KEY (djName, trackName, artist, album)
         )
     """)
+    cursor.execute("""
+                CREATE TABLE IF NOT EXISTS payments (
+                    id VARCHAR(100) PRIMARY KEY,
+                    dj_name VARCHAR(100),
+                    amount DECIMAL(10, 2),
+                    currency VARCHAR(3),
+                    timestamp DATETIME
+                )
+            """)
     print("Tables created or verified successfully")
 
     cursor.execute("DROP TABLE IF EXISTS track_history")
@@ -125,6 +141,101 @@ def get_dj():
     url = request.referrer
     djName = url.split('/')[-1]
     return djName
+
+# Webhook endpoint
+@app.route('/webhooks/stripe', methods=['POST'])
+def stripe_webhook():
+    payload = request.data
+    sig_header = request.headers.get('Stripe-Signature')
+    event = None
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, endpoint_secret
+        )
+
+        print(f"Webhook received: {event}")
+    except stripe.error.SignatureVerificationError as e:
+        print(f"Webhook signature verification failed: {e}")
+        return "Webhook error", 400
+
+    # Handle the event
+    # if event['type'] == 'payment_intent.succeeded':
+    payment_intent = event['data']['object']
+    payment_id = payment_intent['id']
+    dj_name = payment_intent['metadata'].get('djName')
+    amount = payment_intent['amount'] / 100  # Convert cents to dollars
+    currency = payment_intent['currency']
+    timestamp = payment_intent['created']
+
+    print(f"Payment for DJ '{dj_name}' received: ${amount} {currency}")
+
+    # Save payment in the database
+    try:
+        with get_db_connection() as conn:
+            print("Connected to database")
+            cursor = conn.cursor()
+            
+            query = """
+                INSERT INTO payments (id, dj_name, amount, currency, timestamp)
+                VALUES (%s, %s, %s, %s, FROM_UNIXTIME(%s))
+            """
+            cursor.execute(query, (payment_id, dj_name, amount, currency, timestamp))
+            conn.commit()
+            print(f"Payment for DJ '{dj_name}' recorded successfully.")
+    except Exception as e:
+        print(f"Error saving payment to MySQL: {e}")
+        return "Database error", 500
+    
+    #SocketIO event for realtime upvotes
+    socketio.emit('tip_sent', {
+        'payment_id': payment_id,
+        'dj_name': dj_name,
+        'amount': f"{amount:.2f}",
+        'currency': currency,
+        'timestamp': timestamp
+    })
+
+    return jsonify({'status': 'success'}), 200
+
+# Endpoint to fetch payments for a specific DJ
+@app.route('/api/payments/<dj_name>', methods=['GET'])
+def get_payments(dj_name):
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor = conn.cursor(dictionary=True)
+            query = "SELECT * FROM payments WHERE dj_name = %s"
+            cursor.execute(query, (dj_name,))
+            payments = cursor.fetchall()
+            return jsonify(payments)
+    except Exception as e:
+        print(f"Error fetching payments: {e}")
+        return "Database error", 500
+    
+# Endpoint to remove payments upon logout/account deletion
+@app.route('/api/payments/delete', methods=['DELETE'])
+def delete_payments():
+    dj_name = request.json.get('djName')
+    if not dj_name:
+        return jsonify({"message": "DJ name is required"}), 400
+
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            query = "DELETE FROM payments WHERE dj_name = %s"
+            cursor.execute(query, (dj_name,))
+            conn.commit()
+            
+    except Exception as e:
+        print(f"Error deleting payments: {e}")
+        return "Database error", 500
+    
+    #SocketIO event for realtime updates
+    socketio.emit('all_tips_removed', {"djName": dj_name})
+
+    return jsonify({"message": "Payments deleted successfully"}), 200
+    
 
 #Returns information abouit the current DJ if they exist
 @app.route('/api/current-dj', methods=['GET'])
@@ -269,7 +380,7 @@ def search():
     return jsonify(tracks)
 
 #Unused Stripe code since Requestify implementation was changed
-'''
+
 @app.route('/stripe/create-tip-payment', methods=['POST'])
 def create_payment_intent():
     data = request.get_json()
@@ -297,7 +408,7 @@ def create_payment_link_route():
         return jsonify({'url': url}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-'''
+
         
 
 #Used to retrieve information about the DJ

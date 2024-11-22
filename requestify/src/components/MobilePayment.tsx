@@ -1,24 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { FaHome, FaChartLine, FaDollarSign, FaBell, FaExternalLinkAlt } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useUser } from './UserContext'; // Use UserContext
+import { useUser } from './UserContext';
 import './MobilePayment.css';
+//Uses the correct context (user for mobile) and imports
 
+//Sets up PaymentPage component and sets up navigation, variables, context, etc.
 const PaymentPage: React.FC = () => {
-    const [productLink, setProductLink] = useState(''); // State for dynamic product link
+    const [productLink, setProductLink] = useState('');
     const navigate = useNavigate();
-    const { djName: paramDJName } = useParams<{ djName: string }>(); // Get djName from URL params
-    const { scannedDJName, setScannedDJName, scannedDisplayName, setScannedDisplayName } = useUser(); // Use UserContext
+    const { djName: paramDJName } = useParams<{ djName: string }>();
+    const { scannedDJName, setScannedDJName, scannedDisplayName, setScannedDisplayName } = useUser();
     const ipAddress = process.env.REACT_APP_API_IP;
 
-    // Set scannedDJName in context whenever paramDJName changes
+  //Sets the scanned DJName if it is different from the URL's DJ Name
     useEffect(() => {
         if (paramDJName && scannedDJName !== paramDJName) {
             setScannedDJName(paramDJName);
         }
     }, [paramDJName, scannedDJName, setScannedDJName]);
 
-    // Fetch the display name for the scanned DJ
+  //Fetches the DJs display name using the DJ username
     useEffect(() => {
         const fetchDisplayName = async () => {
             if (!scannedDJName) return;
@@ -39,7 +41,7 @@ const PaymentPage: React.FC = () => {
         fetchDisplayName();
     }, [scannedDJName, setScannedDisplayName]);
 
-    // Fetch the product link for the scanned DJ
+    //Fetches the product link for the specific DJ
     useEffect(() => {
         const fetchProductLink = async () => {
             if (!scannedDJName) return;
@@ -60,14 +62,16 @@ const PaymentPage: React.FC = () => {
         fetchProductLink();
     }, [scannedDJName]);
 
+    //Redirects user to the payment page on Stripe if it exists
     const handlePayment = () => {
         if (productLink) {
-            window.open(productLink, '_blank'); // Redirects to DJ's specific payment page
+            window.open(productLink, '_blank');
         } else {
             alert('Payment link is not available for this DJ.');
         }
     };
 
+    //Navigation setup below
     const goToHome = () => {
         navigate(`/dj/${paramDJName}`);
     };
@@ -80,6 +84,7 @@ const PaymentPage: React.FC = () => {
         navigate(`/dj/${paramDJName}/message`);
     };
 
+    //Sets up the display of the mobile payment page
     return (
         <div className="mobile-container">
             <header className="mobile-header">

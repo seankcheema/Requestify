@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
+//Defines the context for the DJ
 interface DJContextProps {
     djName: string;
     setDJName: (name: string) => void;
@@ -10,9 +11,11 @@ interface DJContextProps {
 const DJContext = createContext<DJContextProps | undefined>(undefined);
 
 export const DJProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [djName, setDJName] = useState(localStorage.getItem('djName') || ''); // Initialize with localStorage
-    const [displayName, setDisplayName] = useState(localStorage.getItem('displayName') || ''); // Initialize with localStorage
+    //Initializes the state values with the ones from local storage
+    const [djName, setDJName] = useState(localStorage.getItem('djName') || '');
+    const [displayName, setDisplayName] = useState(localStorage.getItem('displayName') || '');
 
+    //Synchronizes the context with the localstorage
     useEffect(() => {
         if (djName) {
             localStorage.setItem('djName', djName); // Save to localStorage
@@ -29,6 +32,7 @@ export const DJProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     );
 };
 
+//Allows accessing the DJ context and the data associated with it
 export const useDJ = (): DJContextProps => {
     const context = useContext(DJContext);
     if (!context) {

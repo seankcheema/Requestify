@@ -2,26 +2,29 @@ import React, { useEffect, useState } from 'react';
 import { FaHome, FaChartLine, FaDollarSign } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
-import { useUser } from './UserContext'; // Import useUser from UserContext
+import { useUser } from './UserContext';
 import './MobileMessage.css';
+//Imports and user context set
 
-const ipAddress = process.env.REACT_APP_API_IP; // Use the environment variable
+//Use the ipAddress set in the environment variable
+const ipAddress = process.env.REACT_APP_API_IP;
 
+//Sets up MobileMessage component and sets up state, variables, context, etc.
 const MobileMessage: React.FC = () => {
   const navigate = useNavigate();
   const [messages, setMessages] = useState<{ text: string; sent: boolean }[]>([]);
-  const [displayName, setDisplayName] = useState(''); // State for display name
-  const { djName: paramDJName } = useParams<{ djName: string }>(); // Get djName from URL params
-  const { scannedDJName, setScannedDJName, scannedDisplayName, setScannedDisplayName } = useUser(); // Use UserContext
+  const [displayName, setDisplayName] = useState('');
+  const { djName: paramDJName } = useParams<{ djName: string }>();
+  const { scannedDJName, setScannedDJName, scannedDisplayName, setScannedDisplayName } = useUser();
 
-  // Set scannedDJName in context whenever paramDJName changes
+  //Sets the scanned DJName if it is different from the URL's DJ Name
   useEffect(() => {
     if (paramDJName && scannedDJName !== paramDJName) {
       setScannedDJName(paramDJName);
     }
   }, [paramDJName, scannedDJName, setScannedDJName]);
 
-  // Fetch the display name whenever scannedDJName changes
+    //Fetches the DJs display name using the DJ username
   useEffect(() => {
     const fetchDisplayName = async () => {
       if (!scannedDJName) return;
@@ -42,21 +45,19 @@ const MobileMessage: React.FC = () => {
     fetchDisplayName();
   }, [scannedDJName, setScannedDisplayName]);
 
+  //Connects to socketIO server using IP, listens for previous messages being loaded, 
+  //and listens for new messages
   useEffect(() => {
-    // Connect to the socket server using dynamic IP
     const socket: Socket = io(`http://${ipAddress}:5000`);
 
-    // Listen for the initial set of messages when the client connects
     socket.on('load_messages', (loadedMessages) => {
-      setMessages(loadedMessages); // Update the messages state with the loaded messages
+      setMessages(loadedMessages);
     });
 
-    // Listen for new incoming messages
     socket.on('receive_message', (message) => {
       setMessages((prevMessages) => [...prevMessages, message]);
     });
 
-    // Cleanup when component unmounts
     return () => {
       socket.off('load_messages');
       socket.off('receive_message');
@@ -64,10 +65,12 @@ const MobileMessage: React.FC = () => {
     };
   }, []);
 
+  //Sets up navigation for going to different pages
   const goToHome = () => navigate(`/dj/${scannedDJName}`);
   const goToActivity = () => navigate(`/dj/${scannedDJName}/activity`);
   const goToPayment = () => navigate(`/dj/${scannedDJName}/payment`);
 
+  //Sets up the display of the mobile messages page
   return (
     <div className="mobile-container">
       <header className="mobile-header">

@@ -32,23 +32,18 @@
     text-align: left;
 }
 
-
-  /* Fade-in and fade-out animation */
   @keyframes fadeInOut {
       0%, 100% { opacity: 0; }
       10%, 90% { opacity: 1; }
   }
 
-  
-  /* Style the scrollbar track (background) */
   .mobile-song-container::-webkit-scrollbar {
-    width: 10px; /* Width of the vertical scrollbar */
+    width: 10px;
   }
   
-  /* Style the scrollbar itself */
   .mobile-song-container::-webkit-scrollbar-thumb {
-    background-color: #00bf33; /* Scrollbar color */
-    border-radius: 5px; /* Rounded corners */
+    background-color: #00bf33;
+    border-radius: 5px;
   }
   
   .mobile-song-list {
@@ -99,38 +94,33 @@
     margin: 10px;
   }
 
-  /* Styling for active upvote */
 .active-upvote {
-    color: #00bf33; /* Green color for upvoted */
+    color: #00bf33;
   }
   
-  /* Styling for active downvote */
   .active-downvote {
-    color: #ff3333; /* Red color for downvoted */
+    color: #ff3333;
   }
 
 
-/* Container that limits the visible window of the text */
 .scrolling-window {
-  width: 150px; /* Adjust this width to control the visible area */
+  width: 150px;
   overflow: hidden;
   white-space: nowrap;
   position: relative;
 }
 
-/* Scrolling effect for text that exceeds the character limit */
 .scrolling-text {
   display: inline-block;
-  animation: scrollText 10s linear infinite; /* Adjust total duration */
+  animation: scrollText 10s linear infinite;
 }
 
-/* Keyframes to add a pause at the beginning */
 @keyframes scrollText {
   0%, 20% {
-    transform: translateX(0); /* Stay at the starting position for 2 seconds */
+    transform: translateX(0);
   }
   100% {
-    transform: translateX(-100%); /* Move text completely out of view */
+    transform: translateX(-100%);
   }
 }
 

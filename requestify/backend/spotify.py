@@ -2,18 +2,19 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import os
 from dotenv import load_dotenv
+#Required imports
 
 dotenv_path = os.path.join(os.path.dirname(__file__), '..', '.env')
 load_dotenv(dotenv_path)
 
-# Set up Spotify API credentials from environment variables
+#Sets up the Spotify API credentials using the environment variables
 SPOTIFY_CLIENT_ID = os.getenv('REACT_APP_SPOTIFY_CLIENT_ID')
 SPOTIFY_SECRET_CLIENT_ID = os.getenv('REACT_APP_SPOTIFY_SECRET_CLIENT_ID')
 
 if not SPOTIFY_CLIENT_ID or not SPOTIFY_SECRET_CLIENT_ID:
     raise Exception('Spotify client id and secret not found')
 
-#Spotify Client Setup
+#Setup for spotify client
 auth_manager = SpotifyClientCredentials(client_id=SPOTIFY_CLIENT_ID, client_secret=SPOTIFY_SECRET_CLIENT_ID)
 spotify = spotipy.Spotify(auth_manager=auth_manager)
 

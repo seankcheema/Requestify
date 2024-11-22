@@ -1,4 +1,3 @@
-/* General container styling */
 * {
     margin: 0;
     padding: 0;
@@ -12,7 +11,6 @@ html, body{
 }
 
   
-  /* Header styling */
   .mobile-header {
     background-color: #0b0b0b;
     padding: 10px;
@@ -41,11 +39,10 @@ html, body{
     top: 15px;
   }
   
-  /* Main content styling */
   .mobile-content {
-    overflow: hidden;  /* Disable scrolling in the main container */
-  height: 100vh;     /* Ensure the container takes up the full viewport height */
-  width: 100vw;      /* Ensure it takes up the full viewport width */
+    overflow: hidden;
+  height: 100vh;
+  width: 100vw;
   }
   
   .listening-section {
@@ -111,7 +108,7 @@ html, body{
     height: 30px;
     font-size: 1em;
     padding: 8px;
-    outline: none;  /* Remove any outline that can cause shifting */
+    outline: none;
   }
   
   .request-tile button {
@@ -137,27 +134,24 @@ html, body{
     background-color: #1e1e1e;
     border-radius: 8px;
     padding: 10px;
-    /* Remove margin-top to decrease space */
-    margin-top: 0;  /* Or you could use margin-top: 10px; for a smaller space */
+    margin-top: 0;
     position: relative;
 }
 
-/* Ensure the mobile footer's top margin is handled */
 .mobile-footer {
     background-color: #0b0b0b;
     padding: 10px 0;
     border-top: 1px solid #1e1e1e;
 
-    position: fixed;  /* Fix the navbar at the bottom */
-    bottom: 0;  /* Attach to the bottom of the viewport */
+    position: fixed;
+    bottom: 0;
     left: 0;
     right: 0;
-    width: 100%;  /* Ensure it spans the entire width */
-    z-index: 100;  /* Ensure it stays on top of other elements */
+    width: 100%;
+    z-index: 100;
     
-    /* Consider adjusting padding for notches or bottom UI bars */
-    padding-bottom: env(safe-area-inset-bottom, 10px);  /* Fallback to 10px if the safe-area isn't supported */
-    margin-top: 0; /* Ensure no margin on top */
+    padding-bottom: env(safe-area-inset-bottom, 10px);
+    margin-top: 0;
 }
   .payment-tile h3 {
     margin-bottom: 10px;
@@ -198,16 +192,14 @@ html, body{
     font-size: 0.7em;
   }
 
-  /* Styles for the active item */
   .nav-item.active {
-    color: #00bf33; /* Change text color to green */
+    color: #00bf33;
   }
   
   .nav-item.active svg {
-    color: #00bf33; /* Change icon color to green */
+    color: #00bf33;
   }
   
-  /* General container styling */
 * {
     margin: 0;
     padding: 0;
@@ -220,10 +212,6 @@ html, body{
     padding: 0;
   }
   
-  /* Main mobile container styling */
-
-  
-  /* Header styling */
   .mobile-header {
     background-color: #0b0b0b;
     padding: 10px;
@@ -237,7 +225,6 @@ html, body{
     height: auto;
   }
   
-  /* Main content styling */
   .message-content {
     display: flex;
     justify-content: center;
@@ -249,7 +236,7 @@ html, body{
   .message-box {
     width: 100%;
     max-width: 600px;
-    height: 70vh; /* Takes up 70% of the viewport height */
+    height: 70vh;
     background-color: #1e1e1e;
     border-radius: 8px;
     padding: 20px;
@@ -257,28 +244,11 @@ html, body{
     flex-direction: column;
     overflow-y: auto;
   }
-  
-  /* Message bubble styling */
-  /* .mobile-message-bubble {
-    background-color: #00bf33;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-  }
-  
-  .message-sender {
-    font-size: 0.9em;
-    color: #00bf33;
-  }
-  
-  .mobile-message-text {
-    font-size: .8em;
-    color: white;
-  } */
-   /* Message Bubble Container */
+
+
 .mobile-message-bubble {
-  max-width: 75%; /* Limit bubble width */
-  margin: 10px 0; /* Space between messages */
+  max-width: 75%;
+  margin: 10px 0;
   width: fit-content;
   background-color: #00bf33;
   padding: 10px 15px;
@@ -286,7 +256,6 @@ html, body{
   box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
 }
 
-/* Message Text */
 .mobile-message-text {
   font-size: 1em;
   color: #FFFFFF;
@@ -294,7 +263,6 @@ html, body{
   line-height: 1.4;
 }
   
-  /* Footer navigation styling */
   .message-footer {
     background-color: #0b0b0b;
     padding: 10px 0;

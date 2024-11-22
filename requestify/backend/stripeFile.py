@@ -1,18 +1,19 @@
+#Not being used in current implementation
 #Imports stripe library, way to access env variables (os) and for loading env vars from .env
 import stripe
 import os
 from dotenv import load_dotenv
 
-#Lodas env var from .env
+#Loads env var from .env
 load_dotenv(".env")
 
-#Sets up the stripe api key from the env var
+#Sets up the stripe api key from the environment variable
 REACT_APP_STRIPE_SECRET_KEY = os.getenv('REACT_APP_STRIPE_SECRET_KEY')
 
 if not REACT_APP_STRIPE_SECRET_KEY:
     raise Exception('Stripe secret key not found')
 
-#Initializes the stripe client w/ secret key
+#Initializes the stripe client with the secret key
 stripe.api_key = REACT_APP_STRIPE_SECRET_KEY
 
 def create_payment_link(amount, currency):
@@ -40,4 +41,3 @@ def create_tip_payment(amount, currency):
             description='Tip Payment'
         )
     return {"client_secret": payment_intent['client_secret']}
-

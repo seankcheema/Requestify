@@ -1,4 +1,3 @@
-// Login.tsx
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -6,6 +5,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from './firebaseConfig'; // Firebase config
 import './Login.css';
 
+//Sets up the state variables and IP address
 const Login: React.FC = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
@@ -17,17 +17,18 @@ const Login: React.FC = () => {
         navigate(`/dashboard/${djName}`);
     };
 
+    //Handles when a user is logging in
     const handleLogin = async (event: React.FormEvent) => {
         event.preventDefault();
         try {
-            // Log in using Firebase Authentication
+            //Firebase authentication is handled here
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            // Get the Firebase ID token (force a fresh token)
+            //Gets the Firebase ID Token
             const idToken = await user.getIdToken(true);
 
-            // Send the ID token to the backend for validation
+            //Sends the Firebase ID Token to the backend for validation
             const response = await axios.post(
                 `http://${ipAddress}:5001/login`,
                 {},
@@ -39,10 +40,10 @@ const Login: React.FC = () => {
                 }
             );
 
-            const djName = response.data.djName || user.displayName || 'default'; // Use djName from backend
+            const djName = response.data.djName || user.displayName || 'default';
 
             setMessage(response.data.message);
-            goToDashboard(djName); // Redirect to dashboard with djName
+            goToDashboard(djName);
         } catch (error: any) {
             if (axios.isAxiosError(error) && error.response) {
                 setMessage(error.response.data.message);
@@ -52,10 +53,12 @@ const Login: React.FC = () => {
         }
     };
 
+    //Redirects to the create account page if it is clicked
     const goToCreateAccount = () => {
         navigate('/create-account');
     };
 
+    //User is required to input their username and password to login
     return (
         <div className="login-container" style={{ backgroundImage: "url('assets/Login_Background_img.png')" }}>
             <div className="login-form">

@@ -64,15 +64,14 @@
   overflow-y: auto;
 }
 
-/* Style the scrollbar track (background) */
 .song-container::-webkit-scrollbar {
-  width: 10px; /* Width of the vertical scrollbar */
+  width: 10px;
 }
 
-/* Style the scrollbar itself */
+
 .song-container::-webkit-scrollbar-thumb {
-  background-color: #00bf33; /* Scrollbar color */
-  border-radius: 5px; /* Rounded corners */
+  background-color: #00bf33;
+  border-radius: 5px;
 }
 
 .song-list {
@@ -154,44 +153,44 @@
   position: absolute;
   top: 22px;
   right: 30px;
-  cursor: pointer;  /* Optional: to change the cursor to a pointer when hovering */
-  font-size: 32px;   /* Optional: adjust the size of the icon */
-  color: #00bf33;       /* Optional: adjust the color of the icon */
+  cursor: pointer;
+  font-size: 32px;
+  color: #00bf33;
 }
 
 .queue-popup-content{
-  background-color: #1E1E1E; /* Dark background to match your app theme */
+  background-color: #1E1E1E;
   padding: 20px;
   border-radius: 10px;
-  width: 30%;  /* Increased width */
+  width: 30%;
   
   flex-direction: column;
-  max-height: 90%; /* Allow vertical resizing */
+  max-height: 90%;
   color: white;
   position: relative;
 }
 
-/* Container that limits the visible window of the text */
+
 .desktop-scrolling-window {
-  width: 97%; /* Adjust this width to control the visible area */
+  width: 97%;
   overflow: hidden;
   white-space: nowrap;
   position: relative;
 }
 
-/* Scrolling effect for text that exceeds the character limit */
+
 .desktop-scrolling-text {
   display: inline-block;
-  animation: scrollText 15s linear infinite; /* Adjust total duration */
+  animation: scrollText 15s linear infinite;
 }
 
-/* Keyframes to add a pause at the beginning */
+
 @keyframes scrollText {
   0%, 20% {
-    transform: translateX(0); /* Stay at the starting position for 2 seconds */
+    transform: translateX(0);
   }
   100% {
-    transform: translateX(-100%); /* Move text completely out of view */
+    transform: translateX(-100%);
   }
 }
 
@@ -204,15 +203,15 @@
   overflow-y: auto;
 }
 
-/* Style the scrollbar track (background) */
+
 .notification-container::-webkit-scrollbar {
-  width: 10px; /* Width of the vertical scrollbar */
+  width: 10px;
 }
 
-/* Style the scrollbar itself */
+
 .notification-container::-webkit-scrollbar-thumb {
-  background-color: #00bf33; /* Scrollbar color */
-  border-radius: 5px; /* Rounded corners */
+  background-color: #00bf33;
+  border-radius: 5px;
 }
 
 .notification-list {
@@ -251,9 +250,9 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  flex-grow: 1; /* Ensure they take the available space */
-  width: 100%; /* Take up full width of the parent */
-  aspect-ratio: 1; /* Make sure they are square */
+  flex-grow: 1;
+  width: 100%;
+  aspect-ratio: 1;
   margin: 7px;
   position: relative;
 }
@@ -283,7 +282,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -291,22 +290,20 @@
   cursor: default;
 }
 
-/* Popup content box - increase size */
 .message-popup-content {
-  background-color: #1E1E1E; /* Dark background to match your app theme */
+  background-color: #1E1E1E;
   padding: 20px;
-  padding-top: 0; /* Remove padding from the top */
+  padding-top: 0;
   border-radius: 10px;
-  width: 30%;  /* Increased width */
+  width: 30%;
   
   flex-direction: column;
-  max-height: 90%; /* Allow vertical resizing */
+  max-height: 90%;
   text-align: right;
   color: white;
   position: relative;
 }
 
-/* Message container that scrolls */
 .message-container {
   background-color: #0b0b0b;
   padding: 10px;
@@ -316,18 +313,15 @@
   overflow-y: auto;
 }
 
-/* Style the scrollbar track (background) */
 .message-container::-webkit-scrollbar {
-  width: 10px; /* Width of the vertical scrollbar */
+  width: 10px;
 }
 
-/* Style the scrollbar itself */
 .message-container::-webkit-scrollbar-thumb {
   background-color: #00bf33; 
   border-radius: 5px; 
 }
 
-/* Message bubble styling */
 .message-list {
   list-style: none;
   padding: 0;
@@ -347,13 +341,11 @@
   word-wrap: break-word;
 }
 
-/* Align last message to the right (sent message) */
 .message-bubble.sent {
   background-color: #0062cc;
   align-self: flex-end;
 }
 
-/* Input and button form for sending messages */
 .message-form {
   display: flex;
   margin-top: 10px;
@@ -383,7 +375,6 @@
   background-color: #218838;
 }
 
-/* Close button styling */
 .close-btn {
   background-color: transparent;
   border: none;
@@ -395,15 +386,14 @@
   right: 20px;
 }
 
-/* Popup content box - increase size */
 .qr-popup-content {
-  background-color: #1E1E1E; /* Dark background to match your app theme */
+  background-color: #1E1E1E;
   padding: 20px;
-  padding-top: 0; /* Remove padding from the top */
+  padding-top: 0;
   border-radius: 10px;
-  width: 600px;  /* Increased width */
-  max-width: 90%; /* Allow resizing */
-  max-height: 90%; /* Allow vertical resizing */
+  width: 600px;
+  max-width: 90%;
+  max-height: 90%;
   color: white;
   text-align: center;
   position: relative;
@@ -574,21 +564,18 @@
   margin-top: 20px;
 }
 
-/* Ensure container fills the screen */
 .container {
   position: relative;
   width: 100%;
   height: 100vh;
 }
 
-/* Position logout button in top-right corner */
 .logout-container {
   position: absolute;
   top: 20px;
   right: 20px;
 }
 
-/* Style for the logout button */
 .logout-container button {
   padding: 10px 20px;
   background-color: #ff4d4f;
