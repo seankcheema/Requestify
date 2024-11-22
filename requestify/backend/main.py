@@ -19,7 +19,7 @@ import stripe
 
 load_dotenv(".env")
 
-#Sets up the Firebase API key and the 
+#Sets up the Firebase API key and the Stripe Keys
 REACT_APP_FIREBASE_API_KEY = os.getenv('REACT_APP_FIREBASE_API_KEY')
 
 stripe_secret = os.getenv("REACT_APP_STRIPE_SECRET_KEY")
@@ -380,7 +380,7 @@ def search():
     return jsonify(tracks)
 
 #Unused Stripe code since Requestify implementation was changed
-'''
+
 @app.route('/stripe/create-tip-payment', methods=['POST'])
 def create_payment_intent():
     data = request.get_json()
@@ -408,7 +408,7 @@ def create_payment_link_route():
         return jsonify({'url': url}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-'''
+
         
 
 #Used to retrieve information about the DJ

@@ -1,5 +1,5 @@
 #Not being used in current implementation
-'''#Imports stripe library, way to access env variables (os) and for loading env vars from .env
+#Imports stripe library, way to access env variables (os) and for loading env vars from .env
 import stripe
 import os
 from dotenv import load_dotenv
@@ -41,5 +41,3 @@ def create_tip_payment(amount, currency):
             description='Tip Payment'
         )
     return {"client_secret": payment_intent['client_secret']}
-
-'''
