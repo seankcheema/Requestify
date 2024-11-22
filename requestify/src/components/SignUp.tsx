@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword } from 'firebase/auth'; // Firebase method
 import { auth } from './firebaseConfig'; // Firebase config
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+
 import './SignUp.css';
 
 const SignUp: React.FC = () => {
@@ -17,6 +19,7 @@ const SignUp: React.FC = () => {
     const [djNameError, setDjNameError] = useState<string>(''); // Error state for DJ Name
     const navigate = useNavigate();
     const ipAddress = process.env.REACT_APP_API_IP;
+    const storage = getStorage(); // Initialize storage
 
     const [profilePicture, setProfilePicture] = useState<File | null>(null);
     const [profilePictureError, setProfilePictureError] = useState<string>('');
@@ -29,33 +32,38 @@ const SignUp: React.FC = () => {
 
     const handleSignUp = async (event: React.FormEvent) => {
         event.preventDefault();
-
-        // Basic email validation
+    
+        // Basic validation
         if (!email.includes('@')) {
             setMessage('Please enter a valid email.');
             return;
         }
-
         if (password !== confirmPassword) {
             setMessage('Passwords do not match.');
             return;
         }
-
-        // DJ Name validation
         if (djName.includes('/')) {
             setDjNameError('DJ Name cannot contain slashes.');
             return;
         }
-
+    
         try {
-            // Register the user with Firebase
+            // Register the user with Firebase Auth
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
-
-            // Get the Firebase ID token to send to the backend
+    
+            // Upload profile picture if it exists
+            let profilePictureURL = '';
+            if (profilePicture) {
+                const storageRef = ref(storage, `gs://requestify-9b333.firebasestorage.app/profilePictures`);
+                await uploadBytes(storageRef, profilePicture);
+                profilePictureURL = await getDownloadURL(storageRef);
+            }
+    
+            // Get ID token for backend
             const idToken = await user.getIdToken();
-
-            // Send additional user data along with the ID token to the Flask backend
+    
+            // Send user data along with profile picture URL to backend
             await axios.post(
                 `http://${ipAddress}:5001/register`,
                 {
@@ -64,15 +72,16 @@ const SignUp: React.FC = () => {
                     displayName,
                     location,
                     socialMedia,
+                    profilePictureURL, // Send the profile picture URL
                 },
                 {
                     headers: {
-                        Authorization: `Bearer ${idToken}`, // Send the ID token in the header
+                        Authorization: `Bearer ${idToken}`,
                         'Content-Type': 'application/json',
                     },
                 }
             );
-
+    
             setMessage('Account created successfully!');
             goToLogin();
         } catch (error: any) {
@@ -87,6 +96,7 @@ const SignUp: React.FC = () => {
             }
         }
     };
+    
 
     const handleDjNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
