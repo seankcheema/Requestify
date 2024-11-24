@@ -120,6 +120,7 @@ const Queue: React.FC<QueueProps> = ({ djName }) => {
             : track
         )
       );
+      fetchTracks();
     });
 
     // Listen for all_songs_removed event
