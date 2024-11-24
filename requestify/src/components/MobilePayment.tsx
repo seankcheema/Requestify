@@ -101,7 +101,7 @@ const PaymentPage: React.FC = () => {
                     <div className="payment-tile">
                         <h3>Send a Tip</h3>
                         <div className="mobile-payment-content">
-                            <img src="/assets/logosquare.png" alt="Profile" />
+                            <img src="/assets/PaymentLogoRequestify.svg" alt="Profile" />
                             <p className="payment-description">Support your favorite DJ with a quick tip!</p>
                             <button onClick={handlePayment} className="payment-button">
                                 Pay with Stripe

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import {FaUser} from 'react-icons/fa';
 import './Dashboard.css';
 
 //Sets up the IP address using the environment variable
@@ -94,7 +95,8 @@ const Profile: React.FC<ProfileProps> = ({ email, djName, displayName, location,
   return (
     <>
       <aside className="profile" onClick={handleOpenProfilePopup}>
-        <img src="/assets/profile.png" alt="Profile" className="profile-img" />
+        <img src="/assets/PaymentLogoRequestify.svg" alt="Profile" className="profile-img" />
+        {/* <FaUser className="profile-img" /> */}
         <p>{djName || "Profile"}</p>
       </aside>
 
@@ -103,7 +105,8 @@ const Profile: React.FC<ProfileProps> = ({ email, djName, displayName, location,
           <div className="popup-content">
             <button className="close-btn" onClick={handleCloseProfilePopup}>×</button>
             <div className="profile-popup-content">
-              <img src="/assets/profile.png" alt="Profile" className="popup-profile-img" />
+              <img src="/assets/PaymentLogoRequestify.svg" alt="Profile" className="popup-profile-img" />
+              {/* <FaUser className="popup-profile-img" /> */}
               {isEditing ? (
                 <form onSubmit={(e) => e.preventDefault()} className="edit-profile-form">
                   {/*Back button to switch back to profile view without saving*/}
