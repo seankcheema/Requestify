@@ -128,7 +128,18 @@ const RequestifyLayout: React.FC = () => {
                 });
                 updatedTracks[index].track[5] = (parseInt(updatedTracks[index].track[5]) - 1).toString();
                 updatedTracks[index].hasUpvoted = false;
-            } else {
+            } 
+            else if (updatedTracks[index].hasDownvoted) {
+                await fetch(`http://${ipAddress}:5001/tracks/upvote`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ djName: scannedDJName, trackName, artist })
+                });
+                updatedTracks[index].track[5] = (parseInt(updatedTracks[index].track[5]) + 2).toString();
+                updatedTracks[index].hasUpvoted = true;
+                updatedTracks[index].hasDownvoted = false;
+            }
+            else {
                 await fetch(`http://${ipAddress}:5001/tracks/upvote`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -158,7 +169,18 @@ const RequestifyLayout: React.FC = () => {
                 });
                 updatedTracks[index].track[5] = (parseInt(updatedTracks[index].track[5]) + 1).toString();
                 updatedTracks[index].hasDownvoted = false;
-            } else {
+            } 
+            else if (updatedTracks[index].hasUpvoted) {
+                await fetch(`http://${ipAddress}:5001/tracks/downvote`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ djName: scannedDJName, trackName, artist })
+                });
+                updatedTracks[index].track[5] = (parseInt(updatedTracks[index].track[5]) - 2).toString();
+                updatedTracks[index].hasUpvoted = false;
+                updatedTracks[index].hasDownvoted = true;
+            }
+            else {
                 await fetch(`http://${ipAddress}:5001/tracks/downvote`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },

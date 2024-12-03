@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useUser } from './UserContext';
 import './MobileHome.css';
 //Uses the correct context (user for mobile) and imports
+const ipAddress = process.env.REACT_APP_API_IP;
 
 //Sets up RequestifyLayout component and sets up navigation, variables, context, etc.
 const RequestifyLayout: React.FC = () => {
@@ -26,7 +27,7 @@ const RequestifyLayout: React.FC = () => {
             if (!scannedDJName) return;
 
             try {
-                const response = await fetch(`http://localhost:5001/dj/displayName/${scannedDJName}`);
+                const response = await fetch(`http://${ipAddress}:5001/dj/displayName/${scannedDJName}`);
                 if (response.ok) {
                     const data = await response.json();
                     setScannedDisplayName(data.displayName);
