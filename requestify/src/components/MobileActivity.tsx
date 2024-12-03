@@ -4,28 +4,39 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useUser } from './UserContext';
 import io from 'socket.io-client';
 import './MobileActivity.css';
-//Sets up imports for MobileActivity and utilizes UserContext rather than DJ
 
-//Sets up IP and socketIO
 const ipAddress = process.env.REACT_APP_API_IP;
 const socket = io(`http://${ipAddress}:5001`);
 
-//Sets up RequestifyLayout component and sets up variables and hooks
 const RequestifyLayout: React.FC = () => {
     const navigate = useNavigate();
     const { djName: paramDJName } = useParams<{ djName: string }>();
     const { scannedDJName, setScannedDJName, scannedDisplayName, setScannedDisplayName } = useUser();
     const [tracks, setTracks] = useState<{ track: string[]; hasUpvoted: boolean; hasDownvoted: boolean }[]>([]);
 
-    //Sets the scanned DJName if it is different from the URL's DJ Name
+    // Function to generate a unique key for each song
+    const generateTrackKey = (trackName: string, artist: string) => `${scannedDJName}_${trackName}_${artist}`;
+
+    // Function to get vote state from localStorage
+    const getVoteState = (trackKey: string) => {
+        const state = localStorage.getItem(trackKey);
+        if (state) {
+            return JSON.parse(state);
+        }
+        return { hasUpvoted: false, hasDownvoted: false };
+    };
+
+    // Function to set vote state in localStorage
+    const setVoteState = (trackKey: string, hasUpvoted: boolean, hasDownvoted: boolean) => {
+        localStorage.setItem(trackKey, JSON.stringify({ hasUpvoted, hasDownvoted }));
+    };
+
     useEffect(() => {
         if (paramDJName && scannedDJName !== paramDJName) {
-            //console.log("Setting scannedDJName from paramDJName:", paramDJName);
             setScannedDJName(paramDJName);
         }
     }, [paramDJName, scannedDJName, setScannedDJName]);
 
-    //Fetches the displayname of the DJ
     useEffect(() => {
         const fetchDisplayName = async () => {
             try {
@@ -46,17 +57,21 @@ const RequestifyLayout: React.FC = () => {
         }
     }, [scannedDJName, setScannedDisplayName]);
 
-    //Fetches the track queue of the dj
     const fetchTracks = async () => {
         try {
             const response = await fetch(`http://${ipAddress}:5001/tracks/${scannedDJName}`);
-
             if (!response.ok) {
                 throw new Error(`Error: ${response.status}`);
             }
 
             const data: string[][] = await response.json();
-            setTracks(data.map(track => ({ track, hasUpvoted: false, hasDownvoted: false })));
+            setTracks(
+                data.map(track => {
+                    const trackKey = generateTrackKey(track[0], track[1]);
+                    const { hasUpvoted, hasDownvoted } = getVoteState(trackKey);
+                    return { track, hasUpvoted, hasDownvoted };
+                })
+            );
         } catch (error) {
             console.error("Failed to fetch tracks:", error);
         }
@@ -67,46 +82,57 @@ const RequestifyLayout: React.FC = () => {
             fetchTracks();
         }
 
-        //Listens for SocketIO event of song being removed and removes the track to state
         socket.on('song_removed', (removedSong) => {
             if (removedSong.djName === scannedDJName) {
-                setTracks((prevTracks) =>
-                    prevTracks.filter((trackObj) =>
-                        !(trackObj.track[0] === removedSong.trackName && trackObj.track[1] === removedSong.artist)
-                    )
-                );
+                setTracks((prevTracks) => {
+                    const updatedTracks = prevTracks.filter((trackObj) => {
+                        const isMatch = trackObj.track[0] === removedSong.trackName && trackObj.track[1] === removedSong.artist;
+                        if (isMatch) {
+                            // Remove the corresponding song from localStorage
+                            const trackKey = generateTrackKey(trackObj.track[0], trackObj.track[1]);
+                            localStorage.removeItem(trackKey);
+                        }
+                        return !isMatch; // Keep only non-matching tracks
+                    });
+                    return updatedTracks;
+                });
             }
         });
 
-        //Listens for SocketIO event of song being added and adds the track to state
         socket.on('song_added', (newSong) => {
             if (newSong.djName === scannedDJName) {
+                const trackKey = generateTrackKey(newSong.trackName, newSong.artist);
+                const { hasUpvoted, hasDownvoted } = getVoteState(trackKey);
                 setTracks((prevTracks) => [
                     ...prevTracks,
-                    { track: [newSong.trackName, newSong.artist, newSong.album, newSong.external_url, newSong.album_cover_url, (newSong.upvotes || 0).toString()], hasUpvoted: false, hasDownvoted: false }
+                    { track: [newSong.trackName, newSong.artist, newSong.album, newSong.external_url, newSong.album_cover_url, (newSong.upvotes || 0).toString()], hasUpvoted, hasDownvoted }
                 ]);
             }
         });
 
-        //Listens for SocketIO event of upvote count being updated
         socket.on('upvote_updated', (updatedSong) => {
             setTracks((prevTracks) =>
                 prevTracks.map((track) =>
                     track.track[0] === updatedSong.trackName && track.track[1] === updatedSong.artist
-                        ? { ...track, upvotes: updatedSong.upvotes }
+                        ? { ...track, track: [...track.track.slice(0, 5), updatedSong.upvotes.toString()] }
                         : track
                 )
             );
         });
 
-        //Listens for SocketIO event of all songs being removed and sets the tracks state to being empty
-        socket.on('all_songs_removed', (djName) => {
-            if (djName === scannedDJName) {
-                setTracks([]);
+        socket.on('all_songs_removed', (removeAllData) => {
+            if (removeAllData.djName === paramDJName) {
+                setTracks((prevTracks) => {
+                    // Remove all cached tracks from localStorage
+                    prevTracks.forEach((trackObj) => {
+                        const trackKey = generateTrackKey(trackObj.track[0], trackObj.track[1]);
+                        localStorage.removeItem(trackKey);
+                    });
+                    return []; // Clear the state
+                });
             }
         });
-
-        //Makes sure that event listeners are removed when unmounted
+        
         return () => {
             socket.off('song_removed');
             socket.off('song_added');
@@ -115,10 +141,10 @@ const RequestifyLayout: React.FC = () => {
         };
     }, [scannedDJName]);
 
-    //Handles the upvoting status in the tracks state and in backend
     const handleUpvote = async (trackName: string, artist: string, index: number) => {
         try {
             const updatedTracks = [...tracks];
+            const trackKey = generateTrackKey(trackName, artist);
 
             if (updatedTracks[index].hasUpvoted) {
                 await fetch(`http://${ipAddress}:5001/tracks/downvote`, {
@@ -130,7 +156,7 @@ const RequestifyLayout: React.FC = () => {
                 updatedTracks[index].hasUpvoted = false;
             } 
             else if (updatedTracks[index].hasDownvoted) {
-                await fetch(`http://${ipAddress}:5001/tracks/upvote`, {
+                await fetch(`http://${ipAddress}:5001/tracks/double-upvote`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ djName: scannedDJName, trackName, artist })
@@ -150,16 +176,17 @@ const RequestifyLayout: React.FC = () => {
                 updatedTracks[index].hasDownvoted = false;
             }
 
+            setVoteState(trackKey, updatedTracks[index].hasUpvoted, updatedTracks[index].hasDownvoted);
             setTracks(updatedTracks);
         } catch (error) {
             console.error("Error upvoting:", error);
         }
     };
 
-    //Handles the downvoting status in the tracks state and in backend
     const handleDownvote = async (trackName: string, artist: string, index: number) => {
         try {
             const updatedTracks = [...tracks];
+            const trackKey = generateTrackKey(trackName, artist);
 
             if (updatedTracks[index].hasDownvoted) {
                 await fetch(`http://${ipAddress}:5001/tracks/upvote`, {
@@ -171,7 +198,7 @@ const RequestifyLayout: React.FC = () => {
                 updatedTracks[index].hasDownvoted = false;
             } 
             else if (updatedTracks[index].hasUpvoted) {
-                await fetch(`http://${ipAddress}:5001/tracks/downvote`, {
+                await fetch(`http://${ipAddress}:5001/tracks/double-downvote`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ djName: scannedDJName, trackName, artist })
@@ -191,18 +218,17 @@ const RequestifyLayout: React.FC = () => {
                 updatedTracks[index].hasUpvoted = false;
             }
 
+            setVoteState(trackKey, updatedTracks[index].hasUpvoted, updatedTracks[index].hasDownvoted);
             setTracks(updatedTracks);
         } catch (error) {
             console.error("Error downvoting:", error);
         }
     };
 
-    //Navigation to DJ homepage
     const goToHome = () => {
         navigate(`/dj/${paramDJName}`);
     };
 
-    //Navigation to payment/tip page
     const goToPayment = () => {
         navigate(`/dj/${paramDJName}/payment`);
     };
@@ -230,25 +256,21 @@ const RequestifyLayout: React.FC = () => {
                     <div className="mobile-song-container">
                         <div className="mobile-song-list">
                             {tracks.length > 0 ? (
-                                tracks.map((trackObj, index) => (
-                                    <div key={index} className="mobile-song-item">
-                                        <img
-                                            src={trackObj.track[4]}
-                                            alt={`${trackObj.track[2]} cover`}
-                                            className="album-cover"
-                                        />
+                                tracks.map(({ track, hasUpvoted, hasDownvoted }, index) => (
+                                    <div key={`${track[0]}_${track[1]}`} className="mobile-song-item">
+                                        <img src={track[4]} alt="Album Cover" className="album-cover" />
                                         <div className="mobile-song-info">
-                                            <p className="song-title">{trackObj.track[0]}</p>
-                                            <p className="mobile-artist">{trackObj.track[1]}</p>
+                                            <p className="song-title">{track[0]}</p>
+                                            <p className="mobile-artist">{track[1]}</p>
                                         </div>
                                         <FaArrowUp
-                                            className={`mobile-upvote ${trackObj.hasUpvoted ? 'active-upvote' : ''}`}
-                                            onClick={() => handleUpvote(trackObj.track[0], trackObj.track[1], index)}
+                                            className={`mobile-upvote ${hasUpvoted ? 'active-upvote' : ''}`}
+                                            onClick={() => handleUpvote(track[0], track[1], index)}
                                         />
-                                        <div className="mobile-song-upvotes">{trackObj.track[5]}</div>
+                                        <div className="mobile-song-upvotes">{track[5]}</div>
                                         <FaArrowDown
-                                            className={`mobile-downvote ${trackObj.hasDownvoted ? 'active-downvote' : ''}`}
-                                            onClick={() => handleDownvote(trackObj.track[0], trackObj.track[1], index)}
+                                            className={`mobile-downvote ${hasDownvoted ? 'active-downvote' : ''}`}
+                                            onClick={() => handleDownvote(track[0], track[1], index)}
                                         />
                                     </div>
                                 ))
@@ -278,6 +300,11 @@ const RequestifyLayout: React.FC = () => {
             </footer>
         </div>
     );
+    
 };
 
+    
+
+
 export default RequestifyLayout;
+

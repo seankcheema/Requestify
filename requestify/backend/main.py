@@ -627,6 +627,46 @@ def upvote():
 
     return jsonify({"message": "Track upvoted successfully", "upvotes": updated_upvotes}), 200
 
+#Route to upvote a requested track
+@app.route('/tracks/double-upvote', methods=['POST'])
+def double_upvote():
+    data = request.get_json()
+    djName = data.get('djName')
+    if not djName:
+        return jsonify({"message": "DJ name is required"}), 400
+    trackName = data.get('trackName')
+    if not trackName:
+        return jsonify({"message": "Track name is required"}), 400
+    artist = data.get('artist')
+    if not artist:
+        return jsonify({"message": "Artist name is required"}), 400
+    
+    #SQL to upvote the track
+    sql = """
+    UPDATE tracks
+    SET upvotes = upvotes + 2
+    WHERE djName = %s AND trackName = %s AND artist = %s
+    """
+
+    val = (djName, trackName, artist)
+    with get_db_connection() as conn:
+        mycursor = conn.cursor()
+        mycursor.execute(sql, val)
+        conn.commit()
+    
+        mycursor.execute("SELECT upvotes FROM tracks WHERE djName = %s AND trackName = %s AND artist = %s", val)
+        updated_upvotes = mycursor.fetchone()[0]
+
+    #SocketIO event for realtime upvotes
+    socketio.emit('upvote_updated', {
+        'djName': djName,
+        'trackName': trackName,
+        'artist': artist,
+        'upvotes': updated_upvotes
+    })
+
+    return jsonify({"message": "Track upvoted successfully", "upvotes": updated_upvotes}), 200
+
 #Route to downvote a requested track
 @app.route('/tracks/downvote', methods=['POST'])
 def downvote():
@@ -645,6 +685,46 @@ def downvote():
     sql = """
     UPDATE tracks
     SET upvotes = upvotes - 1
+    WHERE djName = %s AND trackName = %s AND artist = %s
+    """
+
+    val = (djName, trackName, artist)
+    with get_db_connection() as conn:
+        mycursor = conn.cursor()
+        mycursor.execute(sql, val)
+        conn.commit()
+
+        mycursor.execute("SELECT upvotes FROM tracks WHERE djName = %s AND trackName = %s AND artist = %s", val)
+        updated_upvotes = mycursor.fetchone()[0]
+
+    #SocketIO event for realtime upvotes
+    socketio.emit('upvote_updated', {
+        'djName': djName,
+        'trackName': trackName,
+        'artist': artist,
+        'upvotes': updated_upvotes
+    })
+
+    return jsonify({"message": "Track downvoted successfully", "upvotes": updated_upvotes}), 200
+
+#Route to downvote a requested track
+@app.route('/tracks/double-downvote', methods=['POST'])
+def double_downvote():
+    data = request.get_json()
+    djName = data.get('djName')
+    if not djName:
+        return jsonify({"message": "DJ name is required"}), 400
+    trackName = data.get('trackName')
+    if not trackName:
+        return jsonify({"message": "Track name is required"}), 400
+    artist = data.get('artist')
+    if not artist:
+        return jsonify({"message": "Artist name is required"}), 400
+    
+    #SQL to update the downvote
+    sql = """
+    UPDATE tracks
+    SET upvotes = upvotes - 2
     WHERE djName = %s AND trackName = %s AND artist = %s
     """
 
