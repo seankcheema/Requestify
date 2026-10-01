@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { API_URL } from '../config';
 import { auth } from './firebaseConfig'; // Firebase config
 import './Login.css';
 
@@ -11,7 +12,6 @@ const Login: React.FC = () => {
     const [password, setPassword] = useState<string>('');
     const [message, setMessage] = useState<string>('');
     const navigate = useNavigate();
-    const ipAddress = process.env.REACT_APP_API_IP;
 
     const goToDashboard = (djName: string) => {
         navigate(`/dashboard/${djName}`);
@@ -30,7 +30,7 @@ const Login: React.FC = () => {
 
             //Sends the Firebase ID Token to the backend for validation
             const response = await axios.post(
-                `http://${ipAddress}:5001/login`,
+                `${API_URL}/login`,
                 {},
                 {
                     headers: {

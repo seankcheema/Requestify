@@ -9,6 +9,7 @@ import { getAuth, signOut, User } from 'firebase/auth';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { useDJ } from './DJContext';
+import { API_URL } from '../config';
 //Imports required for the dashboard
 
 //Stores the fetched profile information for usage
@@ -18,7 +19,6 @@ const Dashboard: React.FC = () => {
     const navigate = useNavigate();
     const { djName: paramDJName } = useParams<{ djName: string }>();
     const auth = getAuth();
-    const ipAddress = process.env.REACT_APP_API_IP;
 
     //Uses the DJ context to mange the DJs data
     const { djName, setDJName, setDisplayName } = useDJ();
@@ -28,7 +28,7 @@ const Dashboard: React.FC = () => {
         if (!user) return;
 
         try {
-            const response = await axios.get(`http://${ipAddress}:5001/user/${user.email}`);
+            const response = await axios.get(`${API_URL}/user/${user.email}`);
             setProfileData(response.data);
 
             //Set djName and displayName in the local storage
@@ -69,7 +69,7 @@ const Dashboard: React.FC = () => {
         //Try function to sign out the user and delete their current tracks
         try {
             //Deletes the tracks
-            await axios.delete(`http://${ipAddress}:5001/tracks/delete-all`, {
+            await axios.delete(`${API_URL}/tracks/delete-all`, {
                 data: { djName: profileData.djName }
             });
 
@@ -83,7 +83,7 @@ const Dashboard: React.FC = () => {
 
         //Try function to delete the users track history
         try {
-            const response = await fetch(`http://${ipAddress}:5001/track-history/delete-all`, {
+            const response = await fetch(`${API_URL}/track-history/delete-all`, {
               method: 'DELETE',
               headers: {
                 'Content-Type': 'application/json',
@@ -98,7 +98,7 @@ const Dashboard: React.FC = () => {
         }
 
         try {
-            const response = await fetch(`http://${ipAddress}:5001/api/payments/delete`, {
+            const response = await fetch(`${API_URL}/api/payments/delete`, {
               method: 'DELETE',
               headers: {
                 'Content-Type': 'application/json',

@@ -1,0 +1,22 @@
+# Build context for the web image (requestify/Dockerfile)
+node_modules
+build
+coverage
+.vscode
+Dockerfile
+.dockerignore
+
+# Secrets must never be baked into an image
+.env
+.env.*
+Firebase-Service-Key.json
+firebasekey.json
+
+# The Python API has its own image
+backend/node_modules
+backend/__pycache__
+backend/.cache
+backend/*.py
+backend/requirements.txt
+backend/Dockerfile
+backend/.dockerignore

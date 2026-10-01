@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { FaHome, FaChartLine, FaDollarSign } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
-import { io, Socket } from 'socket.io-client';
+import { Socket } from 'socket.io-client';
 import { useUser } from './UserContext';
+import { API_URL, WEB_URL, connectSocket } from '../config';
 import './MobileMessage.css';
 //Imports and user context set
 
-//Use the ipAddress set in the environment variable
-const ipAddress = process.env.REACT_APP_API_IP;
 
 //Sets up MobileMessage component and sets up state, variables, context, etc.
 const MobileMessage: React.FC = () => {
@@ -30,7 +29,7 @@ const MobileMessage: React.FC = () => {
       if (!scannedDJName) return;
 
       try {
-        const response = await fetch(`http://${ipAddress}:5001/dj/displayName/${scannedDJName}`);
+        const response = await fetch(`${API_URL}/dj/displayName/${scannedDJName}`);
         if (response.ok) {
           const data = await response.json();
           setScannedDisplayName(data.displayName); // Set the display name in context
@@ -48,7 +47,7 @@ const MobileMessage: React.FC = () => {
   //Connects to socketIO server using IP, listens for previous messages being loaded, 
   //and listens for new messages
   useEffect(() => {
-    const socket: Socket = io(`http://${ipAddress}:5000`);
+    const socket: Socket = connectSocket(WEB_URL);
 
     socket.on('load_messages', (loadedMessages) => {
       setMessages(loadedMessages);

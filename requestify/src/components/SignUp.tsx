@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from '../config';
 import { createUserWithEmailAndPassword } from 'firebase/auth'; // Firebase method
 import { auth } from './firebaseConfig'; // Firebase config
 import './SignUp.css';
@@ -16,7 +17,6 @@ const SignUp: React.FC = () => {
     const [message, setMessage] = useState<string>('');
     const [djNameError, setDjNameError] = useState<string>(''); // Error state for DJ Name
     const navigate = useNavigate();
-    const ipAddress = process.env.REACT_APP_API_IP;
 
     const goToLogin = () => {
         navigate('/login');
@@ -52,7 +52,7 @@ const SignUp: React.FC = () => {
 
             // Send additional user data along with the ID token to the Flask backend
             await axios.post(
-                `http://${ipAddress}:5001/register`,
+                `${API_URL}/register`,
                 {
                     email: email,
                     djName,

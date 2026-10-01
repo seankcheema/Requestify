@@ -17,4 +17,7 @@ Requestify is a web application for song requests where users can send requests 
 4. From the Activity page, upvote or downvote songs to change their position in the DJ's Queue. Songs with more upvotes are more likely to be chosen by the DJ
 5. Send a tip to the DJ via the Payment page. Selecting 'Pay with Stripe' will take you to Stipe's page, which will offer different payment options depending on your device
 
+## Deploying
+Requestify ships with Docker images and a `docker-compose.yml` that run the whole stack (with automatic HTTPS) on a single cloud VM. See [DEPLOYMENT.md](DEPLOYMENT.md) for step-by-step GCP and AWS instructions.
+
 Figma Link: https://www.figma.com/design/sVdQLpxDp70WGc5TZEn5t9/Requestify?node-id=0-1&t=YsuaRYDMO6K6r7ye-1

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import {FaUser} from 'react-icons/fa';
+import { API_URL } from '../config';
 import './Dashboard.css';
 
 //Sets up the IP address using the environment variable
-const ipAddress = process.env.REACT_APP_API_IP;
 
 //Sets up the prop interface for the profile
 interface ProfileProps {
@@ -48,7 +48,7 @@ const Profile: React.FC<ProfileProps> = ({ email, djName, displayName, location,
   //Handles saving the profile updates
   const handleSubmit = async () => {
     try {
-      await axios.put(`http://${ipAddress}:5001/update-profile`, { ...editData, email });
+      await axios.put(`${API_URL}/update-profile`, { ...editData, email });
       alert('Profile updated successfully');
       updateProfileData({ ...editData, email }); // Update the profile data in Dashboard
       handleCloseProfilePopup();
@@ -63,7 +63,7 @@ const Profile: React.FC<ProfileProps> = ({ email, djName, displayName, location,
     if (!confirmed) return;
 
     try {
-      const response = await axios.delete(`http://${ipAddress}:5001/delete-account`, { data: { email } });
+      const response = await axios.delete(`${API_URL}/delete-account`, { data: { email } });
       if (response.status === 200) {
         alert('Account deleted successfully');
         window.location.href = '/login';
@@ -76,7 +76,7 @@ const Profile: React.FC<ProfileProps> = ({ email, djName, displayName, location,
     }
 
     try {
-      const response = await fetch(`http://${ipAddress}:5001/api/payments/delete`, {
+      const response = await fetch(`${API_URL}/api/payments/delete`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
+import { Socket } from 'socket.io-client';
 import MessagePopup from './MessagePopup';
+import { WEB_URL, connectSocket } from '../config';
 import './Dashboard.css';
 
-const ipAddress = process.env.REACT_APP_API_IP;
 
-const socket: Socket = io(`http://${ipAddress}:5000`); // Ensure this connects to the correct server
+const socket: Socket = connectSocket(WEB_URL); // Ensure this connects to the correct server
 
 const SendMessage: React.FC<{ djName: string }> = ({ djName }) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);

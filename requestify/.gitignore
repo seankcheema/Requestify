@@ -34,3 +34,6 @@ firebasekey.json
 firebase_deleteall.py
 
 Firebase-Service-Key.json
+
+__pycache__/
+/backend/.cache

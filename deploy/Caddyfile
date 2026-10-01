@@ -1,0 +1,17 @@
+# Single public entry point for Requestify.
+#
+# SITE_ADDRESS=:80                       -> plain HTTP on port 80 (testing by IP)
+# SITE_ADDRESS=requestify.example.com    -> automatic HTTPS via Let's Encrypt (DNS must point at this server)
+{$SITE_ADDRESS::80} {
+	encode gzip
+
+	# Flask API and its Socket.IO endpoint; the /api prefix is stripped before proxying
+	handle_path /api/* {
+		reverse_proxy api:5001
+	}
+
+	# React app + DJ message socket (Node)
+	handle {
+		reverse_proxy web:5000
+	}
+}

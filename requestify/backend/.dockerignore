@@ -1,0 +1,9 @@
+# Build context for the API image (requestify/backend/Dockerfile)
+__pycache__
+*.pyc
+.cache
+.env
+.env.*
+node_modules
+Dockerfile
+.dockerignore

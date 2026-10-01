@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FaHome, FaChartLine, FaDollarSign, FaBell, FaExternalLinkAlt } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useUser } from './UserContext';
+import { API_URL } from '../config';
 import './MobilePayment.css';
 //Uses the correct context (user for mobile) and imports
 
@@ -11,7 +12,6 @@ const PaymentPage: React.FC = () => {
     const navigate = useNavigate();
     const { djName: paramDJName } = useParams<{ djName: string }>();
     const { scannedDJName, setScannedDJName, scannedDisplayName, setScannedDisplayName } = useUser();
-    const ipAddress = process.env.REACT_APP_API_IP;
 
   //Sets the scanned DJName if it is different from the URL's DJ Name
     useEffect(() => {
@@ -26,7 +26,7 @@ const PaymentPage: React.FC = () => {
             if (!scannedDJName) return;
 
             try {
-                const response = await fetch(`http://${ipAddress}:5001/dj/displayName/${scannedDJName}`);
+                const response = await fetch(`${API_URL}/dj/displayName/${scannedDJName}`);
                 if (response.ok) {
                     const data = await response.json();
                     setScannedDisplayName(data.displayName); // Set the display name in context
@@ -47,7 +47,7 @@ const PaymentPage: React.FC = () => {
             if (!scannedDJName) return;
 
             try {
-                const response = await fetch(`http://${ipAddress}:5001/dj/productLink/${scannedDJName}`);
+                const response = await fetch(`${API_URL}/dj/productLink/${scannedDJName}`);
                 if (response.ok) {
                     const data = await response.json();
                     setProductLink(data.productLink);

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useDJ } from './DJContext';
+import { API_URL } from '../config';
 import './MobileHome.css';
 
 const Search: React.FC = () => {
@@ -11,7 +12,6 @@ const Search: React.FC = () => {
     const navigate = useNavigate();
     const [tracks, setTracks] = useState<any[]>([]);
     const [error, setError] = useState<string | null>(null);
-    const ipAddress = process.env.REACT_APP_API_IP;
 
     useEffect(() => {
         if (djName) {
@@ -22,7 +22,7 @@ const Search: React.FC = () => {
 
         const fetchSearchResults = async () => {
             try {
-                const response = await axios.get(`http://${ipAddress}:5001/search`, {
+                const response = await axios.get(`${API_URL}/search`, {
                     params: { query: djName },
                 });
                 setTracks(response.data);

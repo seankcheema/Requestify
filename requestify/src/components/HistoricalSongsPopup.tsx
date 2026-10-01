@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { API_URL } from '../config';
 import './Dashboard.css';
 
 //Prop for the popup of the song history
@@ -10,12 +11,11 @@ interface HistoricalSongsPopupProps {
 
 const HistoricalSongsPopup: React.FC<HistoricalSongsPopupProps> = ({ show, onClose, djName }) => {  
   const [tracks, setTracks] = useState<{ track: string[]; hasUpvoted: boolean; hasDownvoted: boolean }[]>([]);
-  const ipAddress = process.env.REACT_APP_API_IP;
   
   //Function that fetches tracks from the history
   const fetchTracks = async () => {
     try {
-      const response = await fetch(`http://${ipAddress}:5001/track-history/${djName}`);
+      const response = await fetch(`${API_URL}/track-history/${djName}`);
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }

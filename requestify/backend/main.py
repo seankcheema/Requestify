@@ -28,9 +28,12 @@ endpoint_secret = os.getenv("REACT_APP_STRIPE_SIGNING_KEY")
 
 IP = os.getenv('REACT_APP_API_IP')
 
+#Public URL of the app, encoded into each DJ's QR code (e.g. https://requestify.example.com)
+PUBLIC_APP_URL = (os.getenv('PUBLIC_APP_URL') or f"http://{IP}:5000").rstrip('/')
+
 
 #Sets up connection to Firebase using the Firebase Admin SDK and required credentials
-cred = credentials.Certificate("../Firebase-Service-Key.json")
+cred = credentials.Certificate(os.getenv("FIREBASE_CREDENTIALS", "../Firebase-Service-Key.json"))
 firebase_admin.initialize_app(cred)
 
 #Initializes Flask, Cors, and Socketio for use
@@ -38,18 +41,25 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-#Sets up database pooling
-pool = pooling.MySQLConnectionPool(
-    pool_name="requestify_pool",
-    pool_size=5,
-    host="localhost",
-    user="root",
-    password="root",
-    database="Requestify",
-    port=3307,
-    auth_plugin="mysql_native_password",
+#Sets up database pooling (defaults match the local dev database)
+db_config = dict(
+    host=os.getenv("DB_HOST", "localhost"),
+    user=os.getenv("DB_USER", "root"),
+    password=os.getenv("DB_PASSWORD", "root"),
+    database=os.getenv("DB_NAME", "Requestify"),
+    port=int(os.getenv("DB_PORT", "3307")),
     charset='utf8mb4',
     collation='utf8mb4_general_ci'
+)
+#Set DB_AUTH_PLUGIN to an empty string to let the server pick (needed for MySQL 8.4+ / managed databases)
+auth_plugin = os.getenv("DB_AUTH_PLUGIN", "mysql_native_password")
+if auth_plugin:
+    db_config["auth_plugin"] = auth_plugin
+
+pool = pooling.MySQLConnectionPool(
+    pool_name="requestify_pool",
+    pool_size=int(os.getenv("DB_POOL_SIZE", "5")),
+    **db_config
 )
 
 def get_db_connection():
@@ -59,7 +69,6 @@ def get_db_connection():
 with get_db_connection() as conn:
     cursor = conn.cursor()
 
-    cursor.execute("USE Requestify")
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             email VARCHAR(100) UNIQUE PRIMARY KEY,
@@ -281,8 +290,8 @@ def register():
         if mycursor.fetchone():
             return jsonify({"message": "User already exists"}), 409
 
-        # Generate the URL for the QR code: http://localhost:3000/search/dj_name
-        qr_url = f"http://{IP}:5000/search/{dj_name}"
+        # Generate the URL for the QR code: <PUBLIC_APP_URL>/search/dj_name
+        qr_url = f"{PUBLIC_APP_URL}/search/{dj_name}"
 
         #Generates the users QR Code using the URL above
         qr_img = qrcode.make(qr_url)

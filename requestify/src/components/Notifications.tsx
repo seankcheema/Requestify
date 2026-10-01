@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import io from 'socket.io-client';
+import { API_URL, connectSocket } from '../config';
 import './Dashboard.css';
 
 //Defines the interface of the payment object
@@ -17,15 +17,14 @@ const Notifications: React.FC<{ djName: string }> = ({ djName }) => {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const ipAddress = process.env.REACT_APP_API_IP;
-  const socket = io(`http://${ipAddress}:5001`);
+  const socket = connectSocket(API_URL);
 
   //Function to fetch payment data from API
   const fetchPayments = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get(`http://${ipAddress}:5001/api/payments/${djName}`);
+      const response = await axios.get(`${API_URL}/api/payments/${djName}`);
 
       console.log('payments:', response);
       

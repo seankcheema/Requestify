@@ -6,7 +6,7 @@ const { spawn } = require('child_process'); // For Python integration
 const path = require('path'); // To serve React static files
 
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 5000;
 
 //Stores messages in an array (Still need to update to double array)
 let messages = [];
@@ -84,8 +84,10 @@ io.on("connection", (socket) => {
 });
 
 
-// Run Python script when the server starts
-runPythonScriptOnStart();
+// Run Python script when the server starts (disabled in Docker, where the API runs in its own container)
+if (process.env.START_PYTHON_API !== 'false') {
+  runPythonScriptOnStart();
+}
 
 // Start the server
 server.listen(port, '0.0.0.0', () => {

@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { FaHome, FaChartLine, FaDollarSign, FaBell, FaArrowUp, FaArrowDown } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useUser } from './UserContext';
-import io from 'socket.io-client';
+import { API_URL, connectSocket } from '../config';
 import './MobileActivity.css';
 
-const ipAddress = process.env.REACT_APP_API_IP;
-const socket = io(`http://${ipAddress}:5001`);
+const socket = connectSocket(API_URL);
 
 const RequestifyLayout: React.FC = () => {
     const navigate = useNavigate();
@@ -40,7 +39,7 @@ const RequestifyLayout: React.FC = () => {
     useEffect(() => {
         const fetchDisplayName = async () => {
             try {
-                const response = await fetch(`http://${ipAddress}:5001/dj/displayName/${scannedDJName}`);
+                const response = await fetch(`${API_URL}/dj/displayName/${scannedDJName}`);
                 if (response.ok) {
                     const data = await response.json();
                     setScannedDisplayName(data.displayName);
@@ -59,7 +58,7 @@ const RequestifyLayout: React.FC = () => {
 
     const fetchTracks = async () => {
         try {
-            const response = await fetch(`http://${ipAddress}:5001/tracks/${scannedDJName}`);
+            const response = await fetch(`${API_URL}/tracks/${scannedDJName}`);
             if (!response.ok) {
                 throw new Error(`Error: ${response.status}`);
             }
@@ -147,7 +146,7 @@ const RequestifyLayout: React.FC = () => {
             const trackKey = generateTrackKey(trackName, artist);
 
             if (updatedTracks[index].hasUpvoted) {
-                await fetch(`http://${ipAddress}:5001/tracks/downvote`, {
+                await fetch(`${API_URL}/tracks/downvote`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ djName: scannedDJName, trackName, artist })
@@ -156,7 +155,7 @@ const RequestifyLayout: React.FC = () => {
                 updatedTracks[index].hasUpvoted = false;
             } 
             else if (updatedTracks[index].hasDownvoted) {
-                await fetch(`http://${ipAddress}:5001/tracks/double-upvote`, {
+                await fetch(`${API_URL}/tracks/double-upvote`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ djName: scannedDJName, trackName, artist })
@@ -166,7 +165,7 @@ const RequestifyLayout: React.FC = () => {
                 updatedTracks[index].hasDownvoted = false;
             }
             else {
-                await fetch(`http://${ipAddress}:5001/tracks/upvote`, {
+                await fetch(`${API_URL}/tracks/upvote`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ djName: scannedDJName, trackName, artist })
@@ -189,7 +188,7 @@ const RequestifyLayout: React.FC = () => {
             const trackKey = generateTrackKey(trackName, artist);
 
             if (updatedTracks[index].hasDownvoted) {
-                await fetch(`http://${ipAddress}:5001/tracks/upvote`, {
+                await fetch(`${API_URL}/tracks/upvote`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ djName: scannedDJName, trackName, artist })
@@ -198,7 +197,7 @@ const RequestifyLayout: React.FC = () => {
                 updatedTracks[index].hasDownvoted = false;
             } 
             else if (updatedTracks[index].hasUpvoted) {
-                await fetch(`http://${ipAddress}:5001/tracks/double-downvote`, {
+                await fetch(`${API_URL}/tracks/double-downvote`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ djName: scannedDJName, trackName, artist })
@@ -208,7 +207,7 @@ const RequestifyLayout: React.FC = () => {
                 updatedTracks[index].hasDownvoted = true;
             }
             else {
-                await fetch(`http://${ipAddress}:5001/tracks/downvote`, {
+                await fetch(`${API_URL}/tracks/downvote`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ djName: scannedDJName, trackName, artist })

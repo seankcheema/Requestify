@@ -1,0 +1,2 @@
+# Deployment config with secrets (see .env.example)
+.env

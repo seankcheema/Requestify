@@ -1,0 +1,94 @@
+# Requestify production stack. Usage:
+#   cp .env.example .env    # then fill it in
+#   docker compose up -d --build
+#
+#   Internet -> caddy (:80/:443) -> /api/* -> api (Flask, :5001) -> db (MySQL)
+#                                -> /*     -> web (React build + Node message socket, :5000)
+name: requestify
+
+services:
+  db:
+    image: mysql:8.4
+    # Enabled by COMPOSE_PROFILES=db in .env; drop that to use a managed database (Cloud SQL / RDS) via DB_HOST
+    profiles: ["db"]
+    restart: unless-stopped
+    # main.py creates a trigger, which a non-root user can only do with binary logging when this is on
+    command: ["--log-bin-trust-function-creators=1"]
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Set DB_ROOT_PASSWORD in .env}
+      MYSQL_DATABASE: ${DB_NAME:-Requestify}
+      MYSQL_USER: ${DB_USER:-requestify}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      # TCP (not the socket) so it stays unhealthy during the image's first-boot init
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  api:
+    build: ./requestify/backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+        required: false
+    environment:
+      DB_HOST: ${DB_HOST:-db}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_NAME: ${DB_NAME:-Requestify}
+      DB_USER: ${DB_USER:-requestify}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_AUTH_PLUGIN: ${DB_AUTH_PLUGIN:-}
+      PUBLIC_APP_URL: ${PUBLIC_APP_URL:?Set PUBLIC_APP_URL in .env}
+      FIREBASE_CREDENTIALS: /run/secrets/firebase-key.json
+      REACT_APP_FIREBASE_API_KEY: ${REACT_APP_FIREBASE_API_KEY}
+      REACT_APP_SPOTIFY_CLIENT_ID: ${REACT_APP_SPOTIFY_CLIENT_ID}
+      REACT_APP_SPOTIFY_SECRET_CLIENT_ID: ${REACT_APP_SPOTIFY_SECRET_CLIENT_ID}
+      REACT_APP_STRIPE_SECRET_KEY: ${REACT_APP_STRIPE_SECRET_KEY}
+      REACT_APP_STRIPE_SIGNING_KEY: ${REACT_APP_STRIPE_SIGNING_KEY}
+    secrets:
+      - source: firebase_key
+        target: firebase-key.json
+
+  web:
+    build:
+      context: ./requestify
+      args:
+        REACT_APP_FIREBASE_API_KEY: ${REACT_APP_FIREBASE_API_KEY}
+        REACT_APP_FIREBASE_AUTH_DOMAIN: ${REACT_APP_FIREBASE_AUTH_DOMAIN}
+        REACT_APP_FIREBASE_PROJECT_ID: ${REACT_APP_FIREBASE_PROJECT_ID}
+        REACT_APP_FIREBASE_STORAGE_BUCKET: ${REACT_APP_FIREBASE_STORAGE_BUCKET}
+        REACT_APP_FIREBASE_MESSAGING_SENDER_ID: ${REACT_APP_FIREBASE_MESSAGING_SENDER_ID}
+        REACT_APP_FIREBASE_APP_ID: ${REACT_APP_FIREBASE_APP_ID}
+        REACT_APP_FIREBASE_MEASUREMENT_ID: ${REACT_APP_FIREBASE_MEASUREMENT_ID}
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - api
+      - web
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+secrets:
+  firebase_key:
+    file: ${FIREBASE_KEY_FILE:-./requestify/Firebase-Service-Key.json}
+
+volumes:
+  db-data:
+  caddy-data:
+  caddy-config:

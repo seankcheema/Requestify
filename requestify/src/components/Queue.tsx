@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import './Dashboard.css';
-import io from 'socket.io-client';
 import { FaHistory } from 'react-icons/fa';
 import HistoricalSongsPopup from './HistoricalSongsPopup';
+import { API_URL, connectSocket } from '../config';
 
-const ipAddress = process.env.REACT_APP_API_IP;
-const socket = io(`http://${ipAddress}:5001`);
+const socket = connectSocket(API_URL);
 
 interface QueueProps {
   djName: string;
@@ -27,7 +26,7 @@ const Queue: React.FC<QueueProps> = ({ djName }) => {
   
   const fetchTracks = async () => {
     try {
-      const response = await fetch(`http://${ipAddress}:5001/tracks/${djName}`);
+      const response = await fetch(`${API_URL}/tracks/${djName}`);
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
@@ -40,7 +39,7 @@ const Queue: React.FC<QueueProps> = ({ djName }) => {
 
   const removeTrack = async (trackName: string, artist: string) => {
     try {
-      const response = await fetch(`http://${ipAddress}:5001/tracks/delete`, {
+      const response = await fetch(`${API_URL}/tracks/delete`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -68,7 +67,7 @@ const Queue: React.FC<QueueProps> = ({ djName }) => {
     if (!confirmed) return; // Exit if user cancels
 
     try {
-      const response = await fetch(`http://${ipAddress}:5001/tracks/delete-all`, {
+      const response = await fetch(`${API_URL}/tracks/delete-all`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

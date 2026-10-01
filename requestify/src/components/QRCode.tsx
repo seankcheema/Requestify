@@ -1,5 +1,6 @@
 // QRCode.tsx
 import React, { useState } from 'react';
+import { WEB_URL } from '../config';
 import './Dashboard.css';
 
 interface QRCodeProps {
@@ -11,8 +12,8 @@ interface QRCodeProps {
 const QRCodePopup: React.FC<{ show: boolean; onClose: () => void; qrCodeData: string; djName: string }> = ({ show, onClose, qrCodeData, djName }) => {
   if (!show) return null;
 
-  // Use REACT_APP_API_IP environment variable for constructing the full URL
-  const qrCodeUrl = `http://${process.env.REACT_APP_API_IP}:5000/dj/${djName}`;
+  // Public URL of the app (see config.ts)
+  const qrCodeUrl = `${WEB_URL}/dj/${djName}`;
 
   const handleDownload = () => {
     const link = document.createElement("a");

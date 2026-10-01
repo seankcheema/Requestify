@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { FaHome, FaChartLine, FaDollarSign, FaBell } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useUser } from './UserContext';
+import { API_URL } from '../config';
 import './MobileHome.css';
 //Uses the correct context (user for mobile) and imports
-const ipAddress = process.env.REACT_APP_API_IP;
 
 //Sets up RequestifyLayout component and sets up navigation, variables, context, etc.
 const RequestifyLayout: React.FC = () => {
@@ -27,7 +27,7 @@ const RequestifyLayout: React.FC = () => {
             if (!scannedDJName) return;
 
             try {
-                const response = await fetch(`http://${ipAddress}:5001/dj/displayName/${scannedDJName}`);
+                const response = await fetch(`${API_URL}/dj/displayName/${scannedDJName}`);
                 if (response.ok) {
                     const data = await response.json();
                     setScannedDisplayName(data.displayName);
@@ -49,10 +49,9 @@ const RequestifyLayout: React.FC = () => {
             return;
         }
 
-        const ipAddress = process.env.REACT_APP_API_IP;
 
         try {
-            const response = await fetch(`http://${ipAddress}:5001/search?query=${encodeURIComponent(query)}`);
+            const response = await fetch(`${API_URL}/search?query=${encodeURIComponent(query)}`);
             const data = await response.json();
 
             if (response.ok) {
